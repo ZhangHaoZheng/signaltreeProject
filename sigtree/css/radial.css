@@ -1,0 +1,45 @@
+.node {
+  cursor: pointer;
+}
+
+.node circle {
+  /*fill: #fff;*/
+  stroke: steelblue;
+  stroke-width: 1px;
+}
+
+.node text {
+  font: 10px sans-serif;
+}
+
+.node[class~=highlight] > circle{
+  fill: #b2df8a;
+  stroke: #b2df8a;
+}
+
+.link {
+  fill: none;
+  stroke: #ccc;
+  stroke-width: 1px;
+}
+.axis line,
+.axis path {
+	fill: none;
+	stroke: #000;
+	shape-rendering: crispEdges;
+}
+.line{
+  fill:none;
+  stroke:steelblue;
+  stroke-width:1px;
+}
+.axis text {
+	font-size: 10px;
+	text-shadow: 0 1px 0 #fff, 1px 0 0 #fff, 0 -1px 0 #fff, -1px 0 0 #fff;
+	cursor: move;
+}
+.brush .extent {
+  stroke: #fff;
+  fill-opacity: .125;
+  shape-rendering: crispEdges;
+}
