@@ -17,16 +17,14 @@ var treeSelect = function(){
 		.attr("height", svgHeight);
 	var tip = d3.tip()
 		.attr('class', 'd3-tip')
-		.offset([-10, 0])
 		.html(function(d, i) {
 			var time = d.time;
 			var aTime = time.replace("XX.csv","");
 			var aValue = d.value;
-		return "<span style='font-size:12px;'>date:" + aTime +"  values:" + aValue +"</span>";
+			return "<span style='font-size:12px;  '>date:" + aTime +"&nbsp;&nbsp;Values:" + d3.format(".3s")(aValue) + "bytes</span>";
 		});
 	var hisWidth = 0;
 	var changeA = true;
-	svg.call(tip);
 	processStatData();
 	drawHistogram(timeSortArray)
 	var chart;
@@ -159,11 +157,29 @@ var treeSelect = function(){
 					.range([height, 0]);
 
 		hisWidth = xScale(1) - 1;
-
-	 	chart.selectAll(".bar")
+		tip.offset(function(d,i){
+			var tmpy = -yScale(Math.log(d.value))-10;
+			var tmpx = 0;
+			if(i < 10){
+				tmpx = (10 - i) * xScale(1);
+			}
+			else if(i > 76){
+				tmpx = (76 - i) * xScale(1);
+			}
+			return [tmpy,tmpx];
+		});
+		svg.call(tip);
+		var rectg = chart.selectAll(".bar")
 	 		.data(dataArray)
 	 		.enter()
-	 		.append("rect")
+	 		.append("g")
+	 		.on("mouseover",function(d,i){
+	 			$("#polygon"+i).attr("opacity",0.6);
+	 		})
+	 		.on("mouseout",function(d,i){
+	 			$("#polygon"+i).attr("opacity",0);
+	 		});
+	 	rectg.append("rect")
 	 		.attr("id",function(d, i){
 				return "his-" + d.index;
 			})
@@ -196,11 +212,11 @@ var treeSelect = function(){
 			.attr("height",function(d,i){
 				return height - yScale(Math.log(d.value)) - 1;
 			})
-			.attr("x",function(d){ 
-				return xScale(d.position) + 1;
-			})
 			.attr("y",function(d){
 				return yScale(Math.log(d.value));
+			})
+			.attr("x",function(d){ 
+				return xScale(d.position) + 1;
 			})
 			.on("mouseover",tip.show)
 			.on("mouseout",tip.hide)
@@ -220,7 +236,22 @@ var treeSelect = function(){
 				}
 				changeComparedData();
 				d3.select("#append-rect").select("#percen-rect").remove();
-			});
+			})
+		rectg.append("polygon")
+			.attr("points",function(d,i){
+				var updotx = xScale(d.position)+xScale(1)/2;
+				var updoty = yScale(Math.log(d.value));
+				var leftx = xScale(d.position)-5+xScale(1)/2;
+				var lefty = yScale(Math.log(d.value))-10;
+				var rightx = xScale(d.position)+5+xScale(1)/2;
+				var righty = yScale(Math.log(d.value))-10;
+				return ""+updotx+","+updoty+" "+leftx+","+lefty+" "+rightx+","+righty+"";
+			})
+			.attr("id",function(d,i){
+				return "polygon" + i;
+			})
+			.attr("fill","#000000")
+			.attr("opacity",0);
 
 		// draw x-axis ticks
 		if (sortMode == "time") {
