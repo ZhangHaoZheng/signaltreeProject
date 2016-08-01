@@ -41,7 +41,13 @@ var treeCompare = function(){
 	 * layout
 	 */
 	var tree = d3.layout.tree()
-		.size([svg_size.width - leftPadding,tree_height]);
+		.size([svg_size.width - leftPadding,tree_height])
+		.separation(function(a, b) { 
+			var dis = (a.parent == b.parent ? 1 : 2) / a.depth;
+			if(a.depth >=3 && b.depth >=3)
+				dis = 0.07;
+            return dis;
+		 });
 	var diagonal = d3.svg.diagonal();
 	var diagonal_ = d3.svg.diagonal().projection(function(d){
 		return [d.x, tree_height - d.y]

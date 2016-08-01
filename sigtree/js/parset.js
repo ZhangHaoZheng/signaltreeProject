@@ -1,10 +1,17 @@
 var parset = function(){
 
 	var Parset = {};
-	ObserverManager.addListener(Parset);	
-
-	var dataProcessor = dataCenter.datasets[0].processor;
-	var dataset = dataCenter.datasets[0].processor.result;
+	if(changedatamark == false)
+		ObserverManager.addListener(Parset);	
+	var datasts;
+	if($("#radialcheckbox").attr("mark") == 1){
+		datasts = dataCenter.datasets[0];
+	}
+	else {
+		datasts = dataCenter.datasets[1];
+	}
+	var dataProcessor = datasts.processor;
+	var dataset = datasts.processor.result;
 
 	var width = $("#leftBottomWrapper").width();
 	var height = $("#leftBottomWrapper").height();
@@ -33,28 +40,33 @@ var parset = function(){
 			.height(height-20)
 			.mouseoverCallback(mouseoverCallback)
 			.mouseoutCallback(mouseoutCallback)
-
+/*	if($("#radialcheckbox").attr("mark") == 2)
+		svg.attr("fill","#FF7F0E")
+			.attr("stroke","#FF7F0E");*/
 			// .attr("width", chart.width())
 			// .attr("height", chart.height());
 
 	var data = [];
 	var dt = dataset.dataList;
-	
 	dt.forEach(function(d){
 		d.root = "root";
 		if(d.tcp){
+			console.log(d.tcp);
 			d.cid = d.tcp;
 			delete d.tcp;
 		}
 		else if(d.udp){
+			console.log(d.udp);
 			d.cid = d.udp;
 			delete d.udp;
 		}
 		else if(d.icmp){
+			console.log(d.icmp);
 			d.cid = d.icmp;
 			delete d.icmp;
 		}
 		else if(d.other){
+			console.log(d.other);
 			d.cid = d.other;
 			delete d.other;
 		}
@@ -68,7 +80,6 @@ var parset = function(){
 		// 	data.push(d);
 		// }
 	});
-		
 	svg.datum(data).call(chart);
 
 	function mouseoverCallback(data) {

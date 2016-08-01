@@ -5,11 +5,25 @@
 //         processor:         
 //     ]
     
-
+var changedatamark = false;
 (function() {
     this.dataCenter = {};
 })()
-
+$("#radialcheckbox").on("change",function(){
+    var radialView, parsetView;
+    var m = $("#radialcheckbox").attr("mark");
+    if(m==1) {$("#radialcheckbox").attr("mark",2);}
+    else $("#radialcheckbox").attr("mark",1);
+    m = $("#radialcheckbox").attr("mark");
+    changedatamark = true;
+    $("svg[class=radial]").html("");
+    $("svg[class=parset]").html("");
+    var listeners = _.without(ObserverManager.getListeners(),radialView,parsetView); //remove old views in listeners
+    ObserverManager.setListeners(listeners);
+    radialView = radial();     
+    parsetView = parset();
+    changedatamark = false;
+})
 var mainController = function(){
     var treeSelectView, radialView, treeCompareView, parsetView;
     var datasetID = [];
@@ -35,8 +49,9 @@ var mainController = function(){
     this.OMListen = function(message, data) {
         if (message == "changeData") {
             var justChangeDataA = false;
-            if (data[1] == datasetID[1])
+            if (data[1] == datasetID[1]){
                 justChangeDataA = true;
+            }
             datasetID = _.clone(data);
             dataCenter.datasets = [];
             var defers = [];
@@ -55,19 +70,30 @@ var mainController = function(){
             $.when(defers[0], defers[1])
                 .done(function() {
                     if (justChangeDataA == false) {
+
                         $("svg[class=radial]").html("");
                         $("svg[class=parset]").html("");
                         $("#treemap").html("");
 
-                        var listeners = _.without(ObserverManager.getListeners(), radialView, treeCompareView, parsetView); //remove old views in listeners
-                        ObserverManager.setListeners(listeners);
-                        radialView = radial();   
-                        treeCompareView = treeCompare();     
-                        parsetView = parset();                        
+                            var listeners = _.without(ObserverManager.getListeners(), radialView, treeCompareView, parsetView); //remove old views in listeners
+                            ObserverManager.setListeners(listeners);
+                            radialView = radial();   
+                            treeCompareView = treeCompare();     
+                            parsetView = parset();     
+                          
+             
                     } else {
+
                         $("#treemap").html(""); 
-                        var listeners = _.without(ObserverManager.getListeners(), treeCompareView); //remove old views in listeners
-                        treeCompareView = treeCompare();
+                        $("svg[class=radial]").html("");
+                        $("svg[class=parset]").html("");
+                        $("#treemap").html("");
+
+                            var listeners = _.without(ObserverManager.getListeners(), radialView, treeCompareView, parsetView); //remove old views in listeners
+                            ObserverManager.setListeners(listeners);
+                            radialView = radial();   
+                            treeCompareView = treeCompare();     
+                            parsetView = parset();   
                     }
                 })
         }

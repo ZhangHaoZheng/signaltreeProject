@@ -1,10 +1,11 @@
 var radial = function(){
 	var Radial = {};
-	ObserverManager.addListener(Radial);	
+	if(changedatamark == false)
+		ObserverManager.addListener(Radial);	
 	var dataProcessor = dataCenter.datasets[0].processor;
 	var dataset = dataCenter.datasets[0].processor.result;
 	var padding = 10;
-	var width = $("#leftTopWrapper").width() - padding * 5;
+	var width = $("#leftTopWrapper").width() - padding * 10;
 	var height = $("#leftTopWrapper").height() - padding * 2;
 	var diameter = d3.min([width,height]) + 5 * padding;
 	var move_x = height + width * 0.1;
@@ -13,7 +14,8 @@ var radial = function(){
 	var errorChange = 10;
 	var moveHeight = height - 4 * padding;
 	var duration = 750;
-
+	var datasets = dataCenter.datasets;
+	var rootB = datasets[1].processor.result.treeRoot;
 	var root = dataset.treeRoot;
 	var tree = d3.layout.tree()
 		.size([360, diameter / 2 - 40])
@@ -21,8 +23,22 @@ var radial = function(){
 			if(Array.isArray(d.values)) return d.values;
 			return undefined;
 		})
-		.separation(function(a, b) { return (a.parent == b.parent ? 1 : 2) / a.depth; });
-	var treeNodeList = tree.nodes(root).reverse();
+		.separation(function(a, b) { 
+		//	console.log(a);
+			var dis = (a.parent == b.parent ? 1 : 2) / a.depth;
+			if(a.depth >= 3 && b.depth >= 3)
+				dis = 0.04;
+            return dis;
+		 });
+	var treeNodeList;
+	if($("#radialcheckbox").attr("mark") == 2) {
+		treeNodeList = tree.nodes(rootB).reverse();
+
+	}
+	else {
+		treeNodeList = tree.nodes(root).reverse();
+
+	}
 	var index = 0;
 	// treeNodeList.reverse().forEach(function(d) { d.id = index++; })
 	
@@ -147,7 +163,7 @@ var radial = function(){
 			.x(function(d){return (lineX(d.num));})
 			.y(function(d){return (lineY(d.count));})
 
-		d3.select("#histogramView")
+		var radialhistogram = d3.select("#histogramView")
 			.selectAll(".his")
 			.data(objArray)
 			.enter()
@@ -167,6 +183,8 @@ var radial = function(){
 				return lineY(objArray[i].count); 
 			})
 			.attr("fill","#1F77B4");
+		if($("#radialcheckbox").attr("mark") == 2)
+			radialhistogram.attr("fill","#FF7F0E");
 		d3.select("#histogramView")
 		.append("g")
 		.attr("class","y axis")
@@ -258,7 +276,7 @@ var radial = function(){
 				tip.hide()
 			});
 
-		nodeEnter.append("circle")
+		var nodecircle = nodeEnter.append("circle")
 			.attr("r", function(d,i){
 				if(((d.values)&&(!Array.isArray(d.values)))||
 					((d._values)&&(!Array.isArray(d._values)))){
@@ -266,7 +284,8 @@ var radial = function(){
 				}
 				return (4.5 - d.depth) * 2;
 			});
-
+		if($("#radialcheckbox").attr("mark") == 2)
+			nodecircle.attr("class","nodecircle2");
 		var nodeUpdate = node.transition().duration(duration)
 						.attr("transform",function(d){
 							return "rotate(" + (d.x - 90) + ")translate(" + d.y + ")";
@@ -373,6 +392,7 @@ var radial = function(){
 		treeNodeList = tree.nodes(root);
 		update(treeNodeList);
 	}
+
     Radial.OMListen = function(message, data) {
 		var idPrefix = "#radial-node-";
 		if (message == "highlight") {

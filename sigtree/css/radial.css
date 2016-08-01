@@ -4,10 +4,12 @@
 
 .node circle {
   /*fill: #fff;*/
-  stroke: steelblue;
+  /* stroke: steelblue; */
   stroke-width: 1px;
 }
-
+.nodecircle2{
+  stroke: #FF7F0E;
+}
 .node text {
   font: 10px sans-serif;
 }

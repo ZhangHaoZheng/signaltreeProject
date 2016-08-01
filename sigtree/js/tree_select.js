@@ -1,4 +1,6 @@
 var treeSelect = function(){
+	var Aindex = 1;
+	var Bindex = 0;
 	var SelectTree = {};
 	ObserverManager.addListener(SelectTree);	
 	console.log("Listeners",ObserverManager.getListeners().length);
@@ -87,22 +89,47 @@ var treeSelect = function(){
 	 	}
 	}
 	function drawHistogram(dataArray){
-		var monthday = [31,28,31,30,31,30,31,31,30,31,30,31];
 		function calculateDays(date1,date2){
+			var monthday;
 			var d1 = +date1;
 			var d2 = +date2;
 			var year1 = parseInt(d1 / 10000);
 			var year2 = parseInt(d2 / 10000);
-			if((year2 - year1) > 1) return 31;
 			var month1 = parseInt((d1 % 10000) / 100);
 			var month2 = parseInt((d2 % 10000) / 100);
-			if((month2 - month1) > 1) return 31;
 			var day1 = d1 % 100;
 			var day2 = d2 % 100;
-			if((year1 == year2) && (month1 == month2)) return (day2-day1-1);
-			if((month2 - month1) == 1 && (year2 == year1)) return (monthday[month1] - day1 + day2-1);
-			if((month1 != 12 || month2 != 1)&&(year2!=year1)) return 31;
-			return (31 - day1 + day2 - 1);
+			if(year2 - year1 > 1) return 365;
+			if(year2 == year1) {
+				if(year2 % 4 == 0 && year2 % 100 != 0)
+					monthday = [31,29,31,30,31,30,31,31,30,31,30,31];
+				else monthday = [31,28,31,30,31,30,31,31,30,31,30,31];
+				var tmp1=0,tmp2=0;
+				for(var i = 0; i < month1-1; i++)
+					tmp1 += monthday[i];
+				for(var i = 0; i < month2-1; i++)
+					tmp2 += monthday[i];
+				tmp1 += day1;
+				tmp2 += day2;
+				return tmp2 - tmp1;
+			}
+			var tmp1=0,tmp2=0;
+			if(year1 % 4 == 0 && year1 % 100 != 0)
+				monthday = [31,29,31,30,31,30,31,31,30,31,30,31];
+			else monthday = [31,28,31,30,31,30,31,31,30,31,30,31];
+			for(var i = 0; i < month1-1; i++)
+				tmp1 += monthday[i];
+			tmp1 += day1;
+			if(monthday[1] == 29)
+				tmp1 = 366 - tmp1;
+			else tmp1 = 365 - tmp1;
+			if(year2 % 4 == 0 && year2 % 100 != 0)
+				monthday = [31,29,31,30,31,30,31,31,30,31,30,31];
+			else monthday = [31,28,31,30,31,30,31,31,30,31,30,31];
+			for(var i = 0; i < month2-1; i++)
+				tmp2 += monthday[i];
+			tmp2 += day2;
+			return tmp1 + tmp2;		
 		}
 		var predate = dataArray[0].time.slice(0,8);
 		var coincidencedays = [];
@@ -146,18 +173,25 @@ var treeSelect = function(){
 			if(i == dataArray.length)
 				break;
 			var minus = calculateDays(dataArray[i-1].time.slice(0,8),dataArray[i].time.slice(0,8));
-			if(minus >= 30) {
-				sumdistance += 21;
-				thunder[thundercount++] = i;
+			if(minus > 30) thunder[thundercount++] = i;
+			if(minus < 10){
+				sumdistance += minus;
 			}
-			else if(minus >= 5) sumdistance += 10;
-			else if(minus >= 1) sumdistance += 2;
-			else if(minus >= 0) sumdistance++;
+			else if(minus <= 30){
+				sumdistance += 10 + (minus - 10) / 4;
+			}
+			else {
+				sumdistance += 15 + (parseInt(minus / 30) - 1) * 5;
+			}
 		}
+
 		svg.selectAll("*").remove();
 	 	var margin = {top: 10, right: 40, bottom: 30, left: 40},
     		width = svgWidth - margin.left - margin.right,
     		height = svgHeight - margin.top - margin.bottom;
+		var datescale = d3.scale.linear()
+			.domain([0,sumdistance])
+			.range([0,width]);    	
 		chart = svg.append("g")
 				.attr("transform", "translate(" + margin.left + "," + margin.top + ")")
 				.attr("id","append-rect");
@@ -179,26 +213,29 @@ var treeSelect = function(){
 			coordinates[coordinatescount-1].x = 0;
 			coordinates[coordinatescount-1].y = height;
 			for(var i = 0; i < thunder.length; i++){
-				var tmp1 = rectinfo[thunder[i]-1].start + rectinfo[thunder[i]-1].width + 5.5;
+				var blank = rectinfo[thunder[i]].start - rectinfo[thunder[i]-1].start - rectinfo[thunder[i]-1].width;
+				blank = blank - 12;
+				var tmp1 = rectinfo[thunder[i]-1].start + rectinfo[thunder[i]-1].width +  blank/2;
 				coordinates[coordinatescount++] = new Object();
 				coordinates[coordinatescount-1].x = tmp1;
 				coordinates[coordinatescount-1].y = height;
 				coordinates[coordinatescount++] = new Object();
 				coordinates[coordinatescount-1].x = tmp1+3;
-				coordinates[coordinatescount-1].y = height+10;
+				coordinates[coordinatescount-1].y = height+3*3;
 				coordinates[coordinatescount++] = new Object();
-				coordinates[coordinatescount-1].x = tmp1+9;
-				coordinates[coordinatescount-1].y = height-10;
+				coordinates[coordinatescount-1].x = tmp1+3*3;
+				coordinates[coordinatescount-1].y = height-3*3;
 				coordinates[coordinatescount++] = new Object();
-				coordinates[coordinatescount-1].x = tmp1+12;
+				coordinates[coordinatescount-1].x = tmp1+4*3;
 				coordinates[coordinatescount-1].y = height;
 			}
 			coordinates[coordinatescount++] = new Object();
-			coordinates[coordinatescount-1].x = width;
+			coordinates[coordinatescount-1].x = rectinfo[rectinfo.length - 1].start + rectinfo[rectinfo.length - 1].width;
 			coordinates[coordinatescount-1].y = height;
 			var Dateline = d3.svg.line()
-				.x(function(d,i){ return coordinates[i].x})
+				.x(function(d,i){ return datescale(coordinates[i].x)})
 				.y(function(d,i){ return coordinates[i].y});
+			
 			chart.append("path")
 				.attr("fill","none")
 				.attr("stroke","#000000")
@@ -224,8 +261,8 @@ var treeSelect = function(){
 		var yAxisTicks = [];
 		yAxisTicks[0] = 0;
 		for(var i = 1; ; i = i + 1){
-			yAxisTicks[i] = yAxisTicks[i-1] + 2;
-			if(yAxisTicks[i] > yAxisMax - 2){
+			yAxisTicks[i] = yAxisTicks[i-1] + 3;
+			if(yAxisTicks[i] > yAxisMax - 3){
 				break;
 			}
 		}
@@ -287,6 +324,7 @@ var treeSelect = function(){
 	 		.on("mouseout",function(d,i){
 	 			$("#polygon"+i).attr("opacity",0);
 	 		});
+
 	 	rectg.append("rect")
 	 		.attr("id",function(d, i){
 				return "his-" + d.index;
@@ -316,7 +354,7 @@ var treeSelect = function(){
 			})
 			.attr("width", function(d,i) {
 				if(sortMode == "time")
-					return rectinfo[i].width;
+					return datescale(rectinfo[i].width);
 				else return xScale(1)-1;
 			})
 			.attr("height",function(d,i){
@@ -327,13 +365,15 @@ var treeSelect = function(){
 			})
 			.attr("x",function(d,i){ 
 				if(sortMode == "time")
-					return rectinfo[i].start;
+					return datescale(rectinfo[i].start);
 				else return xScale(i);
 			})
 			.on("mouseover",tip.show)
 			.on("mouseout",tip.hide)
 			.on('click',function(d,i){
 				var selectedID = +d.index;
+				if(changeA==true) Aindex = selectedID;
+				else Bindex = selectedID;
 				if (compareArray.indexOf(selectedID) < 0){
 					//compareArray[0] = compareArray[1];
 					if(changeA){
@@ -352,11 +392,11 @@ var treeSelect = function(){
 		rectg.append("polygon")
 			.attr("points",function(d,i){
 				if(sortMode == "time"){
-					var updotx = rectinfo[d.position].start+rectinfo[d.position].width/2;
+					var updotx = datescale(rectinfo[d.position].start+rectinfo[d.position].width/2);
 					var updoty = yScale(Math.log(d.value));
-					var leftx = rectinfo[d.position].start+rectinfo[d.position].width/2 - 5;
+					var leftx = datescale(rectinfo[d.position].start+rectinfo[d.position].width/2 - 5);
 					var lefty = yScale(Math.log(d.value))-10;
-					var rightx = rectinfo[d.position].start+rectinfo[d.position].width/2 + 5;
+					var rightx = datescale(rectinfo[d.position].start+rectinfo[d.position].width/2 + 5);
 					var righty = yScale(Math.log(d.value))-10;
 					return ""+updotx+","+updoty+" "+leftx+","+lefty+" "+rightx+","+righty+"";
 				}
@@ -480,6 +520,7 @@ var treeSelect = function(){
 		$("#innerTopRight #label-C #tree-num-description").text(treeNodeNum);
 		$("#innerTopRight #label-C #sum-num-description").text(sumNodeNum);
 	}
+
 	SelectTree.OMListen = function(message, data) {
 	    if (message == "percentage") {
 			changePercentage(data);
