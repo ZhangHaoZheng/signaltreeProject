@@ -1,8 +1,8 @@
 var treeCompare = function(){
 	var TreeCompare = {};
-
-	ObserverManager.addListener(TreeCompare);
-
+//	console.log("addListener compare");
+//	ObserverManager.addListener(TreeCompare);
+	ObserverManager.changeListener(TreeCompare,3);
 	var datasets = dataCenter.datasets;
 
 	// var combine1 = sigtree.combinator().by_index(true);

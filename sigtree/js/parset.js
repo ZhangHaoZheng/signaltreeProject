@@ -1,8 +1,12 @@
 var parset = function(){
-
 	var Parset = {};
-	if(changedatamark == false)
-		ObserverManager.addListener(Parset);	
+/*	if(changedatamark == false){
+		console.log("addListener parset");
+		ObserverManager.addListener(Parset);
+	}
+	else 
+		ObserverManager.changeListener(Parset,4);*/
+	ObserverManager.changeListener(Parset,4);
 	var datasts;
 	if($("#radialcheckbox").attr("mark") == 1){
 		datasts = dataCenter.datasets[0];
@@ -40,6 +44,8 @@ var parset = function(){
 			.height(height-20)
 			.mouseoverCallback(mouseoverCallback)
 			.mouseoutCallback(mouseoutCallback)
+			.spacing(150)
+			.tension(0.5);
 /*	if($("#radialcheckbox").attr("mark") == 2)
 		svg.attr("fill","#FF7F0E")
 			.attr("stroke","#FF7F0E");*/

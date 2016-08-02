@@ -24,6 +24,8 @@ $("#radialcheckbox").on("change",function(){
     parsetView = parset();
     changedatamark = false;
 })
+var radialexpandmarkA = [];
+var radialexpandmarkB = [];
 var mainController = function(){
     var treeSelectView, radialView, treeCompareView, parsetView;
     var datasetID = [];

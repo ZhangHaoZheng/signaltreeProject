@@ -2,7 +2,9 @@ var treeSelect = function(){
 	var Aindex = 1;
 	var Bindex = 0;
 	var SelectTree = {};
-	ObserverManager.addListener(SelectTree);	
+//	console.log("addListener SelectTree");
+//	ObserverManager.addListener(SelectTree);	
+	ObserverManager.changeListener(SelectTree,1);
 	console.log("Listeners",ObserverManager.getListeners().length);
 	var svgWidth = $("#innerTopLeft").width();
 	var svgHeight = $("#innerTopLeft").height() * 19/20;
@@ -41,6 +43,8 @@ var treeSelect = function(){
 	$("#innerTopLeft .sort-btn").click(function() {
 		$("#innerTopLeft .sort-btn").removeClass("active");
 		$(this).addClass("active");
+		radialexpandmarkA = [];
+		radialexpandmarkB = [];
 		sortMode = $(this).attr("sort-type");
 		if (sortMode == "time") {
 			drawHistogram(timeSortArray);
@@ -49,6 +53,8 @@ var treeSelect = function(){
 		}
 	});
 	$("#innerTopLeft .data-btn").click(function() {
+		radialexpandmarkA = [];
+		radialexpandmarkB = [];
 		var command = $(this).attr("data-type");
 		if (command == "switch") {
 			if(changeA){
@@ -386,6 +392,8 @@ var treeSelect = function(){
 					var index = compareArray.indexOf(selectId);
 					compareArray.splice(index,1);
 				}
+				radialexpandmarkA = [];
+				radialexpandmarkB = [];
 				changeComparedData();
 				d3.select("#append-rect").select("#percen-rect").remove();
 			})

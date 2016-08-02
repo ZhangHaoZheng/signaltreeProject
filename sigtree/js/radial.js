@@ -1,7 +1,11 @@
 var radial = function(){
 	var Radial = {};
-	if(changedatamark == false)
+/*	if(changedatamark == false){
+		console.log("addListener Radial");
 		ObserverManager.addListener(Radial);	
+	}
+	else ObserverManager.changeListener(Radial,2);*/
+	ObserverManager.changeListener(Radial,2);
 	var dataProcessor = dataCenter.datasets[0].processor;
 	var dataset = dataCenter.datasets[0].processor.result;
 	var padding = 10;
@@ -206,7 +210,7 @@ var radial = function(){
 		.append("text")
 		.attr("class","label")
 		.attr("x",width - move_x * 1.2 + 30)
-		.attr("y",14)
+		.attr("y",27)
 		.style("text-anchor","end")
 		.text("log(bytes)");
 
@@ -237,8 +241,9 @@ var radial = function(){
 		.attr("transform", "translate(" + diameter / 2 + "," + (diameter / 2 - 3 * padding) + ")");
 
 	svg.call(tip);
-
-	update(root);
+	if($("#radialcheckbox").attr("mark") == 1)
+		update(root);
+	else update(rootB);
 
 	function update(source){
 		var nodes = treeNodeList;
@@ -254,7 +259,6 @@ var radial = function(){
 		var max_depth = 0;
 		var nodeEnter = node.enter().append("g")
 			.attr("class", "node")
-			.attr("fill","#CCC29C")
 			.attr("transform", function(d) { return "rotate(" + (d.x - 90) + ")translate(" + d.y + ")"; })
 			.attr("id", function(d) {
 				return "radial-node-" + d.id;
@@ -275,7 +279,25 @@ var radial = function(){
 				ObserverManager.post("mouse-out", [d.id]);
 				tip.hide()
 			});
+		nodeEnter.attr("fill",function(d,i){
+				if($("#radialcheckbox").attr("mark") == 1){
+					if(radialexpandmarkA.indexOf(d.id) != -1){
+						return "steelblue";
+					}
+					else{
+						return "#CCC29C";
+					}
+				}
+				else{
+					if(radialexpandmarkB.indexOf(d.id) != -1){
+						return "steelblue";
+					}
+					else{
+						return "#CCC29C";
+					}
+				}
 
+		});
 		var nodecircle = nodeEnter.append("circle")
 			.attr("r", function(d,i){
 				if(((d.values)&&(!Array.isArray(d.values)))||
@@ -350,6 +372,7 @@ var radial = function(){
 		}
 	}
 	function click(d, i) {
+		if((+d.flow) == 0)	return null;		
 		if (d.values) {
 			d._values = d.values;
 			d.values = null;
@@ -357,14 +380,32 @@ var radial = function(){
 			d.values = d._values;
 			d._values = null;
 		}
+	//	console.log(d);
 		if(d.depth!=4){
-			if(d3.select(this).attr("fill")=="#CCC29C"){
-				d3.select(this).attr("fill","steelblue");
-			}else if(d3.select(this).attr("fill")=="steelblue"){
-				d3.select(this).attr("fill","#CCC29C");
+			if($("#radialcheckbox").attr("mark") == 1){
+				if(radialexpandmarkA.indexOf(d.id) != -1){
+					radialexpandmarkA.splice(radialexpandmarkA.indexOf(d.id),1);
+					d3.select(this).attr("fill","#CCC29C");
+				}
+				else{
+					radialexpandmarkA.push(d.id);
+					d3.select(this).attr("fill","steelblue");
+				}
+			}
+			else{
+				if(radialexpandmarkB.indexOf(d.id) != -1){
+					radialexpandmarkB.splice(radialexpandmarkB.indexOf(d.id),1);
+					d3.select(this).attr("fill","#CCC29C");
+				}
+				else{
+					radialexpandmarkB.push(d.id);
+					d3.select(this).attr("fill","steelblue");
+				}
 			}
 		}
-		treeNodeList = tree.nodes(root);
+		if($("#radialcheckbox").attr("mark") == 1)
+			treeNodeList = tree.nodes(root);
+		else treeNodeList = tree.nodes(rootB);
 		update(d);
 	}
 	function draw_depth(hide_depth){
@@ -375,7 +416,9 @@ var radial = function(){
 				treeNodeList[i]._values = null;
 			}
 		}
-		treeNodeList = tree.nodes(root);
+		if($("#radialcheckbox").attr("mark") == 1)
+			treeNodeList = tree.nodes(root);
+		else treeNodeList = tree.nodes(rootB);
 		for(var i=0;i<treeNodeList.length;i++){
 			if(treeNodeList[i].depth < hide_depth){
 				if(treeNodeList[i]._values){
@@ -389,7 +432,9 @@ var radial = function(){
 				}
 			}
 		}
-		treeNodeList = tree.nodes(root);
+		if($("#radialcheckbox").attr("mark") == 1)
+			treeNodeList = tree.nodes(root);
+		else treeNodeList = tree.nodes(rootB);
 		update(treeNodeList);
 	}
 

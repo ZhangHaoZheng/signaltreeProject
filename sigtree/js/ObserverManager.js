@@ -29,5 +29,8 @@
 	ObserverManager.setListeners = function(_listeners) {
 		listeners = _listeners;
 	}
+	ObserverManager.changeListener = function(listener,i){
+		listeners[i] = listener;
+	}
 	window["ObserverManager"] = ObserverManager;
 })()
