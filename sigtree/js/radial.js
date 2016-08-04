@@ -1,5 +1,10 @@
 var radial = function(){
 	var Radial = {};
+	/*if(changedatamark == false){
+		console.log("addListener Radial");
+		ObserverManager.addListener(Radial);	
+	}
+	else ObserverManager.changeListener(Radial,2);*/
 	ObserverManager.changeListener(Radial,2);
 	var dataProcessor = dataCenter.datasets[0].processor;
 	var padding = 10;
@@ -22,7 +27,6 @@ var radial = function(){
 			if(Array.isArray(d.values)) return d.values;
 			return undefined;
 		})
-		////////////////////////////////////////////////////////////////////////////////////////////
 		.separation(function(a, b) { 
 			var dis = (a.parent == b.parent ? 1 : 2) / a.depth;
 			if(a.depth <= 2 && b.depth <= 2)
@@ -113,7 +117,7 @@ var radial = function(){
 			return !Array.isArray(d.values);
 		});
 		for(var i=0;i<timeData.length;i++){
-			var eachData = + timeData[i].values;
+			var eachData = +timeData[i].values;
 			timeDataSum = timeDataSum + eachData;
 		}
 		var count = 0;
@@ -161,7 +165,7 @@ var radial = function(){
 		his_width = (width - 1.2 * move_x)/(d3.max(dataSizeArray) + 1);
 		xAxis.tickValues(xAxisTicks);
 		lineY.domain(d3.extent(countArray));
-		for(var i=0;i<countArray.length;i++){
+		for(var i = 0;i < countArray.length;i++){
 			objArray[i] = new Object();
 			objArray[i].num = i;
 			objArray[i].count = countArray[i];

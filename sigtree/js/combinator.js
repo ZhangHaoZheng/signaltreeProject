@@ -6,16 +6,9 @@ sigtree.combinator = function(){
 
 	// lst1 and lst2 are both array;
 	function combinator(lst1, lst2){
-		//
-		console.log("combinator", console.trace());
-		console.log("lst1", lst1);
-		console.log("lst2", lst2);
 		var children = [];
-
 		lst1.sort(compare);
 		lst2.sort(compare);
-		console.log("after sort lst1", lst1);
-		console.log("after sort lst2", lst2);		
 		var p1 = 0, p2 = 0;
 		while(p1 < lst1.length || p2 < lst2.length){
 			var o1 = lst1[p1], o2 = lst2[p2];
@@ -47,7 +40,6 @@ sigtree.combinator = function(){
 				p2++;
 			}
 		}
-		console.log("children", children);
 		return children;
 	}
 	// interfaces

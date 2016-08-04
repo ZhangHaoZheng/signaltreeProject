@@ -24,7 +24,7 @@ sigtree.preProcess = function(){
 
 	var istreefy = true;
 
-	function preProcess(data){)
+	function preProcess(data){
 		var d = change_attr(data);
 		if(!istreefy) return d;
 		return treefy_(d);
@@ -110,19 +110,15 @@ sigtree.preProcess = function(){
 				arr.push(newObj);
 				f = 1;
 			}
-			console.log(change_arrt);			
 			if(!f){
-
 				raw.flowSize = 0;
 				raw.flowSize = raw.percent.split("，")[0].replace("数量：","").replace("字节","").trim();
-				console.log(raw.flowSize)
 				raw.id = id++;
 				arr.push(raw);
 			}
 		});
 		return arr;
 	}
-
 	function translate(obj){
 		if(!(obj.values instanceof Array)){
 			return;

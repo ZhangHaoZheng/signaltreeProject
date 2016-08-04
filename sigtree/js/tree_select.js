@@ -31,17 +31,14 @@ var treeSelect = function(){
 	var changeA = true;
 	processStatData();
 	drawHistogram(timeSortArray);
-	var chart;
 
+	var chart;
 	var scrollWidth = $("#srocllDiv").width();
 	var topWrapperWidth = $("#topWrapper").width();
 	var widthPercentage = Math.round(scrollWidth * 2 / topWrapperWidth * 100);
-	// $("#innerTopRight").css("width", widthPercentage+"%");  
-	// $("#innerTopLeft").css("width", (100 - widthPercentage)+"%");  
-	//document.getElementById('srocllDiv').style.height = svgHeight * 2/3 + "px";
 	// click on sort buttons
-	$("#innerTopLeft .sort-btn").click(function() {
-		$("#innerTopLeft .sort-btn").removeClass("active");
+	$("#sort-div .sort-btn").click(function() {
+		$("#sort-div .sort-btn").removeClass("active");
 		$(this).addClass("active");
 		radialexpandmarkA = [];
 		radialexpandmarkB = [];
@@ -54,7 +51,7 @@ var treeSelect = function(){
 			drawHistogram(propotionArray);
 		}
 	});
-	$("#innerTopLeft .data-btn").click(function() {
+	$("#switch-selection-div .data-btn").click(function() {
 		radialexpandmarkA = [];
 		radialexpandmarkB = [];		
 		currentradialdepthA = 5;
@@ -196,7 +193,7 @@ var treeSelect = function(){
 		}
 
 		svg.selectAll("*").remove();
-	 	var margin = {top: 10, right: 40, bottom: 30, left: 40},
+	 	var margin = {top: 20, right: 40, bottom: 20, left: 40},
     		width = svgWidth - margin.left - margin.right,
     		height = svgHeight - margin.top - margin.bottom;
 		var datescale = d3.scale.linear()
@@ -324,6 +321,7 @@ var treeSelect = function(){
 			return [tmpy,tmpx];
 		});
 		svg.call(tip);
+		console.log('histogramData',dataArray);
 		var rectg = chart.selectAll(".bar")
 	 		.data(dataArray)
 	 		.enter()
@@ -343,7 +341,7 @@ var treeSelect = function(){
 				return d.index;
 			})
 			.attr("class", function(d, i) {
-				var className = "bar";
+				var className = "bar node" + d.time;
 				var selectIndex = compareArray.indexOf(d.index);
 				if(changeA){
 					if (selectIndex == 1){
@@ -365,7 +363,7 @@ var treeSelect = function(){
 			.attr("width", function(d,i) {
 				if(sortMode == "time")
 					return datescale(rectinfo[i].width);
-				else return xScale(1)-1;
+				else return xScale(1) - 1;
 			})
 			.attr("height",function(d,i){
 				return height - yScale(Math.log(d.value)) - 1;
@@ -378,11 +376,33 @@ var treeSelect = function(){
 					return datescale(rectinfo[i].start);
 				else return xScale(i);
 			})
-			.on("mouseover",tip.show)
-			.on("mouseout",tip.hide)
+			.on("mouseover",function(d,i){
+				d3.selectAll('.bar')
+	    		.classed('opacity-unhighlight', true);
+	    		d3.select(this)
+	    		.classed('opacity-highlight', true);
+	    		var element = 'node' + d.time.replace("XX.csv","");
+	    		//add arc
+	    		var id = d3.select(this).attr('id');
+	    		if(dataCenter.globalVariable.showArc){
+	    			add_arc(i, id);
+	    		}
+	    		ObserverManager.post("similarity-node-array", [element]);
+				tip.show(d);
+			})
+			.on("mouseout",function(d,i){
+				svg.selectAll('.bar')
+	    		.classed('opacity-unhighlight', false);
+	    		svg.selectAll('.bar')
+	    		.classed('opacity-highlight', false);
+	    		//add arc
+	   			d3.selectAll('.arc-path').remove();
+	   			ObserverManager.post("similarity-node-array", []);
+				tip.hide(d);
+			})
 			.on('click',function(d,i){
 				var selectedID = +d.index;
-				if(changeA==true) Aindex = selectedID;
+				if(changeA == true) Aindex = selectedID;
 				else Bindex = selectedID;
 				if (compareArray.indexOf(selectedID) < 0){
 					//compareArray[0] = compareArray[1];
@@ -446,6 +466,61 @@ var treeSelect = function(){
 				}
 			}			
 		}
+		function add_arc(index, thisId){
+			var similarityObj = dataCenter.similarityMatrix[index];
+			var similarityObjArray = new Array();
+			for(var i = 0;i < dataCenter.similarityMatrix.length;i++){
+				similarityObjArray[i] = new Object();
+				similarityObjArray[i].fileName = dataCenter.similarityMatrix[i].fileName.replace('.csv','').replace('XX','');
+				similarityObjArray[i].similarityValue = +similarityObj['attr' + i];
+			}
+			similarityObjArray.sort(function(a,b){
+				return b.similarityValue - a.similarityValue;
+			});
+			var thisEle = d3.select('#' + thisId);
+			var thisEleX = +thisEle.attr('x');
+			var thisEleY = +thisEle.attr('y');
+			var thisEleWidth = +thisEle.attr('width');
+			var thisEleHeight = +thisEle.attr('height');
+			var originX = thisEleX + thisEleWidth / 2;
+			var originY = thisEleY + thisEleHeight;
+			var highlightNodeArray = [];
+			for(var i = 1;i < 5;i++){
+				var fileName = similarityObjArray[i].fileName;
+				var selectClassName = 'node' + fileName;
+				var element = d3.select('.' + selectClassName);
+				highlightNodeArray.push(selectClassName);
+				d3.select('.node' + fileName).classed('opacity-highlight',true);
+				var rectX = +element.attr('x');
+				var rectY = +element.attr('y');
+				var rectWidth = +element.attr('width');
+				var rectHeight = +element.attr('height');
+				targetX = rectX + rectWidth / 2;
+				targetY = rectY + rectHeight;
+				centerX = (originX + targetX) / 2;
+				centerY = targetY;
+				radius = Math.abs(originX - targetX) / 2;
+				draw_arc(radius, centerX, centerY);
+			}
+			ObserverManager.post("similarity-node-array", highlightNodeArray);
+		}
+		function draw_arc(radius, center_x, center_y){
+			var beginRadians = Math.PI / 2,
+				endRadians = Math.PI * 3 / 2,
+				points = 50;
+			var angle = d3.scale.linear()
+			 	.domain([0, points - 1])
+				.range([beginRadians, endRadians]);
+			var line = d3.svg.line.radial()
+				.interpolate("basis")
+		   		.tension(0)
+		   		.radius(radius)
+		   		.angle(function(d, i) { return angle(i); });
+			svg.append("path").datum(d3.range(points))
+		       .attr("class", 'arc-path')
+			   .attr("d", line)
+			   .attr("transform", "translate(" + (margin.left + center_x) + ", " + (margin.top + center_y) + ")");
+		}
 		changeComparedData();
 		function changeComparedData() {
 			chart.selectAll(".previous").classed("previous", false);
@@ -501,10 +576,7 @@ var treeSelect = function(){
 			});
 			ObserverManager.post("changeData", compareArray);
 		}
-
-
 	}
-
 	function changePercentage(percentage){
 		var rectX = + chart.select("#his-" + compareArray[1]).attr("x");
 		var rectY = + chart.select("#his-" + compareArray[1]).attr("y");
@@ -551,6 +623,21 @@ var treeSelect = function(){
 	    	var sumNodeNum = node.allChilldrenCount;
 	    	changeLabelC(dataset, nodeID, levelText, flowLevel, treeNodeNum, sumNodeNum)
 
+	    }
+	    if(message == 'projection-highlight'){
+	    	if(data != null){
+	    		svg.selectAll('.bar')
+	    		.classed('opacity-unhighlight', true);
+	    		svg.select('.' + data)
+	    		.classed('opacity-unhighlight', false);
+	    		svg.select('.' + data)
+	    		.classed('opacity-highlight', true);
+	    	}else{
+	    		svg.selectAll('.bar')
+	    		.classed('opacity-unhighlight', false);
+	    		svg.selectAll('.bar')
+	    		.classed('opacity-highlight', false);
+	    	}
 	    }
     }
 	return SelectTree;

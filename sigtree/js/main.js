@@ -7,6 +7,8 @@
 var changedatamark = false;
 (function() {
     this.dataCenter = {};
+    dataCenter.globalVariable = new Object();
+    dataCenter.globalVariable.showArc = false;
 })()
 var mark11 = false;
 var numoftreecompare = 0;
@@ -87,13 +89,53 @@ var mainController = function(){
         });
         return dtd.promise();
     }
-
+    function load_distance_matrix_data(){
+        var dtd = $.Deferred();
+        d3.csv('distance_matrix_file2.csv', function(error, data){
+            if(error){
+                dtd.reject();
+                throw error;
+            }
+            else{
+                dataCenter.distanceObject = data;
+                var dataLength = data.length;
+                dataCenter.distanceMatrix = new Array(dataLength);
+                for(var i = 0;i < dataLength;i++){
+                    dataCenter.distanceMatrix[i] = new Array(dataLength);
+                }
+                for(var i = 0;i < dataLength;i++){
+                    for(var j = 0;j < dataLength;j++){
+                        dataCenter.distanceMatrix[i][j] = +data[i]['attr' + j];
+                    }
+                }
+            }
+            console.log(data);
+            dtd.resolve();
+        })
+        return dtd.promise();
+    }
+    function load_similarity_matrix_data(){
+        var dtd = $.Deferred();
+        d3.csv('similarity_matrix_file2.csv', function(error, data){
+            if(error){
+                dtd.reject();
+                throw error;
+            }
+            else{
+                dataCenter.similarityMatrix = data;
+            }
+            console.log('similarityMatrix',data);
+            dtd.resolve();
+        })
+        return dtd.promise();
+    }
     function initInteractionHandler() {
         ObserverManager.addListener(this);
     }
-
     this.OMListen = function(message, data) {
         if (message == "changeData") {
+            console.log(data);
+            console.log(datasetID);
             var justChangeDataA = false;
             if (data[1] == datasetID[1]){
                 justChangeDataA = true;
@@ -128,8 +170,8 @@ var mainController = function(){
                             radialView = radial();   
                             treeCompareView = treeCompare();     
                             parsetView = parset();     
-                            
-             
+                            projectionView = projection();
+                            toolbar();
                     } else {
 
                         $("#treemapA").html(""); 
@@ -148,7 +190,7 @@ var mainController = function(){
         }
     }
     initInteractionHandler();
-    $.when(loadStatData())
+    $.when(loadStatData(), load_distance_matrix_data(), load_similarity_matrix_data())
         .done(function() {
             treeSelectView = treeSelect();         
         })

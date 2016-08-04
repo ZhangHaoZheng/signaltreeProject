@@ -4,20 +4,11 @@
     <head>
         <meta http-equiv="Content-Type" content="text/html;charset=utf-8"/>
         <title>Signal tree visualization</title>
-        <link rel="stylesheet" type="text/css" href="libs/bootstrap/css/bootstrap.css">
-        <link rel="stylesheet" type="text/css" href="libs/d3.parsets/d3.parsets.css">
-        <link rel="stylesheet" type="text/css" href="css/sigtree.css">
-    	<link rel="stylesheet" type="text/css" href="css/select_tree.css">
-        <link rel="stylesheet" type="text/css" href="css/tree_compare.css">
-    	<link rel="stylesheet" type="text/css" href="css/radial.css">
-        <!--<link rel="stylesheet" type="text/css" href="css/sunburst.css">-->  
-        <link rel="stylesheet" type="text/css" href="css/parset.css">  
-       
-        <link rel="stylesheet" type="text/css" href="css/checkbox.css">  
+        <link rel="stylesheet/less" href="css/less/all.less">
     </head>
 
     <body>
-        <div class="navbar navbar-default navbar-fixed-top">
+        <!--<div class="navbar navbar-default navbar-fixed-top">
             <div class="container">
                 <strong class="navbar-brand" style="height:30px">复杂通信业务概览可视化</strong>
 
@@ -27,21 +18,120 @@
                     </span>
                 </div>             
             </div>
-        </div>
+        </div>-->
 
+        <div id = 'toolbar'>
+            <div id = "title-div" class = "button-group bind">
+                <span id = "title" class = "button" data-tooltip = "关于本工具">SignalTree Visualization</span>
+            </div>
+            <div id = "arc-link-div" class = "button-group bind">
+                <span id = "arc-link" class = "button" data-tooltip = "arc连接">
+                    <i class="icon iconfont">&#xe613;</i>
+                </span>
+            </div>
+            <!--<div id = "select-div" class = "button-group bind">
+                <span id = "dual-selection" class = "button selection" data-tooltip = "选择两个信号树">
+                    <i class="icon iconfont">&#xe60c;</i>
+                </span>
+                <span id = "multi-selection" class = "button selection" data-tooltip = "选择多个信号树">
+                    <i class="icon iconfont">&#xe60b;</i>
+                </span>
+            </div>-->
+            <div id = "sort-div" class = "button-group bind">
+                <span id = "time-sort" class = "button sort-btn active" data-tooltip = "时间排序" sort-type="time">
+                    <span class="glyphicon glyphicon-time"></span>
+                </span>
+                <span id = "size-sort" class = "button sort-btn" data-tooltip = "流量排序" sort-type="size"> 
+                    <span class="glyphicon glyphicon-signal"></span>
+                </span>
+            </div>
+            <div id = "switch-selection-div" class = "button-group bind">
+                <span id = "switch-selection" class = "button data-btn" data-tooltip = "变换当前选择" data-type="switch">
+                    <span class="glyphicon glyphicon-refresh"></span>
+                </span>
+            </div>
+            <div id = 'switch-vis-div' class = 'button-group bind'>
+                <span id = "radial-tree" class = "button active" data-tooltip = "radial树">
+                    <i class="icon iconfont">&#xe60a;</i>
+                </span>
+                <span id = "sunburst-tree" class = "button" data-tooltip = "sunburst树">
+                     <i class="icon iconfont">&#xe61a;</i>
+                </span>         
+            </div>
+            <div id = "switch-view-div" class = "button-group bind">
+                <span id = "tree-view" class = "button active" data-tooltip = "树状视图">
+                    <i class="icon iconfont">&#xe60e;</i>
+                </span>
+                 <span id = "projection-view" class = "button" data-tooltip = "投影视图">
+                    <si class="icon iconfont">&#xe607;</i>
+                </span>
+            </div>
+            <div id = "projection-method-div" class = "button-group bind">
+                <span id = "original-projection" class = "button active projection-method" data-tooltip = "初始投影"><!--初始投影，没有连接-->
+                    <i class="icon iconfont">&#xe607;</i>
+                </span>
+                 <span id = "center-projection" class = "button projection-method" data-tooltip = "初始投影-连接"><!--初始投影＋连接-->
+                    <i class="icon iconfont">&#xe606;</i>
+                </span>
+                <span id = "center-size-glyph" class = "button projection-method" data-tooltip = "节点大小编码">
+                    <i class="icon iconfont">&#xe605;</i>
+                </span>
+                <span id = "center-subgraph-glyph" class = "button projection-method" data-tooltip = "子结构编码">
+                    <i class="icon iconfont">&#xe608;</i>
+                </span>
+                <span id = "center-sunburst-glyph" class = "button projection-method" data-tooltip = "sunburst视图编码">
+                    <i class="icon iconfont">&#xe619;</i>
+                </span>
+            </div>
+            <div id = 'node-comparison' class = 'button-group bind'>
+                <span id = "all-node-comparison" class = "button active node-comparison" data-tooltip = "比较所有节点">
+                    <i class="icon iconfont">&#xe616;</i>
+                </span>
+                <span id = "same-node-comparison" class = "button node-comparison" data-tooltip = "比较相同节点">
+                    <i class="icon iconfont">&#xe617;</i>
+                </span>
+            </div>
+            <div id = 'click-shrink' class = 'button-group bind'>
+                <span id = "click-node-shrink" class = "button active click-shrink" data-tooltip = "点击节点收缩">
+                    <i class="icon iconfont">&#xe614;</i>
+                </span>
+                <span id = "click-other-node-shrink" class = "button click-shrink" data-tooltip = "点击其它节点收缩">
+                    <i class="icon iconfont">&#xe615;</i>
+                </span>
+            </div>
+            <div id = 'level-selection' class = 'button-group bind'>
+                <span id = "level-0" class = "button level-selection active" data-tooltip = "第0层">L0</span>
+                <span id = "level-1" class = "button level-selection active" data-tooltip = "第1层">L1</span>
+                <span id = "level-2" class = "button level-selection active" data-tooltip = "第2层">L2</span>
+                <span id = "level-3" class = "button level-selection active" data-tooltip = "第3层">L3</span>
+                <span id = "level-4" class = "button level-selection active" data-tooltip = "第4层">L4</span>
+            </div>
+        </div>
         <div id="topWrapper">
             <div id="innerTopLeft">
-                <div id="tree-select-controller">
+                <!--<div id="tree-select-controller">-->
+                    <!--<span class="sort-btn btn btn-default btn-xs">
+                        <i class="icon iconfont">&#xe613;</i>
+                    </span>
+                    <span class='btn-group' role='group'>
+                        <span class="sort-btn btn btn-default btn-xs">
+                            <i class="icon iconfont">&#xe60c;</i>
+                        </span>
+                        <span class="sort-btn btn btn-default btn-xs">  
+                            <i class="icon iconfont">&#xe60b;</i>
+                        </span>
+                    </span>
                     <span class="sort-btn btn btn-default btn-xs active" sort-type="time">
-                       <span class="glyphicon glyphicon-time"></span>
+                       <i class="icon iconfont">&#xe6b0;</i>
                     </span>
                     <span class="sort-btn btn btn-default btn-xs" sort-type="size">  
-                        <span class="glyphicon glyphicon-signal"></span>
+                        <i class="icon iconfont">&#xe707;</i>
                     </span>
                     <span class="data-btn btn btn-default btn-xs" data-type="switch">
-                       <span class="glyphicon glyphicon-refresh"></span>
-                    </span>
-                </div>
+                       <i class="icon iconfont">&#xe631;</i>
+                    </span>-->
+
+                <!--</div>-->
             </div>
             <div id="innerTopRight">
                 <!--<span class="sort-btn btn btn-default btn-xs">
@@ -96,16 +186,16 @@
 
 
         <div id="rightWrapper">
-            <div>
-                <form id="tree-compare-depth-controller">
+            <!--<div>
+                <form id="tree-compare-depth-controller">-->
                    <!--  <button type="button" id="add">add</button> -->
-                    <span class="btn btn-default btn-xs active level-btn" level=0>L0</span>
+                   <!-- <span class="btn btn-default btn-xs active level-btn" level=0>L0</span>
                     <span class="btn btn-default btn-xs active level-btn" level=1>L1</span>
                     <span class="btn btn-default btn-xs active level-btn" level=2>L2</span>
                     <span class="btn btn-default btn-xs active level-btn" level=3>L3</span>
                     <span class="btn btn-default btn-xs active level-btn" level=4>L4</span>
                 </form>
-            </div>
+            </div>-->
            <!--  <div id="label-A"><span class="btn btn-default btn-xs label">A</span></div> -->
             <table>
                 <tr>
@@ -113,10 +203,10 @@
                         <div id="treemapA"></div>
                         <div id="treehis"></div>
                         <div id="treemapB"></div>
-                        <div id="treemap1"></div>
+                        <!--<div id="treemap1"></div>
                         <div id="treemap2"></div>
                         <div id="treemap3"></div>
-                        <div id="treemap4"></div>
+                        <div id="treemap4"></div>-->
                     </td>
                 </tr>
                 <tr>
@@ -132,42 +222,46 @@
             </table>
            <!--  <div id="label-B"><span class="btn btn-default btn-xs label">B</span></div> -->
         </div>
-
-        <div id="leftTopWrapper">
-            <div id="radial-depth-controller">
-            <section class="model-14"><div class="checkbox"><input type="checkbox" mark=1 id="radialcheckbox"/><label>B</label></div></section>
-                 <div id="label-A"><span class="btn btn-default btn-xs label">A</span></div><br/>
-                 <div class="btn btn-default btn-xs active level-btn" level=0>L0</div><br/>
-                 <div class="btn btn-default btn-xs active level-btn" level=1>L1</div><br/>
-                 <div class="btn btn-default btn-xs active level-btn" level=2>L2</div><br/>
-                 <div class="btn btn-default btn-xs active level-btn" level=3>L3</div><br/>
-                 <div class="btn btn-default btn-xs active level-btn" level=4>L4</div><br/>
+        <div id = "leftWrapper">
+            <div id="leftTopWrapper">
+                <div id="radial-depth-controller">
+                <!--<section class="model-14"><div class="checkbox"><input type="checkbox" mark=1 id="radialcheckbox"/>
+                </div></section><label>B</label>-->
+                     <div id="label-A"><span class="btn btn-default btn-xs label">A</span></div><br/>
+                     <!--<div class="btn btn-default btn-xs active level-btn" level=0>L0</div><br/>
+                     <div class="btn btn-default btn-xs active level-btn" level=1>L1</div><br/>
+                     <div class="btn btn-default btn-xs active level-btn" level=2>L2</div><br/>
+                     <div class="btn btn-default btn-xs active level-btn" level=3>L3</div><br/>
+                     <div class="btn btn-default btn-xs active level-btn" level=4>L4</div><br/>-->
+                </div>
+                <svg class="radial"></svg>
             </div>
-            <svg class="radial"></svg>
+            <div id="leftBottomWrapper">
+                <svg class="parset"></svg>
+            </div>
         </div>
-        <div id="leftBottomWrapper">
-
-            <svg class="parset"></svg>
+        <div id = 'projectionWrapper'>
+            <svg class=projection></svg>
         </div>
-
     </body>
-    <!-- Libraries -->
-
+    <!-- Libraries -->   
+    <script type="text/javascript" src="libs/MDS/numeric.js"></script>
+    <script type="text/javascript" src="libs/MDS/mds.js"></script>
     <script type="text/javascript" src="libs/jquery.js"></script>
     <script type="text/javascript" src="libs/d3.js"></script>
     <script type="text/javascript" src="libs/d3.tip.js"></script>
     <script type="text/javascript" src="libs/queue.js"></script>
     <script type="text/javascript" src="libs/Underscore.js"></script>
-
+    <script type="text/javascript" src='libs/less.js'></script>
+    <script type="text/javascript" src="libs/d3.parsets/d3.parsets.js"></script>   
     <!-- utils js -->
     <script type="text/javascript" src="js/sigtree.js"> </script>
     <script type="text/javascript" src="js/ObserverManager.js"> </script>
     <script type="text/javascript" src="js/utils.js"> </script>
     <script type="text/javascript" src="js/data_processor.js"> </script>
     <script type="text/javascript" src="js/combinator.js"> </script>
-
-    <script type="text/javascript" src="libs/d3.parsets/d3.parsets.js"></script>    
-
+    <script type="text/javascript" src="js/projection.js"></script> 
+    <script type="text/javascript" src='js/toolbar.js'></script>
 
     <script type="text/javascript" src="js/tree_compare.js"></script>
 	<script type="text/javascript" src="js/radial.js"></script> 

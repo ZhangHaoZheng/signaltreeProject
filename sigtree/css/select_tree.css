@@ -28,7 +28,6 @@
   overflow-y: scroll;
   overflow-x: hidden;
 }
-
 #mainTimeline .bar {
   fill: #C0C0C0;
 }
@@ -56,14 +55,16 @@
   cursor: not-allowed;  
   color: white;
 }
-
 #tree-select-controller {
   text-align: right;
 }
-
-
 #label-C {
   margin-top: 0.3em;
   padding-top: 0.3em;
   border-top: 2px solid #ddd;
+}
+.arc-path{
+  stroke: black;
+  stroke-width: 2px;
+  fill: none;
 }

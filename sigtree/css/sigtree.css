@@ -36,39 +36,10 @@
     height: 35px;
 }
 .navbar {min-height:35px !important;}
-#topWrapper {
-  position: absolute;
-  top:35px;
-  /*top: 50px;*/
-  left: 0%;
-  right: 0%;
-  bottom: 70%;
-  border:1px solid #a0a0a0;
-}
-
-#rightWrapper {
-  border:1px solid #a0a0a0;
-  position: absolute;
-  padding: 10px;
-  top: 30%;
-  left: 50%;
-  right: 0%;
-  bottom: 0%;
-}
 
 #tree-compare-depth-controller {
   position: absolute;
   right: 8px;
-}
-
-#leftTopWrapper {
-  border:1px solid #a0a0a0;
-  position: absolute;
-  top: 30%;
-  left: 0%;
-  right: 50%;
-  bottom: 30%;
-  /*overflow-y:auto;*/
 }
 
 #radial-depth-controller {
@@ -76,18 +47,8 @@
   margin-left: 8px;
   margin-top: 8px;
 }
-
 #radial-depth-controller .btn {
   margin: 2px 0;
-}
-
-#leftBottomWrapper {
-  border:2px solid #a0a0a0;
-  position: absolute;
-  top: 70%;
-  left: 0%;
-  right: 50%;
-  bottom: 0%;
 }
 
 #srocllDiv,#scrollDiv2{
@@ -125,6 +86,25 @@ path[class~=half-highlight], circle[class~=half-highlight], rect[class~=half-hig
   stroke-width: 1px !important;
 }
 
+path[class~=opacity-highlight], rect[class~=opacity-highlight], g[class~=opacity-highlight] > circle {
+  /*fill: #ff5858 !important;*/
+  opacity: 1 !important;
+  fill: #333333 !important;
+
+}
+circle[class~=opacity-highlight]{
+  opacity: 1 !important;
+  stroke: black !important;
+  stroke-width: 2px !important;
+}
+path[class~=opacity-unhighlight], rect[class~=opacity-unhighlight], g[class~=opacity-unhighlight] > circle {
+  /*fill: #ff5858 !important;*/
+  opacity: 0.3;
+}
+circle[class~=opacity-unhighlight]{
+  opacity: 0.2;
+  stroke: gray;
+}
 path[class~=focus-highlight], circle[class~=focus-highlight], rect[class~=focus-highlight], g[class~=focus-highlight] > circle {
   fill: #ff5858 !important;
   stroke: #ff5858 !important;
