@@ -1,13 +1,7 @@
 var radial = function(){
 	var Radial = {};
-/*	if(changedatamark == false){
-		console.log("addListener Radial");
-		ObserverManager.addListener(Radial);	
-	}
-	else ObserverManager.changeListener(Radial,2);*/
 	ObserverManager.changeListener(Radial,2);
 	var dataProcessor = dataCenter.datasets[0].processor;
-	var dataset = dataCenter.datasets[0].processor.result;
 	var padding = 10;
 	var width = $("#leftTopWrapper").width() - padding * 10;
 	var height = $("#leftTopWrapper").height() - padding * 2;
@@ -18,9 +12,10 @@ var radial = function(){
 	var errorChange = 10;
 	var moveHeight = height - 4 * padding;
 	var duration = 750;
-	var datasets = dataCenter.datasets;
-	var rootB = datasets[1].processor.result.treeRoot;
-	var root = dataset.treeRoot;
+
+	var rootB = dataCenter.datasets[1].processor.result.treeRoot;
+	var rootA = dataCenter.datasets[0].processor.result.treeRoot;
+
 	var tree = d3.layout.tree()
 		.size([360, diameter / 2 - 40])
 		.children(function(d){
@@ -28,7 +23,6 @@ var radial = function(){
 			return undefined;
 		})
 		.separation(function(a, b) { 
-		//	console.log(a);
 			var dis = (a.parent == b.parent ? 1 : 2) / a.depth;
 			if(a.depth >= 3 && b.depth >= 3)
 				dis = 0.04;
@@ -37,17 +31,12 @@ var radial = function(){
 	var treeNodeList;
 	if($("#radialcheckbox").attr("mark") == 2) {
 		treeNodeList = tree.nodes(rootB).reverse();
-
 	}
 	else {
-		treeNodeList = tree.nodes(root).reverse();
-
+		treeNodeList = tree.nodes(rootA).reverse();
 	}
 	var index = 0;
-	// treeNodeList.reverse().forEach(function(d) { d.id = index++; })
 	
-	
-
 	var diagonal = d3.svg.diagonal.radial()
 		.projection(function(d) { return [d.y, d.x / 180 * Math.PI]; });
 	var svg = d3.select("svg.radial")
@@ -87,12 +76,10 @@ var radial = function(){
 	 changeHis();
 	 $("#default").attr("checked",true);
 	 $("#radial-depth-controller").on("click", ".level-btn", function(){
-		// $("#radial-depth-controller .level-btn").removeClass("active");
 		var dep = $(this).attr("level");
 		$("#radial-depth-controller .level-btn").removeClass("active");		
 		for (var i = 0; i <= dep; i++)
 			$("#radial-depth-controller .level-btn[level=" + i + "]").addClass("active");		
-		// $(this).addClass("active");
 		draw_depth(dep);
 	});
 	// draw the histogram of the distribution
@@ -230,19 +217,16 @@ var radial = function(){
 	}
 	setSvgAttr(svg,width,height)
 
-	// svg = svg.append("g")
 
 	if(!svg){
 		svg = d3.select("body").append("svg");
 	}
-	// svg.attr("width", diameter)
-	// 	.attr("height", diameter - 40)
 	svg = svg.append("g")
 		.attr("transform", "translate(" + diameter / 2 + "," + (diameter / 2 - 3 * padding) + ")");
 
 	svg.call(tip);
 	if($("#radialcheckbox").attr("mark") == 1)
-		update(root);
+		update(rootA);
 	else update(rootB);
 
 	function update(source){
@@ -254,6 +238,7 @@ var radial = function(){
 				treeNodeNum++;
 			}
 		}
+
 		var node = svg.selectAll(".node")
 			.data(nodes, function(d) {return d.id});
 		var max_depth = 0;
@@ -338,10 +323,8 @@ var radial = function(){
 	    if(extentWidth > his_width/3){
 	  	  var beginIndexX = Math.floor(extentX / his_width);
 		  var includeNum = Math.round(extentWidth / his_width);
-		  // d3.select("#histogramView").selectAll(".his").attr("fill","steelblue");
 		  d3.select("#histogramView").selectAll(".his").classed("highlight", false)
 		  for(var i=0;i<=includeNum;i++){
-		  	// d3.select("#histogramView").select("#his" + (beginIndexX + i)).attr("fill","#b2df8a");
 		  	d3.select("#histogramView").select("#his" + (beginIndexX + i)).classed("highlight", true);
 		  }
 		  AllIndexArray = new Array();
@@ -380,7 +363,6 @@ var radial = function(){
 			d.values = d._values;
 			d._values = null;
 		}
-	//	console.log(d);
 		if(d.depth!=4){
 			if($("#radialcheckbox").attr("mark") == 1){
 				if(radialexpandmarkA.indexOf(d.id) != -1){
@@ -404,7 +386,7 @@ var radial = function(){
 			}
 		}
 		if($("#radialcheckbox").attr("mark") == 1)
-			treeNodeList = tree.nodes(root);
+			treeNodeList = tree.nodes(rootA);
 		else treeNodeList = tree.nodes(rootB);
 		update(d);
 	}
@@ -417,7 +399,7 @@ var radial = function(){
 			}
 		}
 		if($("#radialcheckbox").attr("mark") == 1)
-			treeNodeList = tree.nodes(root);
+			treeNodeList = tree.nodes(rootA);
 		else treeNodeList = tree.nodes(rootB);
 		for(var i=0;i<treeNodeList.length;i++){
 			if(treeNodeList[i].depth < hide_depth){
@@ -433,7 +415,7 @@ var radial = function(){
 			}
 		}
 		if($("#radialcheckbox").attr("mark") == 1)
-			treeNodeList = tree.nodes(root);
+			treeNodeList = tree.nodes(rootA);
 		else treeNodeList = tree.nodes(rootB);
 		update(treeNodeList);
 	}
@@ -477,4 +459,3 @@ var radial = function(){
     }
     return Radial;
 }
-
