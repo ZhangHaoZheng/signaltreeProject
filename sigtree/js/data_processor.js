@@ -48,6 +48,7 @@ sigtree.dataProcessor = function() {
                 }
             })
             .entries(dts);
+
         root = {key:"root", values:nested};
         translate(root, "");
         sumUp(root, "flow");

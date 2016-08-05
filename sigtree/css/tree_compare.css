@@ -8,7 +8,9 @@
 .node-inner{
 	fill: steelblue;
 }
-
+.node-bottominner{
+	fill: rgb(255, 127, 14);
+}
 .node[class~=highlight] {
   fill: #b2df8a;
   stroke: #b2df8a;

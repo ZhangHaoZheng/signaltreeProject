@@ -44,7 +44,7 @@ var parset = function(){
 			.height(height-20)
 			.mouseoverCallback(mouseoverCallback)
 			.mouseoutCallback(mouseoutCallback)
-			.spacing(150)
+			.spacing(110)
 			.tension(0.5);
 /*	if($("#radialcheckbox").attr("mark") == 2)
 		svg.attr("fill","#FF7F0E")

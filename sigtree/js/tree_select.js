@@ -30,7 +30,7 @@ var treeSelect = function(){
 	var hisWidth = 0;
 	var changeA = true;
 	processStatData();
-	drawHistogram(timeSortArray)
+	drawHistogram(timeSortArray);
 	var chart;
 
 	var scrollWidth = $("#srocllDiv").width();
@@ -45,6 +45,8 @@ var treeSelect = function(){
 		$(this).addClass("active");
 		radialexpandmarkA = [];
 		radialexpandmarkB = [];
+		currentradialdepthA = 5;
+		currentradialdepthB = 5;
 		sortMode = $(this).attr("sort-type");
 		if (sortMode == "time") {
 			drawHistogram(timeSortArray);
@@ -54,7 +56,9 @@ var treeSelect = function(){
 	});
 	$("#innerTopLeft .data-btn").click(function() {
 		radialexpandmarkA = [];
-		radialexpandmarkB = [];
+		radialexpandmarkB = [];		
+		currentradialdepthA = 5;
+		currentradialdepthB = 5;
 		var command = $(this).attr("data-type");
 		if (command == "switch") {
 			if(changeA){
@@ -393,7 +397,10 @@ var treeSelect = function(){
 					compareArray.splice(index,1);
 				}
 				radialexpandmarkA = [];
-				radialexpandmarkB = [];
+				radialexpandmarkB = [];		
+				$("#radial-depth-controller .level-btn").addClass("active");	
+				activeA = 4;
+				activeB = 4;	
 				changeComparedData();
 				d3.select("#append-rect").select("#percen-rect").remove();
 			})
@@ -528,6 +535,7 @@ var treeSelect = function(){
 		$("#innerTopRight #label-C #tree-num-description").text(treeNodeNum);
 		$("#innerTopRight #label-C #sum-num-description").text(sumNodeNum);
 	}
+
 
 	SelectTree.OMListen = function(message, data) {
 	    if (message == "percentage") {

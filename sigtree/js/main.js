@@ -4,11 +4,11 @@
 //         id: 
 //         processor:         
 //     ]
-    
 var changedatamark = false;
 (function() {
     this.dataCenter = {};
 })()
+var numoftreecompare = 0;
 $("#radialcheckbox").on("change",function(){
     var radialView, parsetView;
     var m = $("#radialcheckbox").attr("mark");
@@ -26,6 +26,49 @@ $("#radialcheckbox").on("change",function(){
 })
 var radialexpandmarkA = [];
 var radialexpandmarkB = [];
+var marknodesdepth = false;
+var nodesIddepthA = [];
+var nodesIddepthB = [];
+nodesIddepthA.length = 4;
+nodesIddepthB.length = 4;
+var activeA = 4;
+var activeB = 4;
+function changenodedepthA(){
+    var tree = d3.layout.tree()
+        .children(function(d){
+            if(Array.isArray(d.values)) return d.values;
+            return undefined;
+        }); 
+    for(var i = 0; i < 4; i++)
+        nodesIddepthA[i] = [];
+    var rootA = dataCenter.datasets[0].processor.result.treeRoot;
+    var treeNodeLista = tree.nodes(rootA).reverse();
+    for(var i = 0; i < treeNodeLista.length; i++){
+        var d = treeNodeLista[i].depth;
+        var flow = treeNodeLista[i].flow;
+        if(d == 4 || (+flow) == 0) continue;
+        var tmp = treeNodeLista[i];
+        nodesIddepthA[d].push(tmp);
+     }
+}
+function changenodedepthB(){
+    var tree = d3.layout.tree()
+        .children(function(d){
+            if(Array.isArray(d.values)) return d.values;
+            return undefined;
+        }); 
+    for(var i = 0; i < 4; i++)
+        nodesIddepthB[i] = [];
+    var rootB = dataCenter.datasets[1].processor.result.treeRoot;
+    var treeNodeListb = tree.nodes(rootB).reverse();
+    for(var i = 0; i < treeNodeListb.length; i++){
+        var d = treeNodeListb[i].depth;
+        var flow = treeNodeListb[i].flow;
+        if(d == 4 || (+flow) == 0) continue;
+        var tmp = treeNodeListb[i];
+        nodesIddepthB[d].push(tmp);
+    }
+}
 var mainController = function(){
     var treeSelectView, radialView, treeCompareView, parsetView;
     var datasetID = [];
@@ -75,22 +118,25 @@ var mainController = function(){
 
                         $("svg[class=radial]").html("");
                         $("svg[class=parset]").html("");
-                        $("#treemap").html("");
-
+                        $("#treemapA").html("");
+                        $("#treemapB").html("");
+                        $("#treehis").html("");
+                            changenodedepthA();
                             var listeners = _.without(ObserverManager.getListeners(), radialView, treeCompareView, parsetView); //remove old views in listeners
                             ObserverManager.setListeners(listeners);
                             radialView = radial();   
                             treeCompareView = treeCompare();     
                             parsetView = parset();     
-                          
+                            
              
                     } else {
 
-                        $("#treemap").html(""); 
+                        $("#treemapA").html(""); 
                         $("svg[class=radial]").html("");
                         $("svg[class=parset]").html("");
-                        $("#treemap").html("");
-
+                        $("#treemapB").html("");
+                        $("#treehis").html("");
+                            changenodedepthB();
                             var listeners = _.without(ObserverManager.getListeners(), radialView, treeCompareView, parsetView); //remove old views in listeners
                             ObserverManager.setListeners(listeners);
                             radialView = radial();   
