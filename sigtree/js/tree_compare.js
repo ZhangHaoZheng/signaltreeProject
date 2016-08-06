@@ -1,5 +1,6 @@
 var treeCompare = function(){
 	var TreeCompare = {};
+	var markexpand = true;
 //	console.log("addListener compare");
 //	ObserverManager.addListener(TreeCompare);
 	ObserverManager.changeListener(TreeCompare,3);
@@ -243,24 +244,6 @@ var treeCompare = function(){
 				maxLevelB = nos[1][i].depth;
 			}
 		}
-/*		var iddeptha = [],iddepthb = [];
-		iddeptha.length = maxLevelA + 1;
-		iddepthb.length = maxLevelB + 1;
-		insertnodes();
-		function insertnodes(){
-			for(var i = 0; i < maxLevelA + 1; i++)
-				iddeptha[i] = [];
-			for(var i = 0; i < maxLevelB + 1; i++)
-				iddepthb[i] = [];
-			for(var i = 0; i < nos[0].length; i++){
-				var d = nos[0][i].depth;
-				iddeptha[d].push(nos[0][i]);
-			}
-			for(var i = 0; i < nos[1].length; i++){
-				var d = nos[1][i].depth;
-				iddepthb[d].push(nos[1][i]);
-			}
-		}*/
 		$("#innerTopRight #label-A .level_description").text(function() {
 			return  maxLevelA;
 		});
@@ -392,7 +375,7 @@ var treeCompare = function(){
 			.transition().duration(750)
 			.attr("cx",function(d){return d.x})
 			.attr("cy",function(d){return d.y});
-		top_nodes.on("click",node_click)
+		top_nodes.on("click",node_click_focus)
 		top_nodes.exit()
 			.transition().duration(750)
 			.attr("cx",function(d){return source.x0})
@@ -470,7 +453,7 @@ var treeCompare = function(){
 			.transition().duration(750)
 			.attr("cx",function(d){return d.x})
 			.attr("cy",function(d){return tree_height - d.y})
-		bottom_nodes.on("click",node_click);
+		bottom_nodes.on("click",node_click_focus);
 		bottom_nodes.exit().
 			transition().duration(750)
 			.attr("cx",function(d){return source.x})
@@ -517,36 +500,7 @@ var treeCompare = function(){
 			n.x0 = n.x;
 			n.y0 = n.y;
 		});	
-/*		function zoomnode(node){
-			var nodedepth = node.depth;
-			if(nodedepth == 0 || nodedepth == 4) return null;
-			var id = this.id;
-			var tmp = id.slice(8,9);
-			if(tmp == "t"){
-				for(var i = 0; i < iddeptha[nodedepth - 1].length; i++){
-					if(iddeptha[nodedepth - 1][i].id == node.parent.id)
-						continue;
-					node_click(iddeptha[nodedepth - 1][i]);
-				}
-				for(var i = 0; i < iddeptha[nodedepth].length; i++){
-					if(iddeptha[nodedepth][i].id == node.id)
-						continue;
-					node_click(iddeptha[nodedepth][i]);
-				}
-			}
-			else{
-				for(var i = 0; i < iddepthb[nodedepth - 1].length; i++){
-					if(iddepthb[nodedepth - 1][i].id == node.parent.id)
-						continue;
-					node_click(iddepthb[nodedepth - 1][i]);
-				}
-				for(var i = 0; i < iddepthb[nodedepth].length; i++){
-					if(iddepthb[nodedepth][i].id == node.id)
-						continue;
-					node_click(iddepthb[nodedepth][i]);
-				}	
-			}
-		}*/
+
 	}
 
 
@@ -595,7 +549,11 @@ var treeCompare = function(){
 		});
 		bars.exit().remove();
 	}
-
+	function node_click_focus(node){
+		if(markexpand == true)
+			node_focus(node);
+		else node_click(node);
+	}
 	function node_click(node){
 		if(node.children){
 			node._children = node.children;
@@ -606,6 +564,42 @@ var treeCompare = function(){
 			delete node._children;
 			if(node.depth + 1 > cur_depth){
 				cur_depth = node.depth + 1;
+			}
+		}
+		var _nodes = tree.nodes(root);
+		draw_separate_tree(_nodes, node);
+		draw_trend(_nodes, node);
+	}
+	function node_focus(node){
+		cur_depth = 4;
+		console.log(node);
+		var d = node.depth;
+		var tmpnodes = tree.nodes(root);
+		var markifexpand = [];
+		markifexpand.push(node);
+		while(node.parent){
+			markifexpand.push(node.parent);
+			node = node.parent;
+		}
+		for(var i = 0; i < tmpnodes.length; i++){
+			if(tmpnodes[i].depth == 4) continue;
+			if(tmpnodes[i].depth > d){
+				if(tmpnodes[i]._children){
+					tmpnodes[i].children = tmpnodes[i]._children;
+					delete tmpnodes[i]._children;
+				}
+			}
+			else if(markifexpand.indexOf(tmpnodes[i]) == -1){
+				if(tmpnodes[i].children){
+					tmpnodes[i]._children = tmpnodes[i].children;
+					delete tmpnodes[i].children;
+				}
+			}
+			else {
+				if(tmpnodes[i]._children){
+					tmpnodes[i].children = tmpnodes[i]._children;
+					delete tmpnodes[i]._children;
+				}
 			}
 		}
 		var _nodes = tree.nodes(root);
