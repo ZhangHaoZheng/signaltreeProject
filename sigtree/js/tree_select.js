@@ -331,7 +331,7 @@ var treeSelect = function(){
 	 		.on("mouseout",function(d,i){
 	 			$("#polygon"+i).attr("opacity",0);
 	 		});
-
+	 	
 	 	rectg.append("rect")
 	 		.attr("id",function(d, i){
 				return "his-" + d.index;
