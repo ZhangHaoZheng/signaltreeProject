@@ -18,8 +18,8 @@ var treeCompare = function(){
 	var svg_;
 	var svg_2;
 	var svg_his;
-	var tree_height = (height-230)/2.0;
-	var trend_height = 70;
+	var tree_height = (height-120)/2.0;
+	var trend_height = 80;
 
 	var svg_size = { width:_width, height:tree_height,
 		left:20, right:10, top:20, bottom:0 };
@@ -27,8 +27,8 @@ var treeCompare = function(){
 		left:20, right:10, top:0, bottom:0 };
 	var svg2_size = {width:_width, height:tree_height,
 		left:20, right:10, top:0, bottom:20 };
-	var svgg_size = {width:_width, height:50,
-		left:20, right:10, top:0, bottom:0 };
+/*	var svgg_size = {width:_width, height:50,
+		left:20, right:10, top:0, bottom:0 };*/
 	var levelTop = new Array();
 	var levelBottom = new Array();
 	var levelTopY = new Array();
@@ -37,7 +37,7 @@ var treeCompare = function(){
 	svg_ = initFrame(d3.select("#treemapA").append("svg"),svg_size,false);
 	svg_2 = initFrame(d3.select("#treemapB").append("svg"),svg2_size,false);
 	svg_his = initFrame(d3.select("#treehis").append("svg"),svghis_size,false);
-	if(mark11 == false){
+/*	if(mark11 == false){
 		mark11 = true;
 		var svg_g1 = initFrame(d3.select("#treemap1").append("svg"),svgg_size,false);
 		var svg_g2 = initFrame(d3.select("#treemap2").append("svg"),svgg_size,false);
@@ -54,7 +54,7 @@ var treeCompare = function(){
 		.attr("fill","none")
 		.attr("stroke","gray")
 		.attr("stroke-width","2px");
-	}
+	}*/
 	var g_first = svg_.append("g")
 			.attr("transform", "translate(30,0)")
 			.attr("id","g_top"),
@@ -497,8 +497,8 @@ var treeCompare = function(){
 				}
 			})
 		.attr("font-size","12px");
-		svg_.selectAll(".bottom-node-desc").remove();
-/*		svg_.selectAll(".bottom-node-desc")
+/*		svg_.selectAll(".bottom-node-desc").remove();
+		svg_.selectAll(".bottom-node-desc")
 			.data(levelBottom)
 			.enter()
 			.append("text")
@@ -633,15 +633,13 @@ var treeCompare = function(){
 	}
 	$("#add").on("click",function(){
 		addclick();
-		//	tree.size([svg_size.width - leftPadding,svgheight/3*2]);
 	});
 	function addclick(){
-		if(numoftreecompare == 4) return;
+//		if(numoftreecompare == 4) return;
 		numoftreecompare++;
 		var svgheightA = $("#treemapA svg").attr("height");
 		var svgheighthis = $("#treehis svg").attr("height");
 		var svgheightB = $("#treemapB svg").attr("height");
-		console.log(svgheightA,svgheightB);
 		d3.select("#treemapA svg").attr("height",svgheightA/6*5);
 		d3.select("#treehis svg").attr("height",svgheighthis/6*5);
 		d3.select("#treemapB svg").attr("height",svgheightB/6*5);
@@ -654,8 +652,36 @@ var treeCompare = function(){
 		for(var i = 1; i < numoftreecompare; i++){
 			d3.select("#treemap" + i + " svg").attr("height",remainheight);
 		}
+		d3.select("#multitree").append("div").attr("id",function(){
+			return "treemap" + numoftreecompare;
+		})
 		var svg_g = initFrame(d3.select("#treemap" + numoftreecompare).append("svg"),new_svg_size,false);
-
+		changeViewForSvg(svgheightA-20,svgheighthis);
+	}
+	function changeViewForSvg(height,svgheighthis){
+		tree = d3.layout.tree()
+		.size([svg_size.width - leftPadding,height])
+		.separation(function(a, b) { 
+			var dis = (a.parent == b.parent ? 1 : 2) / a.depth;
+			if(a.depth <=2 && b.depth <= 2)
+				dis = 3.3;
+			if(a.depth==3 && b.depth==3)
+				dis = 1;
+	           return dis;
+		 });
+		diagonal_ = d3.svg.diagonal().projection(function(d){
+			return [d.x, height - d.y];
+		});
+		nodes = tree.nodes(root);
+		var _nodes = tree.nodes(root);
+		tree_height = height;
+		trend_height = svgheighthis;
+		draw_separate_tree(_nodes,root);
+		g_trend.select("rect").attr("width", svg_size.width - leftPadding)
+			.attr("height", svgheighthis)
+			.attr("class","trend");
+		scale = d3.scale.linear().range([0,svgheighthis]);
+		draw_trend(_nodes,root);
 	}
     TreeCompare.OMListen = function(message, data) {
 		var idPrefix = "#compare-top-node-";

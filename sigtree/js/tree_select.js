@@ -5,7 +5,6 @@ var treeSelect = function(){
 //	console.log("addListener SelectTree");
 //	ObserverManager.addListener(SelectTree);	
 	ObserverManager.changeListener(SelectTree,1);
-	console.log("Listeners",ObserverManager.getListeners().length);
 	var svgWidth = $("#innerTopLeft").width();
 	var svgHeight = $("#innerTopLeft").height() * 19/20;
 	var compareArray = [0, 1];
