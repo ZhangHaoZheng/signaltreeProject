@@ -8,6 +8,7 @@ var changedatamark = false;
 (function() {
     this.dataCenter = {};
 })()
+var mark11 = false;
 var numoftreecompare = 0;
 $("#radialcheckbox").on("change",function(){
     var radialView, parsetView;

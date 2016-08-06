@@ -37,9 +37,11 @@ var treeCompare = function(){
 	svg_ = initFrame(d3.select("#treemapA").append("svg"),svg_size,false);
 	svg_2 = initFrame(d3.select("#treemapB").append("svg"),svg2_size,false);
 	svg_his = initFrame(d3.select("#treehis").append("svg"),svghis_size,false);
-	var svg_g1 = initFrame(d3.select("#treemap1").append("svg"),svgg_size,false);
-	var svg_g2 = initFrame(d3.select("#treemap2").append("svg"),svgg_size,false);
-
+	if(mark11 == false){
+		mark11 = true;
+		var svg_g1 = initFrame(d3.select("#treemap1").append("svg"),svgg_size,false);
+		var svg_g2 = initFrame(d3.select("#treemap2").append("svg"),svgg_size,false);
+	
 	svg_g1.append("rect")
 		.attr("width",_width)
 		.attr("height",50)
@@ -52,6 +54,7 @@ var treeCompare = function(){
 		.attr("fill","none")
 		.attr("stroke","gray")
 		.attr("stroke-width","2px");
+	}
 	var g_first = svg_.append("g")
 			.attr("transform", "translate(30,0)")
 			.attr("id","g_top"),
