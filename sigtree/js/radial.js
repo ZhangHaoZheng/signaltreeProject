@@ -39,7 +39,7 @@ var radial = function(){
 		treeNodeList = tree.nodes(rootB).reverse();
 	}
 	else {
-		treeNodeList = tree.nodes(root).reverse();
+		treeNodeList = tree.nodes(rootA).reverse();
 	}
 	var index = 0;
 	// treeNodeList.reverse().forEach(function(d) { d.id = index++; })
