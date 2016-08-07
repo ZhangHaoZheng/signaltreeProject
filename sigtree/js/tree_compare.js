@@ -367,8 +367,11 @@ var treeCompare = function(){
 				if(n._children) return "node node-inner";
 				return "node node-leaf";
 			}).attr("r", function(d,i){
-				if(!Array.isArray(d.values)){
+				if(d.depth == 4){
 					return 1;
+				}
+				if(d.depth == 3){
+					return 2.5;
 				}
 				return (4.5 - d.depth) * 2;
 			})
