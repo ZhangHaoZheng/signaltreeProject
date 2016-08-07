@@ -1,10 +1,5 @@
 var radial = function(){
 	var Radial = {};
-	/*if(changedatamark == false){
-		console.log("addListener Radial");
-		ObserverManager.addListener(Radial);	
-	}
-	else ObserverManager.changeListener(Radial,2);*/
 	ObserverManager.changeListener(Radial,2);
 	var dataProcessor = dataCenter.datasets[0].processor;
 	var padding = 10;
@@ -309,9 +304,11 @@ var radial = function(){
 		});
 		var nodecircle = nodeEnter.append("circle")
 			.attr("r", function(d,i){
-				if(((d.values)&&(!Array.isArray(d.values)))||
-					((d._values)&&(!Array.isArray(d._values)))){
+				if(d.depth == 4){
 					return 1;
+				}
+				if(d.depth == 3){
+					return 2.5;
 				}
 				return (4.5 - d.depth) * 2;
 			});

@@ -128,8 +128,6 @@ var treeCompare = function(){
 	root.x0 = svg_size.width/2;
 	root.y0 = 0;
 	nodes = tree.nodes(root);
-	var nodesA = tree.nodes(dt_root);
-	var nodesB = tree.nodes(dt_root2);
 	distinguishTree(nodes);
 	accumulateFlow(root);
 	// console.log("nodes", nodes);
@@ -161,8 +159,8 @@ var treeCompare = function(){
 
 	function accumulateFlow(root){
 		if(!Array.isArray(root.values)){
-			root.flow1 = (root.obj1 != null ? root.obj1.flowSize : 0);
-			root.flow2 = (root.obj2 != null ? root.obj2.flowSize : 0);
+			root.flow1 = (root.obj1 != null ? (+root.obj1.flowSize) : 0);
+			root.flow2 = (root.obj2 != null ? (+root.obj2.flowSize) : 0);
 			return;
 		}
 		var flow1 = 0, flow2 = 0;
@@ -223,6 +221,10 @@ var treeCompare = function(){
 
 	function draw_separate_tree(nodes, source){
 		// console.log("nodes",nodes);
+		var dt_root = datasets[0].processor.result.treeRoot;
+		var dt_root2 = datasets[1].processor.result.treeRoot;
+		var nodesA = tree.nodes(dt_root);
+		var nodesB = tree.nodes(dt_root2);
 		var nos = [];
 		nos[0] = nodes.filter(function(d){
 			return d.hasObj1;
@@ -332,11 +334,17 @@ var treeCompare = function(){
 			})
 			.attr("cy",function(n){ var x = n; return source.y0})
 			.on("mouseover", function(d, i) {
+				
 				ObserverManager.post("show-detail-info", { dataset:"A", node: nodesA[i] });
 				tip.html(function() {
 					var text = d.key;
-					if (Array.isArray(d.values))
-						text += "<br>子节点数:" +  nodesA[i].children.length;
+					if (Array.isArray(d.values)){
+						var ct = 0;
+						for(var j = 0; j < nos[0][i].values.length; j++){
+							if(nos[0][i].values[j].hasObj1) ct++;
+						}
+						text += "<br>子节点数:" +  ct;
+					}
 					text += "<br>流量:" + nodesA[i].flow;
 					return text;
 				})
@@ -431,8 +439,13 @@ var treeCompare = function(){
 				ObserverManager.post("show-detail-info", { dataset:"B", node: nodesB[i] });				
 				tip.html(function() {
 					var text = d.key;
-					if (Array.isArray(d.values))
-						text += "<br>子节点数:" +  nodesB[i].children.length;
+					if (Array.isArray(d.values)){
+						var ct = 0;
+						for(var j = 0; j < nos[1][i].values.length; j++){
+							if(nos[1][i].values[j].hasObj2) ct++;
+						}
+						text += "<br>子节点数:" +  ct;
+					}
 					text += "<br>流量:" + nodesB[i].flow;
 					return text;
 				});
@@ -447,8 +460,11 @@ var treeCompare = function(){
 				if(n._children) return "node node-bottominner";
 				return "node node-leaf";
 			}).attr("r", function(d,i){
-				if(!Array.isArray(d.values)){
+				if(d.depth == 4){
 					return 1;
+				}
+				if(d.depth == 3){
+					return 2.5;
 				}
 				return (4.5 - d.depth) * 2;
 			})
@@ -575,7 +591,6 @@ var treeCompare = function(){
 	}
 	function node_focus(node){
 		cur_depth = 4;
-		console.log(node);
 		var d = node.depth;
 		var tmpnodes = tree.nodes(root);
 		var markifexpand = [];

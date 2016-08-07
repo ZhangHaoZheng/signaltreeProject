@@ -4,13 +4,11 @@
 //         id: 
 //         processor:         
 //     ]
-var changedatamark = false;
 (function() {
     this.dataCenter = {};
     dataCenter.globalVariable = new Object();
     dataCenter.globalVariable.showArc = false;
 })()
-var mark11 = false;
 var numoftreecompare = 0;
 $("#radialcheckbox").on("change",function(){
     var radialView, parsetView;
@@ -18,14 +16,12 @@ $("#radialcheckbox").on("change",function(){
     if(m==1) {$("#radialcheckbox").attr("mark",2);}
     else $("#radialcheckbox").attr("mark",1);
     m = $("#radialcheckbox").attr("mark");
-    changedatamark = true;
     $("svg[class=radial]").html("");
     $("svg[class=parset]").html("");
     var listeners = _.without(ObserverManager.getListeners(),radialView,parsetView); //remove old views in listeners
     ObserverManager.setListeners(listeners);
     radialView = radial();     
     parsetView = parset();
-    changedatamark = false;
 })
 var radialexpandmarkA = [];
 var radialexpandmarkB = [];
