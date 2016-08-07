@@ -8,6 +8,8 @@
     this.dataCenter = {};
     dataCenter.globalVariable = new Object();
     dataCenter.globalVariable.showArc = false;
+    dataCenter.globalVariable.clickThisNodeShrink = true;
+    dataCenter.globalVariable.compareSameNode = true;
 })()
 var numoftreecompare = 0;
 $("#radialcheckbox").on("change",function(){

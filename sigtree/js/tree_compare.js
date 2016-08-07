@@ -569,7 +569,7 @@ var treeCompare = function(){
 		bars.exit().remove();
 	}
 	function node_click_focus(node){
-		if(markexpand == true)
+		if(dataCenter.globalVariable.clickThisNodeShrink == false)
 			node_focus(node);
 		else node_click(node);
 	}

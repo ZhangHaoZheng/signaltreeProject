@@ -104,13 +104,23 @@ var toolbar = function(){
 		var thisId = $(this).attr('id');
 		if($(this).hasClass('active')){
 			if(thisId != 'click-node-shrink'){
+				//当前选中的状态是点击节点之后该节点收缩
 				$(this).removeClass('active');
 				$('#click-node-shrink').addClass('active');
+				dataCenter.globalVariable.clickThisNodeShrink = true;
 			}
 		}else{
 			$('.click-shrink').removeClass('active');
 			$(this).addClass('active');
+			if(thisId == 'click-node-shrink'){
+				//当前选中的状态是点击节点之后该节点收缩
+				dataCenter.globalVariable.clickThisNodeShrink = true;
+			}else{
+				//当前选中的状态是点击节点之后其它节点收缩
+				dataCenter.globalVariable.clickThisNodeShrink = false;
+			}
 		}
+		console.log(dataCenter.globalVariable.clickThisNodeShrink);
 	});
 	//--------------
 	//group button
@@ -126,10 +136,10 @@ var toolbar = function(){
 	$('#same-node-comparison').on('click', function(d,i){
 		if($('#same-node-comparison').hasClass('active')){
 			$('#same-node-comparison').removeClass('active');
-			$('#tree-view').addClass('active');
+			$('#all-node-comparison').addClass('active');
 		}else{
-			$('#same_node_comparison').addClass('active');
-			$('#tree-view').removeClass('active');
+			$('#same-node-comparison').addClass('active');
+			$('#all-node-comparison').removeClass('active');
 		}
 	});
 	//--------------
