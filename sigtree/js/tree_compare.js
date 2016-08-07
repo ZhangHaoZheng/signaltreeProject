@@ -114,7 +114,7 @@ var treeCompare = function(){
 	// 	h.forEach(merge_tree); 
 	// 	return h;		
 	// }
-	// var children = getChildren();
+	// var children = get`();
 	// root = {
 	// 	key:"root",
 	// 	x0: svg_size.width/2,
@@ -606,7 +606,34 @@ var treeCompare = function(){
 		draw_separate_tree(_nodes, node);
 		draw_trend(_nodes, node);
 	}
-
+	function showSimilarPart(){
+		var nodes = tree.nodes(root);
+		var markifexpand = [];		
+		for(var i = 0; i < nodes.length; i++){
+			if(nodes[i].children){
+				nodes[i]._children = nodes[i].children;
+				delete nodes[i].children;
+			}
+			if(nodes[i].hasObj2 && nodes[i].hasObj1)
+				markifexpand.push(nodes[i]);
+		}
+		cur_depth = 0;
+		for(var i = 0; i < markifexpand.length; i++){
+			if(markifexpand[i].depth > cur_depth) cur_depth = markifexpand[i].depth;
+			var node = markifexpand[i];
+			while(node.parent){
+				if(node.parent._children){
+					node.parent.children = node.parent._children;
+					delete node.parent._children;
+				}
+				else break;
+				node = node.parent;
+			}
+		}
+		var _nodes = tree.nodes(root);
+		draw_separate_tree(_nodes, root);
+		draw_trend(_nodes, root);		
+	}
 	/*
 	 *
 	 */
@@ -627,6 +654,9 @@ var treeCompare = function(){
 	}
 	$("#add").on("click",function(){
 		addclick();
+	});
+	$("#showSimilar").on("click",function(){
+		showSimilarPart();
 	});
 	function addclick(){
 //		if(numoftreecompare == 4) return;
