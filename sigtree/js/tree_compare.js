@@ -590,39 +590,51 @@ var treeCompare = function(){
 		draw_trend(_nodes, node);
 	}
 	function node_focus(node){
-		cur_depth = 4;
-		var d = node.depth;
+		if(node == root) {
+			draw_depth(4);
+			return;
+		}
 		var tmpnodes = tree.nodes(root);
+		var d = node.depth;
 		var markifexpand = [];
 		markifexpand.push(node);
 		while(node.parent){
 			markifexpand.push(node.parent);
 			node = node.parent;
 		}
+		expandchildren(node);
 		for(var i = 0; i < tmpnodes.length; i++){
 			if(tmpnodes[i].depth == 4) continue;
-			if(tmpnodes[i].depth > d){
-				if(tmpnodes[i]._children){
-					tmpnodes[i].children = tmpnodes[i]._children;
-					delete tmpnodes[i]._children;
+			if(tmpnodes[i].depth <= d){
+			 	if(markifexpand.indexOf(tmpnodes[i]) == -1){
+					if(tmpnodes[i].children){
+						tmpnodes[i]._children = tmpnodes[i].children;
+						delete tmpnodes[i].children;
+					}
 				}
-			}
-			else if(markifexpand.indexOf(tmpnodes[i]) == -1){
-				if(tmpnodes[i].children){
-					tmpnodes[i]._children = tmpnodes[i].children;
-					delete tmpnodes[i].children;
-				}
-			}
-			else {
-				if(tmpnodes[i]._children){
-					tmpnodes[i].children = tmpnodes[i]._children;
-					delete tmpnodes[i]._children;
+				else {
+					if(tmpnodes[i]._children){
+						tmpnodes[i].children = tmpnodes[i]._children;
+						delete tmpnodes[i]._children;
+					}
 				}
 			}
 		}
+		cur_depth = 4;
 		var _nodes = tree.nodes(root);
 		draw_separate_tree(_nodes, node);
 		draw_trend(_nodes, node);
+	}
+	function expandchildren(node){
+		if(node.depth == 4) return;
+		if(!node._children && !node.children) return;
+		if(node._children){
+			node.children = node._children;
+			delete node._children;
+		}
+		for(var i = 0; i < node.children.length; i++){
+			expandchildren(node.children[i]);
+		}
 	}
 	function showSimilarPart(){
 		var nodes = tree.nodes(root);
