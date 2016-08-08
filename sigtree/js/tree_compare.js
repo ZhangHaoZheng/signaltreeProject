@@ -355,22 +355,6 @@ var treeCompare = function(){
 				ObserverManager.post("mouse-out", [d.id]);
 				tip.hide();
 			});
-/*		top_g.append("polygon")
-			.attr("points",function(d,i){
-				if(d.depth == 4) return null;
-				var updotx = d.x;
-				var updoty = d.y + 5;
-				var leftx = d.x-3;
-				var lefty = d.y + 11;
-				var rightx = d.x + 3;
-				var righty = d.y + 11
-				return ""+updotx+","+updoty+" "+leftx+","+lefty+" "+rightx+","+righty+"";
-			})
-			.attr("id",function(d,i){
-				return "toppolygon" + i;
-			})
-			.attr("fill","steelblue")
-			.attr("opacity",1);*/
 			top_nodes.attr("class",function(n){
 				if(n._children) return "node node-inner";
 				return "node node-leaf";
@@ -412,7 +396,73 @@ var treeCompare = function(){
 			}
 		})
 		.attr("font-size","12px");
-
+		g_first.selectAll(".node-count1-top").remove();
+		g_first.selectAll(".node-count1-top")
+			.data(nos[0])
+			.enter()
+			.append("text")
+			.attr("class","node-count1-top")
+			.attr("x",function(d,i){
+				var strArray = d.key.split(" ");
+				return d.x - 4 /*+ 7 * strArray[0].length/2*/;
+			})
+			.attr("y",function(d){ 
+				var r;
+				if(d.depth == 4){
+					r = 1;
+				}
+				else if(d.depth == 3){
+					r = 2.5;
+				}
+				else r = (4.5 - d.depth) * 2;
+				return d.y - r - 12;
+			})
+			.text(function(d,i){
+				if(d.count1) return d.count1;
+			})
+			.attr("font-size","20px");
+		g_first.selectAll(".node-polygon-top").remove();
+		g_first.selectAll(".node-polygon-top")
+			.data(nos[0].filter(function(d,i){
+				return d.count1;
+			}))
+			.enter()
+			.append("polygon")
+			.attr("class","node-polygon-top")
+			.attr("points",function(d,i){
+				var r;
+				if(d.depth == 4){
+					r = 1;
+				}
+				else if(d.depth == 3){
+					r = 2.5;
+				}
+				else r = (4.5 - d.depth) * 2;
+				var updotx = d.x;
+				var updoty = d.y - r;
+				var leftx = d.x - 6;
+				var lefty = d.y - r - 7;
+				var rightx = d.x + 6;
+				var righty = d.y - r - 7;
+				return ""+updotx+","+updoty+" "+leftx+","+lefty+" "+rightx+","+righty+"";
+			})
+			.attr("fill","#000000");
+/*		top_g.append("polygon")
+			.attr("points",function(d,i){
+				if(d.depth == 4) return null;
+				var updotx = d.x;
+				var updoty = d.y + 5;
+				var leftx = d.x-3;
+				var lefty = d.y + 11;
+				var rightx = d.x + 3;
+				var righty = d.y + 11
+				return ""+updotx+","+updoty+" "+leftx+","+lefty+" "+rightx+","+righty+"";
+			})
+			.attr("id",function(d,i){
+				return "toppolygon" + i;
+			})
+			.attr("fill","steelblue")
+			.attr("opacity",1);*/
 		svg_.selectAll(".top-node-desc").remove();
 /*		svg_.selectAll(".top-node-desc")
 		.data(levelTop)
@@ -499,6 +549,57 @@ var treeCompare = function(){
 				}
 			})
 		.attr("font-size","12px");
+		g_second.selectAll(".node-count2-top").remove();
+		g_second.selectAll(".node-count2-top")
+			.data(nos[1])
+			.enter()
+			.append("text")
+			.attr("class","node-count2-top")
+			.attr("x",function(d,i){
+				var strArray = d.key.split(" ");
+				return d.x - 4 /*+ 7 * strArray[0].length/2*/;
+			})
+			.attr("y",function(d){ 
+				var r;
+				if(d.depth == 4){
+					r = 1;
+				}
+				else if(d.depth == 3){
+					r = 2.5;
+				}
+				else r = (4.5 - d.depth) * 2;
+				return tree_height - d.y + r + 17;
+			})
+			.text(function(d,i){
+				if(d.count2) return d.count2;
+			})
+			.attr("font-size","20px");
+		g_second.selectAll(".node-polygon-bottom").remove();
+		g_second.selectAll(".node-polygon-bottom")
+			.data(nos[1].filter(function(d,i){
+				return d.count2;
+			}))
+			.enter()
+			.append("polygon")
+			.attr("class","node-polygon-bottom")
+			.attr("points",function(d,i){
+				var r;
+				if(d.depth == 4){
+					r = 1;
+				}
+				else if(d.depth == 3){
+					r = 2.5;
+				}
+				else r = (4.5 - d.depth) * 2;
+				var updotx = d.x;
+				var updoty = d.y + r;
+				var leftx = d.x - 6;
+				var lefty = d.y + r + 7;
+				var rightx = d.x + 6;
+				var righty = d.y + r + 7;
+				return ""+updotx+","+updoty+" "+leftx+","+lefty+" "+rightx+","+righty+"";
+			})
+			.attr("fill","#000000");
 /*		svg_.selectAll(".bottom-node-desc").remove();
 		svg_.selectAll(".bottom-node-desc")
 			.data(levelBottom)
@@ -590,6 +691,7 @@ var treeCompare = function(){
 		draw_trend(_nodes, node);
 	}
 	function node_focus(node){
+		console.log(node);
 		if(node == root) {
 			draw_depth(4);
 			return;
@@ -636,7 +738,7 @@ var treeCompare = function(){
 			expandchildren(node.children[i]);
 		}
 	}
-	function showSimilarPart(){
+/*	function showSimilarPart(){
 		var nodes = tree.nodes(root);
 		var markifexpand = [];		
 		for(var i = 0; i < nodes.length; i++){
@@ -663,6 +765,60 @@ var treeCompare = function(){
 		var _nodes = tree.nodes(root);
 		draw_separate_tree(_nodes, root);
 		draw_trend(_nodes, root);		
+	}*/
+	function completelyShowSimilarPart(){
+		var nodes = tree.nodes(root);
+		var markifexpand = [];		
+		for(var i = 0; i < nodes.length; i++){
+			if(nodes[i].children){
+				nodes[i]._children = nodes[i].children;
+				delete nodes[i].children;
+			}
+			if(nodes[i].hasObj2 && nodes[i].hasObj1)
+				markifexpand.push(nodes[i]);
+		}
+		cur_depth = 0;
+		for(var i = 0; i < markifexpand.length; i++){
+			if(markifexpand[i].depth > cur_depth) cur_depth = markifexpand[i].depth;
+			var node = markifexpand[i];
+			while(node.parent){
+				if(node.parent._children){
+					node.parent.children = [];
+					var AnumOfNodes = 0;
+					var BnumOfNodes = 0;
+					for(var j = 0; j < node.parent._children.length; j++){
+						var tmp = node.parent._children[j];
+						if(tmp.hasObj2) BnumOfNodes++;
+						if(tmp.hasObj1) AnumOfNodes++;
+						if(markifexpand.indexOf(tmp) != -1)
+							node.parent.children.push(tmp);
+					}
+					var count1 = AnumOfNodes - node.parent.children.length;
+					var count2 = BnumOfNodes - node.parent.children.length;
+					if(count1 != 0){
+						node.parent.count1 = count1;
+					}
+					if(count2 != 0){
+						node.parent.count2 = count2;
+					}
+					node.parent.originalChildren = node.parent._children;
+					delete node.parent._children;
+				}
+				else break;
+				node = node.parent;
+			}
+		}
+		var _nodes = tree.nodes(root);
+		draw_separate_tree(_nodes, root);
+		draw_trend(_nodes, root);	
+		for(var i = 0; i < _nodes.length; i++){
+			if(_nodes[i].originalChildren){
+				_nodes[i].children = _nodes[i].originalChildren;
+				delete _nodes[i].originalChildren;
+				if(_nodes[i].count1) delete _nodes[i].count1;
+				if(_nodes[i].count2) delete _nodes[i].count2;
+			}
+		}
 	}
 	/*
 	 *
@@ -686,7 +842,7 @@ var treeCompare = function(){
 		addclick();
 	});
 	$("#showSimilar").on("click",function(){
-		showSimilarPart();
+		completelyShowSimilarPart();
 	});
 	function addclick(){
 //		if(numoftreecompare == 4) return;
@@ -734,7 +890,7 @@ var treeCompare = function(){
 		g_trend.select("rect").attr("width", svg_size.width - leftPadding)
 			.attr("height", svgheighthis)
 			.attr("class","trend");
-		scale = d3.scale.linear().range([0,svgheighthis]);
+		scale = d3.scale.log().range([0,svgheighthis]);
 		draw_trend(_nodes,root);
 	}
     TreeCompare.OMListen = function(message, data) {
@@ -758,13 +914,13 @@ var treeCompare = function(){
         if(message == "mouse-over"){
         	for (var i = 0; i < data.length; i++) {
 				svg_.select(idPrefix + data[i]).classed("focus-highlight", true);
-				svg_.select(idBottom + data[i]).classed("focus-highlight", true);
+				svg_2.select(idBottom + data[i]).classed("focus-highlight", true);
 			}
         }
         if(message == "mouse-out"){
         	for (var i = 0; i < data.length; i++) {
 				svg_.select(idPrefix + data[i]).classed("focus-highlight", false);
-				svg_.select(idBottom + data[i]).classed("focus-highlight", false);
+				svg_2.select(idBottom + data[i]).classed("focus-highlight", false);
 			}
         }	
     }
