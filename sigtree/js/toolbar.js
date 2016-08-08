@@ -128,18 +128,22 @@ var toolbar = function(){
 		if($('#all-node-comparison').hasClass('active')){
 			$('#all-node-comparison').removeClass('active');
 			$('#same-node-comparison').addClass('active');
+			
 		}else{
 			$('#all-node-comparison').addClass('active');
 			$('#same-node-comparison').removeClass('active');
+
 		}
 	});
 	$('#same-node-comparison').on('click', function(d,i){
 		if($('#same-node-comparison').hasClass('active')){
 			$('#same-node-comparison').removeClass('active');
 			$('#all-node-comparison').addClass('active');
+
 		}else{
 			$('#same-node-comparison').addClass('active');
 			$('#all-node-comparison').removeClass('active');
+			
 		}
 	});
 	//--------------

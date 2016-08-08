@@ -1,9 +1,7 @@
 var treeSelect = function(){
 	var Aindex = 1;
 	var Bindex = 0;
-	var SelectTree = {};
-//	console.log("addListener SelectTree");
-//	ObserverManager.addListener(SelectTree);	
+	var SelectTree = {};	
 	ObserverManager.changeListener(SelectTree,1);
 	var svgWidth = $("#innerTopLeft").width();
 	var svgHeight = $("#innerTopLeft").height() * 19/20;
