@@ -1,47 +1,100 @@
+#toolbar{
+  position: absolute;
+  top: 0%;
+  height: 35px;
+  left: 0%;
+  right: 0%;
+}
 #topWrapper {
   position: absolute;
-  top:35px;
+  top: 35px;
   /*top: 50px;*/
   left: 0%;
   right: 0%;
-  bottom: 80%;
-  border:1px solid #a0a0a0;
+  bottom: 75%;
+  border: 1px solid #a0a0a0;
+  #innerTopRight {
+    padding: 5px 5px 5px 10px;
+    text-align: center;
+    float: right;
+    width: 20%;
+    height: 100%;
+    border-left:1px solid #a0a0a0;
+    padding:5px 5px 5px 5px;
+    overflow-y: scroll;
+    overflow-x: hidden;
+  }
 }
 #rightWrapper {
-  border:1px solid #a0a0a0;
+  border-bottom: 1px solid #a0a0a0;
+  border-left: 1px solid #a0a0a0;
+  border-right:  1px solid #a0a0a0;
   position: absolute;
   padding: 10px;
-  top: 20%;
+  top: 25%;
   left: 50%;
   right: 0%;
   bottom: 0%;
+  #rightToolbarWrapper{
+    border-bottom: 1px solid #a0a0a0;
+    position: absolute;
+    top: 0%;
+    left: 0%;
+    right: 0%;
+    height: 35px;
+  }
+  #rightComparisonWrapper{
+    padding: 10px;
+    position: absolute;
+    top: 35px;
+    left: 0%;
+    right: 0%;
+    bottom: 0%;
+  }
 }
 #leftWrapper{
-  top: 20%;
+  top: 25%;
   left: 0%;
   right: 50%;
   bottom: 0%;
-  border:1px solid #a0a0a0;
   position: absolute;
-  #leftTopWrapper {
+  #leftToolbarWrapper{
+    border-bottom: 1px solid #a0a0a0;
+    position: absolute;
     top: 0%;
-	  bottom: 30%;
-	  height: 50%;
-	  left: 2%;
-   }
-   #leftBottomWrapper {
-	  top: 50%;
-	  height: 47%;
-	  bottom: 0%;
-	  left: 5%;
-	}
+    left: 0%;
+    right: 0%;
+    height: 35px;
+  }
+  #leftTreeWrapper{
+    position: absolute;
+    top: 35px;
+    left: 0%;
+    right: 0%;
+    bottom: 0%;
+    #leftTopWrapper {
+      position: absolute;;
+      border-bottom: 1px solid #a0a0a0;
+      top: 0%;
+      bottom: 50%;
+      height: 50%;
+      left: 0%;
+      right: 0%;
+     }
+     #leftBottomWrapper {
+      position: absolute;;
+      top: 50%;
+      bottom: 0%;
+      left: 0%;
+      right: 0%;
+    }
+  }
 }
 #projectionWrapper{
   visibility: hidden;
-  top: 20%;
+  top: 25%;
   left: 0%;
   right: 50%;
   bottom: 0%;
-  border:1px solid #a0a0a0;
   position: absolute;
 }

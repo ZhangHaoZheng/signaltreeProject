@@ -11,19 +11,13 @@ var toolbar = function(){
 	});
 	//group button
 	$('#time-sort').on('click', function(d,i){
-		if($('#time-sort').hasClass('active')){
-			$('#time-sort').removeClass('active');
-			$('#size-sort').addClass('active');
-		}else{
+		if(!($('#time-sort').hasClass('active'))){
 			$('#time-sort').addClass('active');
 			$('#size-sort').removeClass('active');
 		}
 	});
 	$('#size-sort').on('click', function(d,i){
-		if($('#size-sort').hasClass('active')){
-			$('#size-sort').removeClass('active');
-			$('#time-sort').addClass('active');
-		}else{
+		if(!($('#size-sort').hasClass('active'))){
 			$('#size-sort').addClass('active');
 			$('#time-sort').removeClass('active');
 		}
@@ -38,19 +32,13 @@ var toolbar = function(){
 	});
 	//group button
 	$('#sunburst-tree').on('click', function(d,i){
-		if($('#sunburst-tree').hasClass('active')){
-			$('#sunburst-tree').removeClass('active');
-			$('#radial-tree').addClass('active');
-		}else{
+		if(!($('#sunburst-tree').hasClass('active'))){
 			$('#sunburst-tree').addClass('active');
 			$('#radial-tree').removeClass('active');
 		}
 	});
 	$('#radial-tree').on('click', function(d,i){
-		if($('#radial-tree').hasClass('active')){
-			$('#radial-tree').removeClass('active');
-			$('#sunburst-tree').addClass('active');
-		}else{
+		if(!($('#radial-tree').hasClass('active'))){
 			$('#radial-tree').addClass('active');
 			$('#sunburst-tree').removeClass('active');
 		}
@@ -59,12 +47,7 @@ var toolbar = function(){
 	//group button
 	$('#tree-view').on('click', function(d,i){
 		console.log('click treeview');
-		if($('#tree-view').hasClass('active')){
-			$('#tree-view').removeClass('active');
-			$('#projection-view').addClass('active');
-			$('#leftWrapper').css('visibility', 'hidden');
-			$('#projectionWrapper').css('visibility', 'visible');
-		}else{
+		if(!($('#tree-view').hasClass('active'))){
 			$('#tree-view').addClass('active');
 			$('#projection-view').removeClass('active');
 			$('#leftWrapper').css('visibility', 'visible');
@@ -72,12 +55,7 @@ var toolbar = function(){
 		}
 	});
 	$('#projection-view').on('click', function(d,i){
-		if($('#projection-view').hasClass('active')){
-			$('#projection-view').removeClass('active');
-			$('#tree-view').addClass('active');
-			$('#leftWrapper').css('visibility', 'visible');
-			$('#projectionWrapper').css('visibility', 'hidden');
-		}else{
+		if(!($('#projection-view').hasClass('active'))){
 			$('#projection-view').addClass('active');
 			$('#tree-view').removeClass('active');
 			$('#leftWrapper').css('visibility', 'hidden');
@@ -88,7 +66,7 @@ var toolbar = function(){
 	//multi group button
 	$('.projection-method').on('click', function(d,i){
 		var thisId = $(this).attr('id');
-		if($(this).hasClass('active')){
+		if(!($(this).hasClass('active'))){
 			if(thisId != 'original-projection'){
 				$(this).removeClass('active');
 				$('#original-projection').addClass('active');

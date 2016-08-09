@@ -36,8 +36,7 @@ var radial = function(){
 	var treeNodeList;
 	if($("#radialcheckbox").attr("mark") == 2) {
 		treeNodeList = tree.nodes(rootB).reverse();
-	}
-	else {
+	}else{
 		treeNodeList = tree.nodes(rootA).reverse();
 	}
 	var index = 0;
@@ -49,7 +48,6 @@ var radial = function(){
 	var histogramView = svg.append("g")
 		.attr("id","histogramView")
 		.attr("transform","translate(" + (move_x * 1.1) + ","+ errorChange +")");
-
 	var margin = 60;
 	var lineWidth = width - height - margin;
 	var lineHeight = height;
@@ -78,19 +76,19 @@ var radial = function(){
 	 var dataSizeArray = new Array();
 	 var originalDataSizeArray = new Array();
 	 var timeDataSum = 0;
-	 changeHis();
+	 _changeHis();
 	 ///////////////////////////////////////////////////////////////////////////////////////////////
-	 changeButtonColor();
+	 _changeButtonColor();
 	 $("#default").attr("checked",true);
 	 $("#radial-depth-controller").on("click", ".level-btn", function(){
 		var dep = $(this).attr("level");
 		$("#radial-depth-controller .level-btn").removeClass("active");		
 		for (var i = 0; i <= dep; i++)
 			$("#radial-depth-controller .level-btn[level=" + i + "]").addClass("active");		
-		draw_depth(dep);
+		_draw_depth(dep);
 	});
 	 ///////////////////////////////////////////////////////////////////////////////////////////////
-	 function changeButtonColor(){
+	 function _changeButtonColor(){
 	 	if($("#radialcheckbox").attr("mark") == 1){
 	 		$("#radial-depth-controller .level-btn").removeClass("active");		
 			for (var i = 0; i <= activeA; i++)
@@ -103,7 +101,7 @@ var radial = function(){
 	 	}
 	 }
 	// draw the histogram of the distribution
-	function changeHis(){
+	function _changeHis(){
 		var multi = 4;
 		for(var countIndex = 0;countIndex<countArray.length;countIndex++){
 			countArray[countIndex] = 0;
@@ -152,7 +150,7 @@ var radial = function(){
 		.scale(lineX)
 		.orient("bottom");
 		brush.x(lineX)
-			.on("brushend",brushed);
+			.on("brushend",_brushed);
 
 		for(var i=0;i<(d3.max(dataSizeArray)+1)/multi;i=i+1){
 			xAxisTicks.push(i);
@@ -227,22 +225,19 @@ var radial = function(){
 		.attr("y",0)
 		.attr("height",moveHeight);
 	}
-
-	function setSvgAttr(svg,width,height){
+	_setSvgAttr(svg,width,height)
+	function _setSvgAttr(svg,width,height){
 	  	svg.attr("width", width + "px");
 	  	svg.attr("height", height + "px");
 	  	svg.style("transform", "translate(" + padding + "px," + padding + "px)");
 	}
-	setSvgAttr(svg,width,height)
-
-
 	if(!svg){
 		svg = d3.select("body").append("svg");
 	}
 	svg = svg.append("g")
 		.attr("transform", "translate(" + diameter / 2 + "," + (diameter / 2 - 3 * padding) + ")");
-
 	svg.call(tip);
+
 	if($("#radialcheckbox").attr("mark") == 1)
 		update(rootA);
 	else update(rootB);
@@ -256,7 +251,6 @@ var radial = function(){
 				treeNodeNum++;
 			}
 		}
-
 		var node = svg.selectAll(".node")
 			.data(nodes, function(d) {return d.id});
 		var max_depth = 0;
@@ -266,7 +260,7 @@ var radial = function(){
 			.attr("id", function(d) {
 				return "radial-node-" + d.id;
 			})
-			.on("click",click)
+			.on("click",_click)
 			.on("mouseover", function(d) {
 				ObserverManager.post("mouse-over", [d.id]);
 				tip.html(function() {
@@ -357,7 +351,7 @@ var radial = function(){
 
 		link.exit().remove();
 	}
-	function brushed() {
+	function _brushed() {
 	  var extentX = d3.select(".extent").attr("x");
 	  var extentWidth = d3.select(".extent").attr("width");
 	    if(extentWidth > his_width/3){
@@ -394,7 +388,7 @@ var radial = function(){
 			lineX.domain(brush.empty() ? lineX.domain() : brush.extent());
 		}
 	}
-	function click(d, i) {
+	function _click(d, i) {
 		if((+d.flow) == 0)	return null;		
 		if (d.values) {
 			d._values = d.values;
@@ -441,7 +435,7 @@ var radial = function(){
 		changeHis();*/
 	}
 	///////////////////////////////////////////////////////////////////////////////
-	function putnodesdepth(radialexpandmark,nodesIddepth,hide_depth){
+	function _putnodesdepth(radialexpandmark,nodesIddepth,hide_depth){
 		radialexpandmark = [];
 		for(var i = hide_depth; i < 4; i++){
 			for(var j = 0; j < nodesIddepth[i].length; j++){
@@ -451,11 +445,11 @@ var radial = function(){
 		return radialexpandmark;
 	}
 	//////////////////////////////////////////////////////////////////////////////////
-	function draw_depth(hide_depth){
+	function _draw_depth(hide_depth){
 		var iterator = 1;
 		if($("#radialcheckbox").attr("mark") == 1){
 			activeA = hide_depth;
-			radialexpandmarkA = putnodesdepth(radialexpandmarkA,nodesIddepthA,hide_depth);
+			radialexpandmarkA = _putnodesdepth(radialexpandmarkA,nodesIddepthA,hide_depth);
 		}
 		else {
 			activeB = hide_depth;
@@ -520,13 +514,14 @@ var radial = function(){
 			}
         }
         if(message == "depth"){
-        	draw_depth(data);
+        	_draw_depth(data);
         }	
         if(message=="changeData"){
         	console.log("radial",data);
         }
     }
     ////////////////////////////////////////////////////////////////////////////////////////////
+    //计算
     if(marknodesdepth == false){
 		marknodesdepth = true;
 		changenodedepthA();

@@ -170,7 +170,7 @@ var mainController = function(){
                             treeCompareView = treeCompare();     
                             parsetView = parset();     
                             projectionView = projection();
-                            toolbar();
+                            //toolbar();
                     } else {
 
               //          $("#treemapA").html(""); 
