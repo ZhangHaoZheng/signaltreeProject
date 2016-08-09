@@ -1,6 +1,5 @@
 var treeCompare = function(){
 	var TreeCompare = {};
-	var markexpand = true;
 //	console.log("addListener compare");
 //	ObserverManager.addListener(TreeCompare);
 	ObserverManager.changeListener(TreeCompare,3);
@@ -15,7 +14,8 @@ var treeCompare = function(){
 
 	var _width = $("#rightWrapper").width() - 40;
 	var height = $("#rightWrapper").height() - 50;
-
+	$("#multitree").width(_width);
+	$("#multitree").height(height);
 	var svg_;
 	var svg_2;
 	var svg_his;
@@ -844,29 +844,40 @@ var treeCompare = function(){
 	$("#showSimilar").on("click",function(){
 		completelyShowSimilarPart();
 	});
+	var remainheight;
 	function addclick(){
-//		if(numoftreecompare == 4) return;
-		numoftreecompare++;
-		var svgheightA = $("#treemapA svg").attr("height");
-		var svgheighthis = $("#treehis svg").attr("height");
-		var svgheightB = $("#treemapB svg").attr("height");
-		d3.select("#treemapA svg").attr("height",svgheightA/6*5);
-		d3.select("#treehis svg").attr("height",svgheighthis/6*5);
-		d3.select("#treemapB svg").attr("height",svgheightB/6*5);
-		svgheightA = $("#treemapA svg").attr("height");
-		svgheighthis = $("#treehis svg").attr("height");
-		svgheightB = $("#treemapB svg").attr("height");
-		var remainheight = (height - svgheightA - svgheighthis - svgheightB) / numoftreecompare;
-		var new_svg_size = { width:_width, height:remainheight,
-		left:20, right:10, top:0, bottom:0 };
-		for(var i = 1; i < numoftreecompare; i++){
-			d3.select("#treemap" + i + " svg").attr("height",remainheight);
+		if(numoftreecompare < 4) {
+			numoftreecompare++;
+			var svgheightA = $("#treemapA svg").attr("height");
+			var svgheighthis = $("#treehis svg").attr("height");
+			var svgheightB = $("#treemapB svg").attr("height");
+			d3.select("#treemapA svg").attr("height",svgheightA/6*5);
+			d3.select("#treehis svg").attr("height",svgheighthis/6*5);
+			d3.select("#treemapB svg").attr("height",svgheightB/6*5);
+			svgheightA = $("#treemapA svg").attr("height");
+			svgheighthis = $("#treehis svg").attr("height");
+			svgheightB = $("#treemapB svg").attr("height");
+			remainheight = (height - svgheightA - svgheighthis - svgheightB) / numoftreecompare;
+			var new_svg_size = { width:_width, height:remainheight,
+				left:20, right:10, top:0, bottom:0 };
+			for(var i = 1; i < numoftreecompare; i++){
+				d3.select("#treemap" + i + " svg").attr("height",remainheight);
+			}
+			d3.select("#multitree").append("div").attr("id",function(){
+				return "treemap" + numoftreecompare;
+			})
+			var svg_g = initFrame(d3.select("#treemap" + numoftreecompare).append("svg"),new_svg_size,false);
+			changeViewForSvg(svgheightA-20,svgheighthis);
 		}
-		d3.select("#multitree").append("div").attr("id",function(){
-			return "treemap" + numoftreecompare;
-		})
-		var svg_g = initFrame(d3.select("#treemap" + numoftreecompare).append("svg"),new_svg_size,false);
-		changeViewForSvg(svgheightA-20,svgheighthis);
+		else {
+			numoftreecompare++;
+			d3.select("#multitree").append("div").attr("id",function(){
+				return "treemap" + numoftreecompare;
+			})
+			var new_svg_size = { width:_width, height:remainheight,
+				left:20, right:10, top:0, bottom:0 };
+			initFrame(d3.select("#treemap" + numoftreecompare).append("svg"),new_svg_size,false);
+		}
 	}
 	function changeViewForSvg(height,svgheighthis){
 		tree = d3.layout.tree()
