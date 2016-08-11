@@ -4,15 +4,8 @@
 //         id: 
 //         processor:         
 //     ]
-(function() {
-    this.dataCenter = {};
-    dataCenter.globalVariable = new Object();
-    dataCenter.globalVariable.showArc = false;
-    dataCenter.globalVariable.clickThisNodeShrink = true;
-    dataCenter.globalVariable.compareSameNode = true;
-})()
 var numoftreecompare = 0;
-$("#radialcheckbox").on("change",function(){
+/*$("#radialcheckbox").on("change",function(){
     var radialView, parsetView;
     var m = $("#radialcheckbox").attr("mark");
     if(m==1) {$("#radialcheckbox").attr("mark",2);}
@@ -20,11 +13,11 @@ $("#radialcheckbox").on("change",function(){
     m = $("#radialcheckbox").attr("mark");
     $("svg[class=radial]").html("");
     $("svg[class=parset]").html("");
-    var listeners = _.without(ObserverManager.getListeners(),radialView,parsetView); //remove old views in listeners
+    //var listeners = _.without(ObserverManager.getListeners(),radialView,parsetView); //remove old views in listeners
     ObserverManager.setListeners(listeners);
     radialView = radial();     
     parsetView = parset();
-})
+})*/
 var radialexpandmarkA = [];
 var radialexpandmarkB = [];
 var marknodesdepth = false;
@@ -34,7 +27,14 @@ nodesIddepthA.length = 4;
 nodesIddepthB.length = 4;
 var activeA = 4;
 var activeB = 4;
-function changenodedepthA(){
+var tip = d3.tip()
+.attr('class', 'd3-tip')
+.offset([-10, 0])
+.html(function(d,i) {
+  return "<span style='font-size:12px;'>"  + d.key + "</span>";
+});
+//将不同层级的节点塞入到不同的数组中，方便当切换层级的时候将整个数组的节点都放到收缩的数组中
+/*function changenodedepthA(){
     var tree = d3.layout.tree()
         .children(function(d){
             if(Array.isArray(d.values)) return d.values;
@@ -51,8 +51,9 @@ function changenodedepthA(){
         var tmp = treeNodeLista[i];
         nodesIddepthA[d].push(tmp);
      }
-}
-function changenodedepthB(){
+}*/
+//将不同层级的节点塞入到不同的数组中
+/*function changenodedepthB(){
     var tree = d3.layout.tree()
         .children(function(d){
             if(Array.isArray(d.values)) return d.values;
@@ -72,7 +73,7 @@ function changenodedepthB(){
 }
 var justChangeDataA;
 var mainController = function(){
-    var treeSelectView, radialView, treeCompareView, parsetView;
+    //var treeSelectView, radialView, treeCompareView, parsetView, toolbarAllView, toolbarComparisonView, toolbartreeView;
     var datasetID = [];
     function loadStatData() {
         var dtd = $.Deferred();
@@ -131,6 +132,10 @@ var mainController = function(){
     function initInteractionHandler() {
         ObserverManager.addListener(this);
     }
+    //初始化所有的界面，这时候同样也需要读入数据进行操作
+    function initViewsHandler(){
+        
+    }
     this.OMListen = function(message, data) {
         if (message == "changeData") {
             console.log(data);
@@ -157,30 +162,33 @@ var mainController = function(){
             $.when(defers[0], defers[1])
                 .done(function() {
                     if (justChangeDataA == false) {
+                        //$("svg[class=radial]").html("");
+                        //$("svg[class=parset]").html("");
+                        //$("#treemapA").html("");
+                        //$("#treemapB").html("");
+                        //$("#treehis").html("");
+                        // changenodedepthA();
+                         //var listeners = _.without(ObserverManager.getListeners(), radialView, treeCompareView, parsetView); //remove old views in listeners
+                         // ObserverManager.setListeners(listeners);
+                         dataCenter.view_collection.radial_view = radial.initialize();
+                         dataCenter.view_collection.radial_histogram = radialHistogram.initialize();  
+                         dataCenter.view_collection.tree_compare_view = treeCompare();     
+                         dataCenter.view_collection.parallel_set_view =  parset();     
+                         dataCenter.view_collection.projectionView = projection();
 
-                        $("svg[class=radial]").html("");
-                        $("svg[class=parset]").html("");
-                        $("#treemapA").html("");
-                //        $("#treemapB").html("");
-                        $("#treehis").html("");
-                            changenodedepthA();
-                            var listeners = _.without(ObserverManager.getListeners(), radialView, treeCompareView, parsetView); //remove old views in listeners
-                            ObserverManager.setListeners(listeners);
-                            radialView = radial();   
-                            treeCompareView = treeCompare();     
-                            parsetView = parset();     
-                            projectionView = projection();
+                         dataCenter.view_collection.toolbarAllView =  toolbarAll.initialize();
+                         dataCenter.view_collection.toolbar_comparison_view =  toolbarComparison.initialize();
+                         dataCenter.view_collection.toolbar_tree_view = toolbarSignaltree.initialize();
                             //toolbar();
                     } else {
-
-              //          $("#treemapA").html(""); 
-                        $("svg[class=radial]").html("");
-                        $("svg[class=parset]").html("");
-                        $("#treemapB").html("");
-                        $("#treehis").html("");
+                        //$("#treemapA").html(""); 
+                        //$("svg[class=radial]").html("");
+                        //$("svg[class=parset]").html("");
+                        //$("#treemapB").html("");
+                        //$("#treehis").html("");
                             changenodedepthB();
-                            var listeners = _.without(ObserverManager.getListeners(), radialView, treeCompareView, parsetView); //remove old views in listeners
-                            ObserverManager.setListeners(listeners);
+                           // var listeners = _.without(ObserverManager.getListeners(), radialView, treeCompareView, parsetView); //remove old views in listeners
+                           // ObserverManager.setListeners(listeners);
                             radialView = radial();   
                             treeCompareView = treeCompare();     
                             parsetView = parset();   

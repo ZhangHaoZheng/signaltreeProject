@@ -19,14 +19,16 @@
                 </div>             
             </div>
         </div>-->
-
-        <div id = 'toolbar'>
+        <div id = 'toolbar' class='remove-highlight'>
             <div id = "title-div" class = "button-group bind">
                 <span id = "title" class = "button" data-tooltip = "关于本工具">SignalTree Visualization</span>
             </div>
             <div id = "arc-link-div" class = "button-group bind">
-                <span id = "arc-link" class = "button active" data-tooltip = "arc连接">
+                <span id = "arc-link" class = "button" data-tooltip = "arc连接">
                     <i class="icon iconfont">&#xe613;</i>
+                </span>
+                <span id = "arc-link-hover" class = 'button' data-tooltip = "hover时arc连接">
+                    <i class="icon iconfont">&#xe61e;</i>
                 </span>
             </div>
             <!--<div id = "select-div" class = "button-group bind">
@@ -59,8 +61,8 @@
                 </span>
             </div>
         </div>
-        <div id="topWrapper">
-            <div id="innerTopLeft">
+        <div id = "topWrapper">
+            <div id = "innerTopLeft">
                 <!--<div id="tree-select-controller">-->
                     <!--<span class="sort-btn btn btn-default btn-xs">
                         <i class="icon iconfont">&#xe613;</i>
@@ -85,7 +87,7 @@
 
                 <!--</div>-->
             </div>
-            <div id="innerTopRight">
+            <div id="innerTopRight" class='remove-highlight'>
                 <!--<span class="sort-btn btn btn-default btn-xs">
                     <span class="glyphicon glyphicon-info-sign glyphicon-white"></span>
                 </span>-->
@@ -134,8 +136,11 @@
                 </div>
             </div>
         </div>
-        <div id = "rightWrapper">
+        <div id = "rightWrapper" class='remove-highlight'>
             <div id = "rightToolbarWrapper">
+                <div id = "title-div" class = "button-group bind">
+                    <span id = "title" class = "button" data-tooltip = "关于本工具">Comparison</span>
+                </div>
                 <div id = 'node-comparison' class = 'button-group bind'>
                     <span id = "all-node-comparison" class = "button active node-comparison" data-tooltip = "比较所有节点">
                         <i class="icon iconfont">&#xe616;</i>
@@ -187,8 +192,11 @@
                     </table>
             </div>
         </div>
-        <div id = "leftWrapper">
+        <div id = "leftWrapper" class='remove-highlight'>
             <div id = "leftToolbarWrapper">
+                <div id = "title-div" class = "button-group bind">
+                    <span id = "title" class = "button" data-tooltip = "关于本工具">A</span>
+                </div>
                 <div id = 'switch-vis-div' class = 'button-group bind'>
                     <span id = "radial-tree" class = "button active" data-tooltip = "radial树">
                         <i class="icon iconfont">&#xe60a;</i>
@@ -198,7 +206,7 @@
                     </span>         
                 </div>
                  <div id = "projection-method-div" class = "button-group bind">
-                    <span id = "tree-view" class = "button active" data-tooltip = "树状视图">
+                    <span id = "tree-view" class = "button active projection-method" data-tooltip = "树状视图">
                         <i class="icon iconfont">&#xe60e;</i>
                     </span>
                     <span id = "original-projection" class = "button projection-method" data-tooltip = "初始投影"><!--初始投影，没有连接-->
@@ -220,24 +228,29 @@
             </div>
             <div id = "leftTreeWrapper">
                 <div id="leftTopWrapper">
-                    <div id="radial-depth-controller">
+                    <!--<div id="radial-depth-controller">-->
                     <!--<section class="model-14"><div class="checkbox"><input type="checkbox" mark=1 id="radialcheckbox"/>
                     </div></section><label>B</label>-->
-                         <div id="label-A"><span class="btn btn-default btn-xs label">A</span></div><br/>
+                         <!--<div id="label-A"><span class="btn btn-default btn-xs label">A</span></div><br/>-->
                          <!--<div class="btn btn-default btn-xs active level-btn" level=0>L0</div><br/>
                          <div class="btn btn-default btn-xs active level-btn" level=1>L1</div><br/>
                          <div class="btn btn-default btn-xs active level-btn" level=2>L2</div><br/>
                          <div class="btn btn-default btn-xs active level-btn" level=3>L3</div><br/>
                          <div class="btn btn-default btn-xs active level-btn" level=4>L4</div><br/>-->
+                    <!--</div>-->
+                    <div id='leftTopLeftWrapper'>
+                        <svg class="radial"></svg>
                     </div>
-                    <svg class="radial"></svg>
+                    <div id='leftTopRightWrapper'>
+                        <svg class='radial-histogram'></svg>
+                    </div>
                 </div>
                 <div id="leftBottomWrapper">
                     <svg class="parset"></svg>
                 </div>
             </div>
         </div>
-        <div id = 'projectionWrapper'>
+        <div id = 'projectionWrapper' class='remove-highlight'>
             <svg class = "projection"></svg>
         </div>
     </body>
@@ -264,6 +277,8 @@
 
     <script type="text/javascript" src="js/tree_compare.js"></script>
 	<script type="text/javascript" src="js/radial.js"></script> 
+    <script type="text/javascript" src='js/radial_histogram.js'></script>
+    <script type="text/javascript" src="js/datacenter.js"></script>
     <!--<script type="text/javascript" src="js/sunburst.js"></script>-->
 	<script type="text/javascript" src="js/parset.js"></script>    
 	<script type="text/javascript" src="js/tree_select.js"></script>

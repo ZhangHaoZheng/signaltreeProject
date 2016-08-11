@@ -19,7 +19,6 @@
 			}
 		}
 	}
-
 	ObserverManager.addListener = function(listener) {
 		listeners.push(listener);
 	}

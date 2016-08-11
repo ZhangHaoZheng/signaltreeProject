@@ -19,24 +19,13 @@
 #mainTimeline .bar {
   fill: #C0C0C0;
 }
-
-#mainTimeline .previous {
-  fill: #FF7F0E;
+#mainTimeline .selection {
+  stroke: black !important;
+  stroke-width: 1px !important;
+  opacity: 1 !important;
 }
-
-#mainTimeline .current {
-  fill: #1F77B4;
-  stroke: #b2df8a;
-  stroke-width: 2px;
-}
-#mainTimeline .change-previous {
-  fill: #FF7F0E;
-  stroke: #b2df8a;
-  stroke-width: 2px;
-}
-
-#mainTimeline .change-current {
-  fill: #1F77B4;
+.append-current-circle{
+  fill: black;
 }
 .label-wrapper > .label  {
   pointer-events: none;
@@ -51,7 +40,12 @@
   padding-top: 0.3em;
   border-top: 2px solid #ddd;
 }
-.arc-path{
+.default{
+  stroke: gray;
+  stroke-width: 2px;
+  fill: none;
+}
+.hover{
   stroke: black;
   stroke-width: 2px;
   fill: none;
