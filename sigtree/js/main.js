@@ -70,6 +70,7 @@ function changenodedepthB(){
         nodesIddepthB[d].push(tmp);
     }
 }
+var justChangeDataA;
 var mainController = function(){
     var treeSelectView, radialView, treeCompareView, parsetView;
     var datasetID = [];
@@ -134,7 +135,7 @@ var mainController = function(){
         if (message == "changeData") {
             console.log(data);
             console.log(datasetID);
-            var justChangeDataA = false;
+            justChangeDataA = false;
             if (data[1] == datasetID[1]){
                 justChangeDataA = true;
             }
@@ -160,7 +161,7 @@ var mainController = function(){
                         $("svg[class=radial]").html("");
                         $("svg[class=parset]").html("");
                         $("#treemapA").html("");
-                        $("#treemapB").html("");
+                //        $("#treemapB").html("");
                         $("#treehis").html("");
                             changenodedepthA();
                             var listeners = _.without(ObserverManager.getListeners(), radialView, treeCompareView, parsetView); //remove old views in listeners
@@ -172,7 +173,7 @@ var mainController = function(){
                             toolbar();
                     } else {
 
-                        $("#treemapA").html(""); 
+              //          $("#treemapA").html(""); 
                         $("svg[class=radial]").html("");
                         $("svg[class=parset]").html("");
                         $("#treemapB").html("");
