@@ -128,8 +128,8 @@ var treeCompare = function(){
 	var nodesA = tree.nodes(dt_root);
 	var nodesB = tree.nodes(dt_root2);
 	var mult_tree_smaller = [];
-	mult_tree_smaller.push({nodes:nodesA, g:compare_g_first, index:1},
-		{nodes:nodesB, g:compare_g_second, index:2});
+	mult_tree_smaller.push({nodes:nodesA, g:compare_g_first, index:1, divid:"treemapA"},
+		{nodes:nodesB, g:compare_g_second, index:2, divid:"treemapB"});
 	// accumulate_flow(dt_root);
 	// accumulate_flow(dt_root2);
 
@@ -1033,7 +1033,33 @@ var treeCompare = function(){
 		completelyShowSimilarPart();
 	});
 	function exchangeAB_draw_all(index1,index2){
-		
+		if(Aindex == index1) Aindex = index2;
+		else if(Bindex == index1) Bindex = index2;
+		change_comparison_A_B(nodes,Aindex,Bindex);
+		var index1mark,index2mark;
+		for(var i = 0; i < mult_tree_smaller.length; i++){
+			var tmp = mult_tree_smaller[i];
+			if(tmp.index == index1) {
+				index1mark = tmp;
+				continue;
+			}
+			if(tmp.index == index2) {
+				index2mark = tmp;
+				continue;
+			}
+			if(tmp.index == Aindex || tmp.index == Bindex) continue;
+			draw_tree_lastTwoLevel(tmp.nodes,tmp.g,nodes);
+		}
+		var tmpnodes1 = index1mark.nodes,
+			tmpnode1 = index1mark.node,
+			tmpindex1 = index1mark.index;
+		index1mark.nodes = index2mark.nodes;
+		index1mark.node = index2mark.node;
+		index1mark.index = index2mark.index;
+		index2mark.nodes = tmpnodes1;
+		index2mark.node = tmpnode1;
+		index2mark.index = tmpindex1;
+		draw_tree_lastTwoLevel(index2mark.nodes,index2mark.g,nodes);
 	}
 	function change_comparison_A_B(_nodes,indexA,indexB){
 		for(var i = 0; i < mult_tree_smaller.length; i++){
@@ -1088,14 +1114,15 @@ var treeCompare = function(){
 				.attr("transform","translate(30,0)");
 			var nodes1 = tree.nodes(node);
 			console.log(nodes1)
-			mult_tree_smaller.push({nodes:nodes1, node:node, g:tree_g, index:numoftreecompare+2});
+			mult_tree_smaller.push({nodes:nodes1, node:node, g:tree_g, index:numoftreecompare+2, divid:"treemap"+numoftreecompare});
 			merge_trees(total_root,node,numoftreecompare + 2);
 		}
 		var _nodes = tree.nodes(total_root);
 		console.log(total_root)
 		build_id_nodes(_nodes);
-		for(var i = 2; i < mult_tree_smaller.length; i++){
+		for(var i = 0; i < mult_tree_smaller.length; i++){
 			var tmp = mult_tree_smaller[i];
+			if(tmp.index == Aindex || tmp.index == Bindex) continue;
 			draw_tree_lastTwoLevel(tmp.nodes,tmp.g,_nodes);
 		}
 		changeViewForSvg($("#treemapA svg").attr("height")-20,$("#treehis svg").attr("height"));
