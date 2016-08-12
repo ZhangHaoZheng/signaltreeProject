@@ -12,6 +12,7 @@ var dataCenter = {
 	global_variable: {
 		'show_arc': false,
 		'hover_show_arc': false,
+		'sort_mode': 'time',
 		'click_thisNode_shrink': true,
 		'compare_same_node': false,
 		'radialexpandmarkA': [],

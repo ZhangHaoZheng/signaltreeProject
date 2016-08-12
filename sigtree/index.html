@@ -21,42 +21,42 @@
         </div>-->
         <div id = 'toolbar' class='remove-highlight'>
             <div id = "title-div" class = "button-group bind">
-                <span id = "title" class = "button" data-tooltip = "关于本工具">SignalTree Visualization</span>
+                <span id = "title" class = "button toolbar-all" data-placement="bottom" title = "关于本工具">SignalTree Visualization</span>
             </div>
             <div id = "arc-link-div" class = "button-group bind">
-                <span id = "arc-link" class = "button" data-tooltip = "arc连接">
+                <span id = "arc-link" class = "button toolbar-all" data-placement="bottom" title = "初始arc连接">
                     <i class="icon iconfont">&#xe613;</i>
                 </span>
-                <span id = "arc-link-hover" class = 'button' data-tooltip = "hover时arc连接">
+                <span id = "arc-link-hover" class = 'button toolbar-all' data-placement="bottom" data-placement="bottom"title = "hover时arc连接">
                     <i class="icon iconfont">&#xe61e;</i>
                 </span>
             </div>
             <!--<div id = "select-div" class = "button-group bind">
-                <span id = "dual-selection" class = "button selection" data-tooltip = "选择两个信号树">
+                <span id = "dual-selection" class = "button selection" title = "选择两个信号树">
                     <i class="icon iconfont">&#xe60c;</i>
                 </span>
-                <span id = "multi-selection" class = "button selection" data-tooltip = "选择多个信号树">
+                <span id = "multi-selection" class = "button selection" title = "选择多个信号树">
                     <i class="icon iconfont">&#xe60b;</i>
                 </span>
             </div>-->
             <div id = "sort-div" class = "button-group bind">
-                <span id = "time-sort" class = "button sort-btn active" data-tooltip = "时间排序" sort-type="time">
+                <span id = "time-sort" class = "button sort-btn toolbar-all active" data-placement="bottom" title = "时间排序" sort-type="time">
                     <span class="glyphicon glyphicon-time"></span>
                 </span>
-                <span id = "size-sort" class = "button sort-btn" data-tooltip = "流量排序" sort-type="size"> 
+                <span id = "size-sort" class = "button sort-btn toolbar-all" data-placement="bottom" title = "流量排序" sort-type="size"> 
                     <span class="glyphicon glyphicon-signal"></span>
                 </span>
             </div>
             <div id = "switch-selection-div" class = "button-group bind">
-                <span id = "switch-selection" class = "button data-btn" data-tooltip = "变换当前选择" data-type="switch">
+                <span id = "switch-selection" class = "button data-btn toolbar-all" data-placement="bottom" title = "变换当前选择" data-type="switch">
                     <span class="glyphicon glyphicon-refresh"></span>
                 </span>
             </div>
             <div id = 'click-shrink' class = 'button-group bind'>
-                <span id = "click-node-shrink" class = "button active click-shrink" data-tooltip = "点击节点收缩">
+                <span id = "click-node-shrink" class = "button click-shrink toolbar-all active" data-placement="bottom" title = "点击节点收缩">
                     <i class="icon iconfont">&#xe614;</i>
                 </span>
-                <span id = "click-other-node-shrink" class = "button click-shrink" data-tooltip = "点击其它节点收缩">
+                <span id = "click-other-node-shrink" class = "button click-shrink toolbar-all" data-placement="bottom" title = "点击其它节点收缩">
                     <i class="icon iconfont">&#xe615;</i>
                 </span>
             </div>
@@ -106,7 +106,7 @@
                                 <span class="node_num_description"></span>
                             </div>
                         </div>
-                        <div id="scrollDiv2" class="col-md-6 text-center">
+                        <!--<div id="scrollDiv2" class="col-md-6 text-center">
                             <div id="label-B" class="label-wrapper">
                                 <span class="btn btn-default btn-xs label">B</span><br/>
                                 <span class="date_text"><strong>Date: </strong></span>
@@ -118,7 +118,7 @@
                                 <span class="value_node_num"><strong>Node Num:</strong></span>
                                 <span class="node_num_description"></span>
                             </div>
-                        </div>
+                        </div>-->
                     </div>
                 </div>
                 <div id="label-C" class="label-wrapper" style="text-align: center; width:100%">
@@ -139,22 +139,22 @@
         <div id = "rightWrapper" class='remove-highlight'>
             <div id = "rightToolbarWrapper">
                 <div id = "title-div" class = "button-group bind">
-                    <span id = "title" class = "button" data-tooltip = "关于本工具">Comparison</span>
+                    <span id = "title" class = "button toolbar-tree" title = "比较视图">Comparison</span>
                 </div>
                 <div id = 'node-comparison' class = 'button-group bind'>
-                    <span id = "all-node-comparison" class = "button active node-comparison" data-tooltip = "比较所有节点">
+                    <span id = "all-node-comparison" class = "button active node-comparison toolbar-tree" title = "比较所有节点">
                         <i class="icon iconfont">&#xe616;</i>
                     </span>
-                    <span id = "same-node-comparison" class = "button node-comparison" data-tooltip = "比较相同节点">
+                    <span id = "same-node-comparison" class = "button node-comparison toolbar-tree" title = "比较相同节点">
                         <i class="icon iconfont">&#xe617;</i>
                     </span>
                 </div>
                 <div id = 'level-selection' class = 'button-group bind'>
-                    <span id = "level-0" class = "button level-selection active" data-tooltip = "第0层">L0</span>
-                    <span id = "level-1" class = "button level-selection active" data-tooltip = "第1层">L1</span>
-                    <span id = "level-2" class = "button level-selection active" data-tooltip = "第2层">L2</span>
-                    <span id = "level-3" class = "button level-selection active" data-tooltip = "第3层">L3</span>
-                    <span id = "level-4" class = "button level-selection active" data-tooltip = "第4层">L4</span>
+                    <span id = "level-0" class = "button level-selection toolbar-tree active" title = "第0层">L0</span>
+                    <span id = "level-1" class = "button level-selection toolbar-tree active" title = "第1层">L1</span>
+                    <span id = "level-2" class = "button level-selection toolbar-tree active" title = "第2层">L2</span>
+                    <span id = "level-3" class = "button level-selection toolbar-tree active" title = "第3层">L3</span>
+                    <span id = "level-4" class = "button level-selection toolbar-tree active" title = "第4层">L4</span>
                 </div>
             </div>
             <div id = "rightComparisonWrapper">
@@ -162,11 +162,11 @@
                         <form id = "tree-compare-depth-controller">
                             <button type = "button" id="showSimilar">showSimilar</button>
                             <button type = "button" id="add">add</button>
-                            <span class = "btn btn-default btn-xs active level-btn" level=0>L0</span>
-                            <span class = "btn btn-default btn-xs active level-btn" level=1>L1</span>
-                            <span class = "btn btn-default btn-xs active level-btn" level=2>L2</span>
-                            <span class = "btn btn-default btn-xs active level-btn" level=3>L3</span>
-                            <span class = "btn btn-default btn-xs active level-btn" level=4>L4</span>
+                            <span class = "btn btn-default btn-xs active level-btn toolbar-tree" level=0>L0</span>
+                            <span class = "btn btn-default btn-xs active level-btn toolbar-tree" level=1>L1</span>
+                            <span class = "btn btn-default btn-xs active level-btn toolbar-tree" level=2>L2</span>
+                            <span class = "btn btn-default btn-xs active level-btn toolbar-tree" level=3>L3</span>
+                            <span class = "btn btn-default btn-xs active level-btn toolbar-tree" level=4>L4</span>
                         </form>
                     </div>
                     <table>
@@ -195,33 +195,33 @@
         <div id = "leftWrapper" class='remove-highlight'>
             <div id = "leftToolbarWrapper">
                 <div id = "title-div" class = "button-group bind">
-                    <span id = "title" class = "button" data-tooltip = "关于本工具">A</span>
+                    <span id = "title" class = "button toolbar-compare" title = "信号树">A</span>
                 </div>
                 <div id = 'switch-vis-div' class = 'button-group bind'>
-                    <span id = "radial-tree" class = "button active" data-tooltip = "radial树">
+                    <span id = "radial-tree" class = "button toolbar-compare active" title = "radial树">
                         <i class="icon iconfont">&#xe60a;</i>
                     </span>
-                    <span id = "sunburst-tree" class = "button" data-tooltip = "sunburst树">
+                    <span id = "sunburst-tree" class = "button toolbar-compare" title = "sunburst树">
                          <i class="icon iconfont">&#xe61a;</i>
                     </span>         
                 </div>
                  <div id = "projection-method-div" class = "button-group bind">
-                    <span id = "tree-view" class = "button active projection-method" data-tooltip = "树状视图">
+                    <span id = "tree-view" class = "button active projection-method toolbar-compare" title = "树状视图">
                         <i class="icon iconfont">&#xe60e;</i>
                     </span>
-                    <span id = "original-projection" class = "button projection-method" data-tooltip = "初始投影"><!--初始投影，没有连接-->
+                    <span id = "original-projection" class = "button projection-method toolbar-compare" title = "初始投影"><!--初始投影，没有连接-->
                         <i class="icon iconfont">&#xe607;</i>
                     </span>
-                     <span id = "center-projection" class = "button projection-method" data-tooltip = "初始投影-连接"><!--初始投影＋连接-->
+                     <span id = "center-projection" class = "button projection-method toolbar-compare" title = "初始投影-连接"><!--初始投影＋连接-->
                         <i class="icon iconfont">&#xe606;</i>
                     </span>
-                    <span id = "center-size-glyph" class = "button projection-method" data-tooltip = "节点大小编码">
+                    <span id = "center-size-glyph" class = "button projection-method toolbar-compare" title = "节点大小编码">
                         <i class="icon iconfont">&#xe605;</i>
                     </span>
-                    <span id = "center-subgraph-glyph" class = "button projection-method" data-tooltip = "子结构编码">
+                    <span id = "center-subgraph-glyph" class = "button projection-method toolbar-compare" title = "子结构编码">
                         <i class="icon iconfont">&#xe608;</i>
                     </span>
-                    <span id = "center-sunburst-glyph" class = "button projection-method" data-tooltip = "sunburst视图编码">
+                    <span id = "center-sunburst-glyph" class = "button projection-method toolbar-compare" title = "sunburst视图编码">
                         <i class="icon iconfont">&#xe619;</i>
                     </span>
                 </div>
@@ -264,6 +264,8 @@
     <script type="text/javascript" src="libs/Underscore.js"></script>
     <script type="text/javascript" src='libs/less.js'></script>
     <script type="text/javascript" src="libs/d3.parsets/d3.parsets.js"></script>   
+    <script type="text/javascript" src="libs/bootstrap/js/bootstrap.js"></script>
+    
     <!-- utils js -->
     <script type="text/javascript" src="js/sigtree.js"> </script>
     <script type="text/javascript" src="js/ObserverManager.js"> </script>

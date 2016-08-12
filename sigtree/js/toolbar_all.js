@@ -32,12 +32,14 @@ var toolbarAll = {
 			if(!($('#time-sort').hasClass('active'))){
 				$('#time-sort').addClass('active');
 				$('#size-sort').removeClass('active');
+				dataCenter.set_global_variable('sort_mode', 'time');
 			}
 		});
 		$('#size-sort').on('click', function(d,i){
 			if(!($('#size-sort').hasClass('active'))){
 				$('#size-sort').addClass('active');
 				$('#time-sort').removeClass('active');
+				dataCenter.set_global_variable('sort_mode', 'size');
 			}
 		});
 		$('#switch-selection').on('click', function(d,i){
@@ -59,6 +61,12 @@ var toolbarAll = {
 				$('click-node-shrink').addClass('active');
 			}
 		});
+		d3.selectAll('.toolbar-all')
+		.append('title')
+		.text(function(d,i){
+			console.log(d);
+			return 'dddd';
+		})
 	}
 	/*
 	$('.click-shrink').on('click', function(d,i){

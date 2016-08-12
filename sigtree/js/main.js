@@ -28,10 +28,13 @@ nodesIddepthB.length = 4;
 var activeA = 4;
 var activeB = 4;
 var tip = d3.tip()
-.attr('class', 'd3-tip')
-.offset([-10, 0])
-.html(function(d,i) {
-  return "<span style='font-size:12px;'>"  + d.key + "</span>";
+    .attr('class', 'd3-tip')
+    .offset([-10, 0])
+    .html(function(d,i) {
+      return "<span style='font-size:12px;'>"  + d.key + "</span>";
+    });
+$(document).ready(function(){
+    $('.button').tooltip(); 
 });
 //将不同层级的节点塞入到不同的数组中，方便当切换层级的时候将整个数组的节点都放到收缩的数组中
 /*function changenodedepthA(){
@@ -53,7 +56,7 @@ var tip = d3.tip()
      }
 }*/
 //将不同层级的节点塞入到不同的数组中
-/*function changenodedepthB(){
+function changenodedepthB(){
     var tree = d3.layout.tree()
         .children(function(d){
             if(Array.isArray(d.values)) return d.values;
@@ -189,9 +192,9 @@ var mainController = function(){
                             changenodedepthB();
                            // var listeners = _.without(ObserverManager.getListeners(), radialView, treeCompareView, parsetView); //remove old views in listeners
                            // ObserverManager.setListeners(listeners);
-                            radialView = radial();   
-                            treeCompareView = treeCompare();     
-                            parsetView = parset();   
+                           // radialView = radial();   
+                           // treeCompareView = treeCompare();     
+                           // parsetView = parset();   
                     }
                 })
         }
