@@ -23,9 +23,9 @@ var dataCenter = {
 		'activeA': 4,
 		'activeB': 4,
 		'tree_node_list': [],
-		'selection_array':[],
-		'current_id': null,
-		'current_nodeid_before':[],
+		'selection_array':["20120121-R06-81", "20120121-R07-75"],
+		'current_id': "20120121-R07-75",
+		'current_nodeid_before':["20120121-R06-81", "20120121-R07-75"],
 		'hover_arc_link_num': 5
 	},
 	GLOBAL_STATIC: {

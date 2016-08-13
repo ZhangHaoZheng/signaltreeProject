@@ -112,7 +112,6 @@ var mainController = function(){
                     }
                 }
             }
-            console.log(data);
             dtd.resolve();
         })
         return dtd.promise();
@@ -136,17 +135,41 @@ var mainController = function(){
         ObserverManager.addListener(this);
     }
     //初始化所有的界面，这时候同样也需要读入数据进行操作
-    function initViewsHandler(){
-        
+    function initViewsHandler(){     
+    }
+    //预先加载设定好需要读取的数据，目前需要读取的数据是第一个文件与第二个文件
+    function load_init_data(){
+        var dtd = $.Deferred();
+        var data = dataCenter.global_variable.selection_array;
+        var datasetID = _.clone(data);
+        dataCenter.datasets = [];
+        var defers = [];
+        console.log(data);
+        for (var i = data.length - 1; i >= 0; i--) {
+            var id = data[i];
+            var processor = new sigtree.dataProcessor();
+            var dataset = {
+                id: id,
+                processor: processor
+            }
+            dataCenter.datasets.push(dataset)
+            //var file = dataCenter.stats[id].file;
+            var fileName = data[i] + 'XX.csv';
+            file = "data/" + fileName;
+            defers.push(dataset.processor.loadData(file));
+        }
+        $.when(defers[0], defers[1])
+            .done(function(){
+            console.log('read file finish');
+            console.log(dataCenter.datasets[1].processor.result);
+            console.log(dataCenter.datasets[0].processor.result);
+            dtd.resolve();
+        });
+        return dtd.promise();
     }
     this.OMListen = function(message, data) {
+        //changeData信号是从treeselection界面中传递到main中，main中接收到之后对于所有的界面进行转发
         if (message == "changeData") {
-            console.log(data);
-            console.log(datasetID);
-            justChangeDataA = false;
-            if (data[1] == datasetID[1]){
-                justChangeDataA = true;
-            }
             datasetID = _.clone(data);
             dataCenter.datasets = [];
             var defers = [];
@@ -158,51 +181,29 @@ var mainController = function(){
                     processor: processor
                 }
                 dataCenter.datasets.push(dataset)
-                var file = dataCenter.stats[id].file;
+                //var file = dataCenter.stats[id].file;
+                var file = data[i] + 'XX.csv';
                 file = "data/" + file;
                 defers.push(dataset.processor.loadData(file));
             }
-            $.when(defers[0], defers[1])
+            $.when.apply($, defers)
                 .done(function() {
-                    if (justChangeDataA == false) {
-                        //$("svg[class=radial]").html("");
-                        //$("svg[class=parset]").html("");
-                        //$("#treemapA").html("");
-                        //$("#treemapB").html("");
-                        //$("#treehis").html("");
-                        // changenodedepthA();
-                         //var listeners = _.without(ObserverManager.getListeners(), radialView, treeCompareView, parsetView); //remove old views in listeners
-                         // ObserverManager.setListeners(listeners);
-                         dataCenter.view_collection.radial_view = radial.initialize();
-                         dataCenter.view_collection.radial_histogram = radialHistogram.initialize();  
-                         dataCenter.view_collection.tree_compare_view = treeCompare();     
-                         dataCenter.view_collection.parallel_set_view =  parset();     
-                         dataCenter.view_collection.projectionView = projection();
-
-                         dataCenter.view_collection.toolbarAllView =  toolbarAll.initialize();
-                         dataCenter.view_collection.toolbar_comparison_view =  toolbarComparison.initialize();
-                         dataCenter.view_collection.toolbar_tree_view = toolbarSignaltree.initialize();
-                            //toolbar();
-                    } else {
-                        //$("#treemapA").html(""); 
-                        //$("svg[class=radial]").html("");
-                        //$("svg[class=parset]").html("");
-                        //$("#treemapB").html("");
-                        //$("#treehis").html("");
-                            changenodedepthB();
-                           // var listeners = _.without(ObserverManager.getListeners(), radialView, treeCompareView, parsetView); //remove old views in listeners
-                           // ObserverManager.setListeners(listeners);
-                           // radialView = radial();   
-                           // treeCompareView = treeCompare();     
-                           // parsetView = parset();   
-                    }
-                })
+                    ObserverManager.post("update-view", dataCenter.datasets);
+            });
         }
     }
     initInteractionHandler();
-    $.when(loadStatData(), load_distance_matrix_data(), load_similarity_matrix_data())
+    $.when(loadStatData(), load_distance_matrix_data(), load_similarity_matrix_data(), load_init_data())
         .done(function() {
-            treeSelectView = treeSelect();         
+            treeSelectView = treeSelect();
+            dataCenter.view_collection.radial_view = radial.initialize();
+            dataCenter.view_collection.radial_histogram = radialHistogram.initialize();  
+            dataCenter.view_collection.tree_compare_view = treeCompare();     
+            dataCenter.view_collection.parallel_set_view =  parset.initialize();     
+            dataCenter.view_collection.projectionView = projection.initialize();
+            dataCenter.view_collection.toolbarAllView =  toolbarAll.initialize();
+            dataCenter.view_collection.toolbar_comparison_view =  toolbarComparison.initialize();
+            dataCenter.view_collection.toolbar_tree_view = toolbarSignaltree.initialize();
         })
 }
 $(document).ready(function() {

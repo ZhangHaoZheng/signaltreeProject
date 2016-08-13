@@ -1,9 +1,11 @@
 var radial = {
 	initialize: function(){
 		var self = this;
+		console.log(dataCenter.datasets[1].processor.result);
 		self._add_to_listener();
 		self._bind_view();
-		self._render_view();
+		var treeRoot = dataCenter.datasets[0].processor.result.treeRoot;
+		self._render_view(treeRoot);
 		return self;
 	},
 	_add_to_listener: function(){
@@ -12,7 +14,7 @@ var radial = {
 	},
 	_bind_view: function(){
 	},
-	_render_view: function(){
+	_render_view: function(tree_root){
 		var self = this;
 		var dataProcessor = dataCenter.datasets[0].processor;
 		var padding = 10;
@@ -23,8 +25,8 @@ var radial = {
 		var eachTypeIdArray = new Array();
 		var eachTypeIndexArray = new Array();
 		var duration = 750;
-		var rootB = dataCenter.datasets[1].processor.result.treeRoot;
-		var rootA = dataCenter.datasets[0].processor.result.treeRoot;
+		//var rootA = dataCenter.datasets[0].processor.result.treeRoot;
+		var rootA = tree_root;
 
 		var tree = d3.layout.tree()
 		.size([360, diameter / 2 - 20])
@@ -46,9 +48,8 @@ var radial = {
 
 		var treeNodeList;
 		treeNodeList = tree.nodes(rootA).reverse();
-		console.log('49',treeNodeList.length);
-		dataCenter.global_variable.tree_node_list = treeNodeList;
-		
+		//dataCenter.global_variable.tree_node_list = treeNodeList;
+		dataCenter.set_global_variable('tree_node_list', treeNodeList);
 		var index = 0;
 		var diagonal = d3.svg.diagonal.radial()
 			.projection(function(d) { return [d.y, d.x / 180 * Math.PI]; });
@@ -58,12 +59,11 @@ var radial = {
 			.append('g')
 			.attr("id","radial")
 			.attr('transform', 'translate('+ width/2 + ',' +  height/2 +')');
-		self._draw_depth(4, treeNodeList, tree, width, height);
+		self._draw_depth(4, treeNodeList, tree, width, height, rootA);
 	},
-	_draw_depth: function(hide_depth, tree_node_list, tree, width, height){
+	_draw_depth: function(hide_depth, tree_node_list, tree, width, height, tree_root){
 		var self = this;
-		var rootB = dataCenter.datasets[1].processor.result.treeRoot;
-		var rootA = dataCenter.datasets[0].processor.result.treeRoot;
+		var rootA = tree_root;
 		var iterator = 1;
 
 		activeA = hide_depth;
@@ -188,7 +188,7 @@ var radial = {
 			_update(treeNodeList);
 		}
 	},
-	_putnodesdepth: function(radialexpandmark,nodesIddepth,hide_depth){
+	_putnodesdepth: function(radialexpandmark, nodesIddepth, hide_depth){
 		radialexpandmark = [];
 		for(var i = hide_depth; i < 4; i++){
 			for(var j = 0; j < nodesIddepth[i].length; j++){
@@ -220,6 +220,9 @@ var radial = {
 		}
         if(message == "mouse-over"){
         	for (var i = 0; i < data.length; i++) {
+        		if(data[i] != null){
+					data[i] = data[i].replace(';','');
+				}
 				svg.select(idPrefix + data[i]).classed("focus-highlight", true);
 				if (svg.select(idPrefix + data[i]).data().length > 0) {
 					var nodeData = svg.select(idPrefix + data[i]).data()[0];
@@ -228,6 +231,9 @@ var radial = {
         }
         if(message == "mouse-out"){
         	for(var i = 0; i < data.length; i++) {
+        		if(data[i] != null){
+					data[i] = data[i].replace(';','');
+				}
 				svg.select(idPrefix + data[i]).classed("focus-highlight", false);
 			}
         }
@@ -236,6 +242,17 @@ var radial = {
         }	
         if(message=="changeData"){
         	console.log("radial",data);
+        }
+        if(message=="update-view"){
+        	var self = this;
+        	var currentId = dataCenter.global_variable.current_id;
+        	for(var i = 0;i < dataCenter.datasets.length;i++){
+        		if(currentId == dataCenter.datasets[i].id){
+        			var tree_root = dataCenter.datasets[i].processor.result.treeRoot;
+        			self._render_view(tree_root);
+        			break;
+        		}
+        	}
         }
 	}
 }

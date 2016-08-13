@@ -28,7 +28,8 @@ var treeSelect = function(){
     var chart = null;
 	processStatData();
 	var selectionArray = dataCenter.global_variable.selection_array = [timeSortArray[0].time, timeSortArray[1].time];
-	var currentId = dataCenter.global_variable.current_id = timeSortArray[0].time;
+	var currentNodeIdBefore = dataCenter.global_variable.current_nodeid_before = [timeSortArray[0].time, timeSortArray[1].time];
+	var currentId = dataCenter.global_variable.current_id = timeSortArray[1].time;
 	drawHistogram(timeSortArray);
 	for(var i = 0;i < selectionArray.length;i++){
 		d3.selectAll('.node' + selectionArray[i]).classed('selection', true);
@@ -64,8 +65,6 @@ var treeSelect = function(){
 	    d3.selectAll('.hover').remove();
 	    d3.selectAll('.bar:not(.opacity-click-highlight)').style('fill',null);
 	}
-	var viewWidth = +(d3.select("#srocllDiv").style("width").replace("px",""));
-	var fontSize = Math.round(viewWidth / 18);
 	$("#innerTopRight").css("font-size", 12 + "px");  
 	function processStatData() {
 		for (var i = 0; i < statData.length; i++) {
@@ -254,6 +253,7 @@ var treeSelect = function(){
 				//d3.selectAll('.arc-path.click-remain').remove();
 				if(selectionArray.indexOf(signalTreeTime) == -1){
 					selectionArray.push(signalTreeTime);
+					ObserverManager.post('changeData', selectionArray);
 					d3.select(this).classed('selection', true);
 					append_current_circle(signalTreeTime);
 					currentNodeIdBefore.push(signalTreeTime);
@@ -280,6 +280,7 @@ var treeSelect = function(){
 						d3.select(this).classed('selection', false);
 						add_arc(signalTreeTime, 'unclick');
 						selectionArray.splice(selectionArray.indexOf(signalTreeTime), 1);
+						ObserverManager.post('changeData', selectionArray);
 						for(var j = 0;j < currentNodeIdBefore.length;j++){
 							if(currentNodeIdBefore[j] == signalTreeTime){
 								currentNodeIdBefore.splice(j, 1);
@@ -354,60 +355,10 @@ var treeSelect = function(){
 				}
 			}			
 		}
-		changeComparedData();
-		function changeComparedData() {
-			/*chart.selectAll(".previous").classed("previous", false);
-			chart.selectAll(".current").classed("current", false);
-			chart.selectAll(".change-previous").classed("change-previous", false);
-			chart.selectAll(".change-current").classed("change-current", false);
-			if(changeA){
-				chart.select("#his-" + compareArray[0]).classed("previous", true);
-				chart.select("#his-" + compareArray[1]).classed("current", true);
-			}else{
-				chart.select("#his-" + compareArray[0]).classed("change-previous", true);
-				chart.select("#his-" + compareArray[1]).classed("change-current", true);
-			}
-			chart.selectAll(".labelAB").remove();
-
-			for(var l = 0; l < compareArray.length; l++){
-				var id = compareArray[l];
-				var x = chart.select("#his-" + id).attr("x");
-				var y = chart.select("#his-" + id).attr("y") - 3;
-				chart
-					.append("text")
-					.attr("class","labelAB")
-					.attr("x", x)
-					.attr("y", y)
-					.text(function() {
-						return l == 0 ? "B" : "A";
-					});
-			}
-
-			$("#innerTopRight #label-A .date_description").html(function() {
-				if (compareArray.length > 0) 
-					var timeArray = dataList[compareArray[1]].time.split("-");
-					return timeArray[0];
-				return "";
-			});
-			$("#innerTopRight #label-B .date_description").html(function() {
-				if (compareArray.length > 1) 
-					var timeArray = dataList[compareArray[0]].time.split("-");
-					return timeArray[0];
-				return "";
-			});
-
-			$("#innerTopRight #label-A .value_description").text(function() {
-				if (compareArray.length > 0)  
-					return  d3.format(".3s")(dataList[compareArray[1]].value) + "bytes" ;
-				return "";
-			});
-			$("#innerTopRight #label-B .value_description").text(function() {
-				if (compareArray.length > 1) 
-					return d3.format(".3s")(dataList[compareArray[0]].value) + "bytes";
-				return "";
-			});*/
-			ObserverManager.post("changeData", compareArray);
-		}
+		//changeComparedData();
+		//function changeComparedData() {
+		//	ObserverManager.post("changeData", selectionArray);
+		//}
 	}
 	function append_current_circle(signal_tree_time){
 		console.log(signal_tree_time);
@@ -427,6 +378,7 @@ var treeSelect = function(){
 			.attr('cy', centerY)
 			.attr('r', radius);
 		dataCenter.global_variable.current_id = signal_tree_time;
+		ObserverManager.post('change-current-data', signal_tree_time);
 	}
 	function add_arc_to_all(){
 		d3.selectAll('.bar-add-arc').each(function(d,i){
@@ -628,7 +580,6 @@ var treeSelect = function(){
 				}
 	    	}
 	    }
-	   // if(message == 'set:')
     }
 	return SelectTree;
 }

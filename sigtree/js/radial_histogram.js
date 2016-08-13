@@ -18,9 +18,6 @@ var radialHistogram = {
 			width = width - margin.left - margin.right,
 			height = height - margin.top - margin.bottom;
 
-		var rootB = dataCenter.datasets[1].processor.result.treeRoot;
-		var rootA = dataCenter.datasets[0].processor.result.treeRoot;
-
 		var treeNodeList = dataCenter.global_variable.tree_node_list;
 		d3.select('#histogram').selectAll("*").remove();
 
@@ -221,6 +218,12 @@ var radialHistogram = {
 				ObserverManager.post("highlight", [])
 				lineX.domain(brush.empty() ? lineX.domain() : brush.extent());
 			}
+		}
+	},
+	OMListen: function(message, data){
+		var self = this;
+		if(message == 'set:tree_node_list'){
+			self._render_view();
 		}
 	}
 }
