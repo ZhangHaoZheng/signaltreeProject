@@ -65,7 +65,17 @@ var parset = {
 			data.push(d);
 		});
 		svg.datum(data).call(chart);
-
+		svg.selectAll("path").filter(function(d){
+			var tmp = d.id.slice(-4);
+			if(tmp == "none") return true;
+			return false;
+		}).attr("opacity",0);
+		svg.selectAll("g").filter(function(d){
+			if(d.name == "none") {
+				return true;
+			}
+			return false;
+		}).attr("opacity",0);
 		function mouseoverCallback(data) {
 			ObserverManager.post("mouse-over", [data.id])
 		}
