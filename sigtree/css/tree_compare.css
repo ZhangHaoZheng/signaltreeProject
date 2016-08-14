@@ -50,3 +50,8 @@
 #label-B .label {
   background-color: #FF7F0E;
 }
+.single-tree{
+  border-color: gray;
+  border-width: 1px 1px 1px 1px;
+  border-style: solid;
+}
