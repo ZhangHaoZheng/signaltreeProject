@@ -8,7 +8,11 @@ var treeCompare = function(){
 //	ObserverManager.addListener(TreeCompare);
 	ObserverManager.changeListener(TreeCompare,3);
 	var datasets = dataCenter.datasets;
-
+	var pre_datasets = datasets;
+	var pre_datasets_id = [];
+	for(var i = 0; i < datasets.length; i++){
+		pre_datasets_id.push(datasets[i].id);
+	}
 	// var combine1 = sigtree.combinator().by_index(true);
 	// var combine2 = sigtree.combinator().compare(function(d1,d2){return d1.key.localeCompare(d2.key)});
 	// var merge_tree = sigtree.merge_tree(combine2);
@@ -133,8 +137,8 @@ var treeCompare = function(){
 	var nodesA = tree.nodes(dt_root);
 	var nodesB = tree.nodes(dt_root2);
 	var mult_tree_smaller = [];
-	mult_tree_smaller.push({nodes:nodesA, node:dt_root, g:compare_g_first, index:1, divid:"treemapA"},
-		{nodes:nodesB, node:dt_root2, g:compare_g_second, index:2, divid:"treemapB"});
+	mult_tree_smaller.push({nodes:nodesA, node:dt_root, g:compare_g_first, tree_id:datasets[0].id, index:1, divid:"treemapA"},
+		{nodes:nodesB, node:dt_root2, g:compare_g_second, tree_id:datasets[1].id, index:2, divid:"treemapB"});
 	change_tree_main_nodes();
 	// accumulate_flow(dt_root);
 	// accumulate_flow(dt_root2);
@@ -168,15 +172,15 @@ var treeCompare = function(){
 	var Bindex = 2;
 	// console.log("nodes", nodes);
 	function build_id_nodes(nodes){
-		id_nodes = [];
+		id_nodes = {};
 		for(var i = 0; i < nodes.length; i++){
-			id_nodes.push(nodes[i].id);
+			id_nodes[nodes[i].id] = i;
 		}		
 	}
 	function build_id_values(nodes){
-		id_nodes = [];
+		id_nodes = {};
 		for(var i = 0; i < nodes.length; i++){
-			id_nodes.push(nodes[i].id);
+			id_nodes[nodes[i].id] = i;
 			nodes[i].values = nodes[i].children;
 		}
 	}
@@ -197,16 +201,16 @@ var treeCompare = function(){
 				hasObj2 = (node.obj2 != null);
 			node.hasObj1 = hasObj1;
 			node.hasObj2 = hasObj2;
-			node.has = [];
-			if(hasObj1) node.has.push(1);
-			if(hasObj2) node.has.push(2);
+			node.has = {};
+			if(hasObj1) node.has[1] = true;
+			if(hasObj2) node.has[2] = true;
 			while (node.parent != null) {
 				node = node.parent;
 				node.hasObj1 = node.hasObj1 || hasObj1;
 				node.hasObj2 = node.hasObj2 || hasObj2;
-				node.has = [];
-				if(node.hasObj1) node.has.push(1);
-				if(node.hasObj2) node.has.push(2);
+				node.has = {};
+				if(node.hasObj1) node.has[1] = true;
+				if(node.hasObj2) node.has[2] = true;
 			}
 		}
 	}
@@ -273,31 +277,31 @@ var treeCompare = function(){
 		draw_trend(_nodes, root);
 		build_id_nodes(_nodes);
 		for(var i = 2; i < mult_tree_smaller.length; i++){
-			draw_tree_lastTwoLevel(mult_tree_smaller[i].nodes,mult_tree_smaller[i].g,_nodes);
+			draw_tree_lastTwoLevel(mult_tree_smaller[i].nodes,mult_tree_smaller[i].g,_nodes,null);
 		}
 	}
 	function merge_trees_putIndex(root,index){
-		root.has = [];
-		root.has.push(index);
+		root.has = {};
+		root.has[index] = true;
 		if(root.children == undefined) return;
 		for(var i = 0; i < root.children.length; i++){
 			merge_trees_putIndex(root.children[i],index);
 		}
 	}
 	function merge_trees(root1,root2,index){
-		var idlist = [];
+		var idlist = {};
 		if(root1.children == undefined) root1.children = [];
 		for(var j = 0; j < root1.children.length; j++){
-			idlist.push(root1.children[j].id);
+			idlist[root1.children[j].id] = j;
 		}
 		for(var i = 0; i < root2.children.length; i++){
-			var tmp = idlist.indexOf(root2.children[i].id);
-			if(tmp == -1){
+			var tmp = idlist[root2.children[i].id];
+			if(tmp == undefined){
 				merge_trees_putIndex(root2.children[i],index);
 				root1.children.push(root2.children[i]);
 			}
 			else {
-				root1.children[tmp].has.push(index);
+				root1.children[tmp].has[index] = true;
 				if(root2.children[i].children == undefined) continue;
 				merge_trees(root1.children[tmp],root2.children[i],index);
 			}
@@ -307,11 +311,11 @@ var treeCompare = function(){
 		var link = tree.links(nodes).filter(function(l){
 			if(oneline_only_mark == true) return false;
 			if(l.target.depth == 4 && l.source.depth == 3){
-				var target = id_nodes.indexOf(l.target.id),
-					source = id_nodes.indexOf(l.source.id);
-				if(target == -1 || source == -1) return false;
-/*				var m1 = (_nodes[target].has.indexOf(Aindex) != -1) ||  (_nodes[target].has.indexOf(Bindex)!= -1);
-				var m2 = (_nodes[source].has.indexOf(Aindex) != -1) ||  (_nodes[source].has.indexOf(Bindex)!= -1);
+				var target = id_nodes[l.target.id],
+					source = id_nodes[l.source.id];
+				if(target == undefined || source == undefined) return false;
+/*				var m1 = (_nodes[target].has[Aindex] != undefined) ||  (_nodes[target].has[Bindex] != undefined));
+				var m2 = (_nodes[source].has[Aindex] != undefined) ||  (_nodes[source].has[Bindex] != undefined));
 				if(m1 && m2){
 					return true;
 				}*/
@@ -325,14 +329,14 @@ var treeCompare = function(){
 			.attr("class","link")
 			.attr("d",function(l){
 				var o;
-				if(sorce) o = {x:sorce.x, y:remainheight - 5};
-				else o = {x:(svg_size.width - leftPadding)/2,y:remainheight - 5};
+				if(sorce) o = {x:sorce.x, y:remainheight - 7};
+				else o = {x:(svg_size.width - leftPadding)/2,y:remainheight - 7};
 				return diagonal({source:o, target:o});
 			});
 		links.transition().duration(750)
 			.attr("d",function(d){
-				var sourceX = _nodes[id_nodes.indexOf(d.source.id)].x;
-				var targetX = _nodes[id_nodes.indexOf(d.target.id)].x;
+				var sourceX = _nodes[id_nodes[d.source.id]].x;
+				var targetX = _nodes[id_nodes[d.target.id]].x;
 				var s = {x:sourceX, y:remainheight-5};
 				var t = {x:targetX, y:0};
 				return diagonal({source:s,target:t});
@@ -341,8 +345,8 @@ var treeCompare = function(){
 			.transition().duration(750)
 			.attr("d",function(){
 				var o;
-				if(sorce) o = {x:sorce.x, y:remainheight - 5};
-				else o = {x:(svg_size.width - leftPadding)/2,y:remainheight - 5};
+				if(sorce) o = {x:sorce.x, y:remainheight - 7};
+				else o = {x:(svg_size.width - leftPadding)/2,y:remainheight - 7};
 				return diagonal({source:o, target:o});
 			})
 			.remove();
@@ -351,10 +355,10 @@ var treeCompare = function(){
 		});
 		var filtered_nodes = nodes.filter(function(n){
 			if(n.depth < 3) return false;
-			if(id_nodes.indexOf(n.id) == -1) return false;
+			if(id_nodes[n.id] == undefined) return false;
 			if(n.depth == 4 && oneline_only_mark == true) return false;
-/*			var tmp = _nodes[id_nodes.indexOf(n.id)].has;
-			if(n.depth == 4 && tmp.indexOf(Aindex) == -1 && tmp.indexOf(Bindex) == -1){
+/*			var tmp = _nodes[id_nodes[n.id]].has;
+			if(n.depth == 4 && tmp[Aindex] == undefined && tmp[Bindex] == undefined){
 				n.parent.count++;
 				return false;
 			}*/
@@ -396,7 +400,7 @@ var treeCompare = function(){
 			})
 			.on("click",function(d){
 				build_id_nodes(_nodes);
-				var tmp = id_nodes.indexOf(d.id);
+				var tmp = id_nodes[d.id];
 				node_click_focus(_nodes[tmp]);
 			});
 		m_nodes.attr("class",function(n){
@@ -416,7 +420,7 @@ var treeCompare = function(){
 			})
 			.transition().duration(750)
 			.attr("cx",function(d){
-				var x = _nodes[id_nodes.indexOf(d.id)].x;
+				var x = _nodes[id_nodes[d.id]].x;
 				return x;
 			})
 			.attr("cy",function(d){
@@ -442,7 +446,7 @@ var treeCompare = function(){
 			.append("text")
 			.attr("class","node-count-mult")
 			.attr("x",function(d,i){
-				return _nodes[id_nodes.indexOf(d.id)].x - 3;
+				return _nodes[id_nodes[d.id]].x - 3;
 			})
 			.attr("y",function(d){ 
 				var r = 2.5;
@@ -463,7 +467,7 @@ var treeCompare = function(){
 			.attr("class","node-polygon-mult")
 			.attr("points",function(d,i){
 				var r = 2.5;
-				var x0 = _nodes[id_nodes.indexOf(d.id)].x;
+				var x0 = _nodes[id_nodes[d.id]].x;
 				var y0 = remainheight - 28.5;
 				var updotx = x0;
 				var updoty = y0 + r;
@@ -478,7 +482,6 @@ var treeCompare = function(){
 
 	function draw_separate_tree(nodes, source){
 		// console.log("nodes",nodes);
-
 
 		var nos = [];
 		nos[0] = nodes.filter(function(d){
@@ -646,7 +649,7 @@ var treeCompare = function(){
 			var strArray = d.key.split(" ");
 			return d.x - 6 * strArray[0].length/2;
 		})
-		.attr("y",function(d){ return d.y - 12;})
+		.attr("y",function(d){ return d.y - 10;})
 		.text(function(d,i){
 			var strArray = d.key.split(" ");
 			if(d.depth<2){
@@ -771,7 +774,7 @@ var treeCompare = function(){
 				var strArray = d.key.split(" ");
 				return d.x - 6 * strArray[0].length/2;
 			})
-			.attr("y",function(d){ return tree_height - d.y + 20;})
+			.attr("y",function(d){ return tree_height - d.y + 18;})
 			.text(function(d,i){
 				var strArray = d.key.split(" ");
 				if(d.depth<2){
@@ -895,7 +898,8 @@ var treeCompare = function(){
 		});
 		bars.exit().remove();
 /*		g_trend.append("g")
-			.attr("class","x brush")
+			.attr("stroke","#fff")
+			.attr("fill-opacity",0.125)
 			.call(brush_compare)
 			.selectAll("rect")
 			.attr("y",0)
@@ -930,7 +934,7 @@ var treeCompare = function(){
 		draw_separate_tree(nodes,total_root);
 		draw_trend(nodes,total_root);
 		for(var i = 2; i < mult_tree_smaller.length; i++){
-			draw_tree_lastTwoLevel(mult_tree_smaller[i].nodes, mult_tree_smaller[i].g, nodes);
+			draw_tree_lastTwoLevel(mult_tree_smaller[i].nodes, mult_tree_smaller[i].g, nodes,null);
 		}
 		brush_nodes_list = {};
 		tree.separation(function(a, b) { 
@@ -966,7 +970,7 @@ var treeCompare = function(){
 		draw_separate_tree(_nodes, node);
 		draw_trend(_nodes, node);
 		for(var i = 2; i < mult_tree_smaller.length; i++){
-			draw_tree_lastTwoLevel(mult_tree_smaller[i].nodes,mult_tree_smaller[i].g,_nodes,node);
+			draw_tree_lastTwoLevel(mult_tree_smaller[i].nodes,mult_tree_smaller[i].g,_nodes,node,null);
 		}
 	}
 	function node_focus(node){
@@ -1095,7 +1099,7 @@ var treeCompare = function(){
 		draw_separate_tree(_nodes, root);
 		draw_trend(_nodes, root);	
 		for(var i = 2; i < mult_tree_smaller.length; i++){
-			draw_tree_lastTwoLevel(mult_tree_smaller[i].nodes,mult_tree_smaller[i].g,_nodes);
+			draw_tree_lastTwoLevel(mult_tree_smaller[i].nodes,mult_tree_smaller[i].g,_nodes,null);
 		}
 		for(var i = 0; i < _nodes.length; i++){
 			if(_nodes[i].originalChildren){
@@ -1144,40 +1148,44 @@ var treeCompare = function(){
 		var deletemark = [];
 		for(var i = 0; i < root.children.length; i++){
 			var tmp = root.children[i];
-			var tmpindex = tmp.has.indexOf(index);
-			if(tmpindex == -1)
+			var tmpindex = tmp.has[index];
+			if(tmpindex == undefined)
 				continue;
 			else{
-				if(tmp.has.length == 1){
+				var l = 0;
+				for(key in tmp.has)
+					l++;
+				if(l == 1){
 					deletemark.push(i);
 					continue;
 				}
 				else{
-					tmp.has.splice(tmpindex,1);
+					delete tmp.has[index];
 					delete_index_fromroot(tmp,index);
 				}
 			}
 		}
 		for(var i = deletemark.length - 1; i >= 0; i--){
-			root.children.splice(i,1);
+			root.children.splice(deletemark[i],1);
 		}
 	}
-	function delete_tree(node){
+	function delete_tree(tree_id){
 		var index;
 		var d;
 		for(var i = 0; i < mult_tree_smaller.length; i++){
-			if(mult_tree_smaller[i].node == node) {
+			if(mult_tree_smaller[i].tree_id == tree_id) {
 				d = i;
 				index = mult_tree_smaller[i].index;
 				break;
 			}
 		}
-		total_root.has.splice(total_root.has.indexOf(index),1);
+		delete total_root.has[index];
 		delete_index_fromroot(total_root,index);
 		if(d < 2){
 			mult_tree_smaller[d].nodes = mult_tree_smaller[2].nodes;
 			mult_tree_smaller[d].node = mult_tree_smaller[2].node;
 			mult_tree_smaller[d].index = mult_tree_smaller[2].index;
+			mult_tree_smaller[d].tree_id = mult_tree_smaller[2].tree_id;
 			if(d == 0) Aindex = mult_tree_smaller[d].index;
 			else if(d == 1) Bindex = mult_tree_smaller[d].index;
 			d = 2;
@@ -1187,9 +1195,6 @@ var treeCompare = function(){
 		mult_tree_smaller.splice(d,1);
 		if(mult_tree_smaller.length <= 6) oneline_only_mark = false;
 		if(mult_tree_smaller.length < 6){
-			var svgheightA = $("#treemapA svg").attr("height");
-			var svgheighthis = $("#treehis svg").attr("height");
-			var svgheightB = $("#treemapB svg").attr("height");
 			d3.select("#treemapA svg").attr("height",svgheightA/6*7);
 			d3.select("#treehis svg").attr("height",svgheighthis/6*7);
 			d3.select("#treemapB svg").attr("height",svgheightB/6*7);
@@ -1201,11 +1206,49 @@ var treeCompare = function(){
 				d3.select("#treemap" + (mult_tree_smaller[i].index-2) + " svg").attr("height",remainheight);
 			}
 		}
+		else{
+			remainheight = (height - svgheightA - svgheighthis - svgheightB) / (mult_tree_smaller.length - 2);
+			for(var i = 2; i < mult_tree_smaller.length; i++){
+				d3.select("#treemap" + (mult_tree_smaller[i].index-2) + " svg").attr("height",remainheight-2);
+			}
+		}
 		changeViewForSvg($("#treemapA svg").attr("height")-20,$("#treehis svg").attr("height"));
+		console.log(total_root)
+		build_id_nodes(nodes);
 		for(var i = 2; i < mult_tree_smaller.length; i++){
 			var tmp = mult_tree_smaller[i];
-			draw_tree_lastTwoLevel(tmp.nodes,tmp.g,nodes);
+			draw_tree_lastTwoLevel(tmp.nodes,tmp.g,nodes,null);
 		}
+	}
+	function up_down_tree(index1,index2){
+		if(index1 == Aindex || index1 == Bindex){
+			exchangeAB_draw_all(index1,index2);
+			return;
+		}
+		var tree1,tree2;
+		for(var i = 2; i < mult_tree_smaller.length; i++){
+			var tmp = mult_tree_smaller[i];
+			if(tmp.index == index1) {
+				tree1 = tmp;
+			}
+			else if(tmp.index == index2) {
+				tree2 = tmp;
+			}
+		}
+		var tmpnodes1 = tree1.nodes,
+			tmpnode1 = tree1.node,
+			tmpindex1 = tree1.index,
+			tmptree_id = tree1.tree_id;
+		tree1.nodes = tree2.nodes;
+		tree1.node = tree2.node;
+		tree1.index = tree2.index;
+		tree1.tree_id = tree2.tree_id;
+		tree2.nodes = tmpnodes1;
+		tree2.node = tmpnode1;
+		tree2.index = tmpindex1;
+		tree2.tree_id = tmptree_id;
+		draw_tree_lastTwoLevel(tree1.nodes,tree1.g,nodes,null);
+		draw_tree_lastTwoLevel(tree2.nodes,tree2.g,nodes,null);
 	}
 	function exchangeAB_draw_all(index1,index2){
 		if(Aindex == index1) Aindex = index2;
@@ -1224,19 +1267,22 @@ var treeCompare = function(){
 		}
 		var tmpnodes1 = index1mark.nodes,
 			tmpnode1 = index1mark.node,
-			tmpindex1 = index1mark.index;
+			tmpindex1 = index1mark.index,
+			tmptree_id = index1mark.tree_id;
 		index1mark.nodes = index2mark.nodes;
 		index1mark.node = index2mark.node;
 		index1mark.index = index2mark.index;
+		index1mark.tree_id = index2mark.tree_id;
 		index2mark.nodes = tmpnodes1;
 		index2mark.node = tmpnode1;
 		index2mark.index = tmpindex1;
+		index2mark.tree_id = tmptree_id;
 		change_tree_main_nodes();
 		nodes = tree.nodes(total_root);
 		change_comparison_A_B(nodes);
 		for(var i = 2; i < mult_tree_smaller.length; i++){
 			var tmp = mult_tree_smaller[i];
-			draw_tree_lastTwoLevel(tmp.nodes,tmp.g,nodes);
+			draw_tree_lastTwoLevel(tmp.nodes,tmp.g,nodes,null);
 		}
 	}
 	function change_comparison_A_B(_nodes){
@@ -1248,30 +1294,30 @@ var treeCompare = function(){
 				nodesB = mult_tree_smaller[i].nodes;
 			}
 		}		
-		var Aidlist = [],Bidlist = [];
+		var Aidlist = {},Bidlist = {};
 		for(var i = 0; i < nodesA.length; i++){
-			Aidlist.push(nodesA[i].id);
+			Aidlist[nodesA[i].id] = i;
 		}
 		for(var i = 0; i < nodesB.length; i++){
-			Bidlist.push(nodesB[i].id);
+			Bidlist[nodesB[i].id] = i;
 		}
 		for(var i = 0; i < _nodes.length; i++){
 			var tmp = _nodes[i];
-			if(tmp.has.indexOf(Aindex) == -1){
+			if(tmp.has[Aindex] == undefined){
 				if(tmp.hasObj1) delete tmp.hasObj1;
 				tmp.flow1 = 0;
 			}
 			else{
 				tmp.hasObj1 = true;
-				tmp.flow1 = nodesA[Aidlist.indexOf(tmp.id)].flow;
+				tmp.flow1 = nodesA[Aidlist[tmp.id]].flow;
 			}
-			if(tmp.has.indexOf(Bindex) == -1){
+			if(tmp.has[Bindex] == undefined){
 				if(tmp.hasObj2) delete tmp.hasObj2;
 				tmp.flow2 = 0;
 			}
 			else{
 				tmp.hasObj2 = true;
-				tmp.flow2 = nodesB[Bidlist.indexOf(tmp.id)].flow;
+				tmp.flow2 = nodesB[Bidlist[tmp.id]].flow;
 			}
 		}
 		total_root.x0 = total_root.x;
@@ -1282,12 +1328,8 @@ var treeCompare = function(){
 		draw_trend(_nodes,total_root);
 	}
 	////////////////////////////////////////////////////////////////////////////////////////////////
-	var newnode = [];
-	newnode.push(dt_root);
-	newnode.push(dt_root2);
-	addMultiTree(newnode);
-//	delete_tree(dt_root2);
-	function addMultiTree(nodes){
+
+	function addMultiTree(nodes,idlist){
 		for(var i = 0; i < nodes.length; i++){
 			if(mult_tree_smaller.length > 11) break;
 			var node = nodes[i];
@@ -1295,16 +1337,16 @@ var treeCompare = function(){
 			var tree_g = g.append("g")
 				.attr("transform","translate(30,0)");
 			var nodes1 = tree.nodes(node);
-			mult_tree_smaller.push({nodes:nodes1, node:node, g:tree_g, index:numoftreecompare+2, divid:"treemap"+numoftreecompare});
+			mult_tree_smaller.push({nodes:nodes1, node:node, g:tree_g, tree_id:idlist[i], index:numoftreecompare+2, divid:"treemap"+numoftreecompare});
 			if(mult_tree_smaller.length > 6) oneline_only_mark = true;	
-			total_root.has.push(numoftreecompare + 2);
+			total_root.has[numoftreecompare + 2] = true;
 			merge_trees(total_root,node,numoftreecompare + 2);
 		}
 		var _nodes = tree.nodes(total_root);
 		build_id_values(_nodes);
 		for(var i = 2; i < mult_tree_smaller.length; i++){
 			var tmp = mult_tree_smaller[i];
-			draw_tree_lastTwoLevel(tmp.nodes,tmp.g,_nodes);
+			draw_tree_lastTwoLevel(tmp.nodes,tmp.g,_nodes,null);
 		}
 		changeViewForSvg($("#treemapA svg").attr("height")-20,$("#treehis svg").attr("height"));
 	}
@@ -1346,7 +1388,7 @@ var treeCompare = function(){
 			svg = d3.select("#treemap" + numoftreecompare).append("svg");
 			svg_g = initFrame(svg,new_svg_size,false);
 			for(var i = 2; i < mult_tree_smaller.length; i++){
-				d3.select("#treemap" + (mult_tree_smaller[i].index-2) + " svg").attr("height",remainheight);
+				d3.select("#treemap" + (mult_tree_smaller[i].index-2) + " svg").attr("height",remainheight-2);
 			}
 		}
 		var tmpg = svg.append("g").attr("transform","translate(0,0)");
@@ -1358,7 +1400,9 @@ var treeCompare = function(){
 			.attr("stroke","gray")
 			.attr("stroke-width","2px")
 			.attr("opacity",0.5);
-		tmpg.append("button").attr("type","button").attr("id","button"+numoftreecompare+2)
+		tmpg.insert("button").attr("type","button").attr("id","button"+numoftreecompare+2)
+			.text("delete");
+		tmpg.insert("span").attr("id","span"+numoftreecompare+2)
 			.text("delete");
 		return svg_g;
 /*		else {
@@ -1374,17 +1418,17 @@ var treeCompare = function(){
 	}
 	function changeViewForSvg(height,svgheighthis){
 		tree = d3.layout.tree()
-		.size([svg_size.width - leftPadding,height])
-		.separation(function(a, b) { 
-			var dis = (a.parent == b.parent ? 1 : 2) / (a.depth * 2);
-			if(a.depth <=2 && b.depth <= 2)
-				dis = 3.3 / 2;
-			if(a.depth==3 && b.depth==3)
-				dis = 1 / 2;
-			if(tree_main_nodes[a.id] == true || tree_main_nodes[b.id] == true)
-				dis *= 2;
-	        return dis;
-		 });
+			.size([svg_size.width - leftPadding,height])
+			.separation(function(a, b) { 
+				var dis = (a.parent == b.parent ? 1 : 2) / (a.depth * 2);
+				if(a.depth <=2 && b.depth <= 2)
+					dis = 3.3 / 2;
+				if(a.depth==3 && b.depth==3)
+					dis = 1 / 2;
+				if(tree_main_nodes[a.id] == true || tree_main_nodes[b.id] == true)
+					dis *= 2;
+		        return dis;
+			 });
 		$("#treemapArect").attr("height",$("#treemapA svg").attr("height"));
 		$("#treemapBrect").attr("height",$("#treemapB svg").attr("height"));
 		d3.selectAll(".multi-tree-rect").attr("height",remainheight);
@@ -1441,18 +1485,36 @@ var treeCompare = function(){
 				}
 			}
         }
-        if(message == "show-similiar"){
-        	completelyShowSimilarPart();
-        }
-        if(message == "show-all"){
-        	draw_depth(dataCenter.GLOBAL_STATIC.MAX_DEPTH);
-        }
-        if(message == "change-depth"){
-        	var depth = +data;
-        	draw_depth(depth);
+        if(message=="update-view"){
+        	console.log(total_root)
+        	var self = this;
+        	var currentId = dataCenter.global_variable.current_id;
+        	var addlist = [], add_id_list = [];
+        	var dataCenter_datasets_idlist = [];
+        	for(var i = 0; i < dataCenter.datasets.length; i++){
+        		var tmp = dataCenter.datasets[i];
+        		dataCenter_datasets_idlist.push(tmp.id);
+        		if(pre_datasets_id.indexOf(tmp.id) == -1){
+        			addlist.push(tmp.processor.result.treeRoot);
+        			pre_datasets_id.push(tmp.id);
+        			add_id_list.push(tmp.id);
+        		}
+        	}
+        	var deletelist = [];
+        	for(var i = 0; i < pre_datasets_id.length; i++){
+        		var tmp = pre_datasets_id[i];
+        		if(dataCenter_datasets_idlist.indexOf(tmp) == -1){
+        			delete_tree(tmp);
+        			deletelist.push(i);
+        		}
+        	}
+        	for(var i = deletelist.length - 1; i >= 0; i--){
+        		pre_datasets_id.splice(deletelist[i],1);
+        	}
+        	if(addlist.length > 0) addMultiTree(addlist,add_id_list);
+        	pre_datasets = dataCenter.datasets;
+
         }
     }
-
     return TreeCompare;
-
 }
