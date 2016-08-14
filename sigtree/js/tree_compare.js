@@ -1485,16 +1485,7 @@ var treeCompare = function(){
 				}
 			}
         }
-        if(mes if(message == "show-similiar"){
-        	completelyShowSimilarPart();
-        }
-        if(message == "show-all"){
-        	draw_depth(dataCenter.GLOBAL_STATIC.MAX_DEPTH);
-        }
-        if(message == "change-depth"){
-        	var depth = +data;
-        	draw_depth(depth);
-        }sage=="update-view"){
+        if(message=="update-view"){
         	console.log(total_root)
         	var self = this;
         	var currentId = dataCenter.global_variable.current_id;
@@ -1523,7 +1514,16 @@ var treeCompare = function(){
         	if(addlist.length > 0) addMultiTree(addlist,add_id_list);
         	pre_datasets = dataCenter.datasets;
         }
-        
+        if(message == "show-similiar"){
+        	completelyShowSimilarPart();
+        }
+        if(message == "show-all"){
+        	draw_depth(dataCenter.GLOBAL_STATIC.MAX_DEPTH);
+        }
+        if(message == "change-depth"){
+        	var depth = +data;
+        	draw_depth(depth);
+        }
     }
     return TreeCompare;
 }
