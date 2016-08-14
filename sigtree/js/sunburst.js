@@ -43,10 +43,7 @@ var radial = function(){
             .call(sunburst_outer)        
 
     return Radial;
-
 }
-
-
 
 	function d3_sunburst()
     {

@@ -211,7 +211,8 @@
               .attr("class", function(d) { return "category-" + d.major; })
               .attr("d", ribbonPath)
               .attr("id", function(d) {
-                return "parset-ribbon-" + d.id;
+                var thisId = d.id.replace(';','');
+                return "parset-ribbon-" + thisId;
               })
               .attr("parent", function(d) {
                 var parts = d.id.split("-");

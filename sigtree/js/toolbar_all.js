@@ -43,22 +43,31 @@ var toolbarAll = {
 			}
 		});
 		$('#switch-selection').on('click', function(d,i){
-			if($('#switch-selection').hasClass('active')){
+			/*if($('#switch-selection').hasClass('active')){
 				$('#switch-selection').removeClass('active');
 			}else{
 				$('#switch-selection').addClass('active');
-			}
+			}*/
+			var selectionArray = dataCenter.global_variable.selection_array;
+			var currentId = dataCenter.global_variable.current_id;
+			var currentIndex = selectionArray.indexOf(currentId);
+			var nextIndex = (currentIndex + 1)%(selectionArray.length);
+			var nextId = selectionArray[nextIndex];
+			dataCenter.global_variable.current_id = nextId;
+			ObserverManager.post('update-view', 'toolbarAll');
 		});
 		$('#click-node-shrink').on('click', function(d,i){
 			if(!($('#click-node-shrink').hasClass('active'))){
 				$('#click-node-shrink').addClass('active');
-				$('#click-other-node-shrink').addClass('active');
+				$('#click-other-node-shrink').removeClass('active');
+				dataCenter.set_global_variable('click_thisNode_shrink', true);
 			}
 		});
 		$('#click-other-node-shrink').on('click', function(d,i){
 			if(!($('#click-other-node-shrink').hasClass('active'))){
 				$('#click-other-node-shrink').addClass('active');
-				$('click-node-shrink').addClass('active');
+				$('#click-node-shrink').removeClass('active');
+				dataCenter.set_global_variable('click_thisNode_shrink', false);
 			}
 		});
 		d3.selectAll('.toolbar-all')

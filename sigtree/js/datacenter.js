@@ -30,7 +30,8 @@ var dataCenter = {
 	},
 	GLOBAL_STATIC: {
 		'radius': 2,
-		'DEFAULT_ARC_LINK_NUM': 2
+		'DEFAULT_ARC_LINK_NUM': 2,
+		'MAX_DEPTH': 4
 	},
 	set_global_variable: function(variable_name, value){
 		this.global_variable[variable_name] = value;

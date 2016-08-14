@@ -1048,6 +1048,7 @@ var treeCompare = function(){
 		draw_separate_tree(_nodes, root);
 		draw_trend(_nodes, root);		
 	}*/
+
 	function completelyShowSimilarPart(){
 		var markifexpand = [];		
 		for(var i = 0; i < nodes.length; i++){
@@ -1439,6 +1440,16 @@ var treeCompare = function(){
 					tmp.select(idmulti + data[i]).classed("focus-highlight",false);
 				}
 			}
+        }
+        if(message == "show-similiar"){
+        	completelyShowSimilarPart();
+        }
+        if(message == "show-all"){
+        	draw_depth(dataCenter.GLOBAL_STATIC.MAX_DEPTH);
+        }
+        if(message == "change-depth"){
+        	var depth = +data;
+        	draw_depth(depth);
         }
     }
 

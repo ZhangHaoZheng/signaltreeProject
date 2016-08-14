@@ -80,19 +80,22 @@ var parset = {
 		if (message == "highlight") {
 			svg.selectAll(".highlight").classed("highlight", false);
 			for (var i = 0; i < data.length; i++) {
-				svg.selectAll("#parset-ribbon-" + data[i]).classed("highlight", true);
+				var dataI = data[i].replace(';','');
+				svg.selectAll("#parset-ribbon-" + dataI).classed("highlight", true);
 			}
 		}
         if (message == "mouse-over") {
 			for (var i = 0; i < data.length; i++) {
-				svg.selectAll("#parset-ribbon-" + data[i]).classed("focus-highlight", true);
-				svg.selectAll("#parset-mouse-" + data[i]).classed("focus-highlight", true);	
+				var dataI = data[i].replace(';','');
+				svg.selectAll("#parset-ribbon-" + dataI).classed("focus-highlight", true);
+				svg.selectAll("#parset-mouse-" + dataI).classed("focus-highlight", true);	
 			}
         }
         if (message == "mouse-out") {
 			for (var i = 0; i < data.length; i++) {
-				svg.selectAll("#parset-ribbon-" + data[i]).classed("focus-highlight", false);
-				svg.selectAll("#parset-mouse-" + data[i]).classed("focus-highlight", false);
+				var dataI = data[i].replace(';','');
+				svg.selectAll("#parset-ribbon-" + dataI).classed("focus-highlight", false);
+				svg.selectAll("#parset-mouse-" + dataI).classed("focus-highlight", false);
 			}        	
         }
         if(message=="update-view"){

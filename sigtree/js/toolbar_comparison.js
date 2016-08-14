@@ -16,6 +16,7 @@ var toolbarComparison = {
 			for(var _i = 0;_i <= depth;_i++){
 				$('#level-' + _i).addClass('active');
 			}
+			ObserverManager.post('change-depth', depth);
 		});
 		//--------------
 		//group button
@@ -23,14 +24,14 @@ var toolbarComparison = {
 			if(!($('#all-node-comparison').hasClass('active'))){
 				$('#all-node-comparison').addClass('active');
 				$('#same-node-comparison').removeClass('active');
-
+				ObserverManager.post('show-all');
 			}
 		});
 		$('#same-node-comparison').on('click', function(d,i){
 			if(!($('#same-node-comparison').hasClass('active'))){
 				$('#same-node-comparison').addClass('active');
 				$('#all-node-comparison').removeClass('active');
-				
+				ObserverManager.post('show-similiar');
 			}
 		});
 	}

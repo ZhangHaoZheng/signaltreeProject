@@ -1,5 +1,6 @@
 var treeSelect = function(){
-	var SelectTree = {};	
+	var SelectTree = {};
+	ObserverManager.addListener(SelectTree);
 	var svgWidth = $("#innerTopLeft").width();
 	var svgHeight = $("#innerTopLeft").height() * 19/20;
 	var compareArray = [0, 1];
@@ -207,7 +208,7 @@ var treeSelect = function(){
 			})
 			.on("mouseover",function(d,i){
 				d3.selectAll('.bar:not(.opacity-click-highlight)')
-	    		.classed('opacity-unhighlight', true);
+	    			.classed('opacity-unhighlight', true);
 		    		//d3.selectAll('.bar')
 		    		//.classed('opacity-highlight', false);
 	    		d3.selectAll('.bar:not(.opacity-click-highlight)')
@@ -276,6 +277,7 @@ var treeSelect = function(){
 					}
 					add_arc(signalTreeTime, 'click');
 					append_current_circle(signalTreeTime);
+					ObserverManager.post('changeData', selectionArray);
 					if(currentId == signalTreeTime){
 						d3.select(this).classed('selection', false);
 						add_arc(signalTreeTime, 'unclick');
@@ -531,6 +533,14 @@ var treeSelect = function(){
 		$("#innerTopRight #label-C #tree-num-description").text(treeNodeNum);
 		$("#innerTopRight #label-C #sum-num-description").text(sumNodeNum);
 	}
+	function update_selection_and_current(){
+		var selectionArray = dataCenter.global_variable.selection_array;
+		for(var i = 0;i < selectionArray.length;i++){
+			d3.select('.node' + selectionArray[i]).classed('selection', true);
+		}
+		var currentId = dataCenter.global_variable.current_id;
+		append_current_circle(currentId);
+	}
 	SelectTree.OMListen = function(message, data) {
 	    if (message == "percentage") {
 			changePercentage(data);
@@ -579,6 +589,10 @@ var treeSelect = function(){
 					add_arc_to_all();
 				}
 	    	}
+	    }
+	    if(message == 'update-view'){
+	    	update_selection_and_current();
+	    	console.log(message);
 	    }
     }
 	return SelectTree;

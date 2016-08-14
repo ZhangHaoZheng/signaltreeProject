@@ -27,25 +27,23 @@ var radial = {
 		var duration = 750;
 		//var rootA = dataCenter.datasets[0].processor.result.treeRoot;
 		var rootA = tree_root;
-
-		var tree = d3.layout.tree()
-		.size([360, diameter / 2 - 20])
-		.children(function(d){
-			if(Array.isArray(d.values)) return d.values;
-			return undefined;
-		})
-		.separation(function(a, b) { 
-			var dis = (a.parent == b.parent ? 1 : 2) / a.depth;
-			if(a.depth <= 2 && b.depth <= 2)
-				dis = 10;
-			if(a.depth == 3 && b.depth == 3)
-				dis = 1;
-			if(a.parent && b.parent){
-            	return dis;
-			}
-            return 1;
-		});
-
+		var tree = self.tree = d3.layout.tree()
+			.size([360, diameter / 2 - 20])
+			.children(function(d){
+				if(Array.isArray(d.values)) return d.values;
+				return undefined;
+			})
+			.separation(function(a, b) { 
+				var dis = (a.parent == b.parent ? 1 : 2) / a.depth;
+				if(a.depth <= 2 && b.depth <= 2)
+					dis = 10;
+				if(a.depth == 3 && b.depth == 3)
+					dis = 1;
+				if(a.parent && b.parent){
+	            	return dis;
+				}
+	            return 1;
+			});
 		var treeNodeList;
 		treeNodeList = tree.nodes(rootA).reverse();
 		//dataCenter.global_variable.tree_node_list = treeNodeList;
@@ -125,7 +123,7 @@ var radial = {
 				})
 				.on("click",function(d,i){
 					var this_node = d3.select(this);
-					_click(d, i, this_node);
+					_click(d, i, this_node, tree_root);
 				})
 				.on("mouseover", function(d) {
 					ObserverManager.post("mouse-over", [d.id]);
@@ -167,7 +165,28 @@ var radial = {
 				.attr("d", diagonal);
 			link.exit().remove();
 		}
-		function _click(d,i,this_node) {
+		function _click(d, i, this_node, tree_root) {
+			var self = this;
+			var width = $("#leftTopLeftWrapper").width();
+			var height = $("#leftTopLeftWrapper").height();
+			var diameter = d3.min([width,height]);
+			var tree = d3.layout.tree()
+				.size([360, diameter / 2 - 20])
+				.children(function(d){
+					if(Array.isArray(d.values)) return d.values;
+					return undefined;
+				})
+				.separation(function(a, b) { 
+					var dis = (a.parent == b.parent ? 1 : 2) / a.depth;
+					if(a.depth <= 2 && b.depth <= 2)
+						dis = 10;
+					if(a.depth == 3 && b.depth == 3)
+						dis = 1;
+					if(a.parent && b.parent){
+		            	return dis;
+					}
+		            return 1;
+				});
 			var treeNodeList;
 			if((+d.flow) == 0)	return null;		
 			if (d.values) {
@@ -184,7 +203,8 @@ var radial = {
 					this_node.attr("fill","#CCC29C");
 				}
 			}
-			treeNodeList = tree.nodes(rootA).reverse();
+			console.log(tree_root);
+			treeNodeList = tree.nodes(tree_root).reverse();
 			_update(treeNodeList);
 		}
 	},
@@ -243,7 +263,7 @@ var radial = {
         if(message=="changeData"){
         	console.log("radial",data);
         }
-        if(message=="update-view"){
+        if(message == "update-view"){
         	var self = this;
         	var currentId = dataCenter.global_variable.current_id;
         	for(var i = 0;i < dataCenter.datasets.length;i++){
