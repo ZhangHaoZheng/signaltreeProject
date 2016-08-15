@@ -60,8 +60,24 @@
                     <i class="icon iconfont">&#xe615;</i>
                 </span>
             </div>
+            <div id = 'click-change-background' class = 'button-group bind'>
+                <span id = "change-color-black" class = "button click-black toolbar-all active" data-placement="bottom" title = "黑色背景">
+                    黑
+                </span>
+                <span id = "change-color-white" class = "button click-white toolbar-all" data-placement="bottom" title = "白色背景">
+                    白
+                </span>
+            </div>
+            <div id = 'click-change-language' class = 'button-group bind'>
+                <span id = "change-language-chinese" class = "button click-chinese toolbar-all active" data-placement="bottom" title = "中文">
+                     中
+                </span>
+                <span id = "change-language-english" class = "button click-english toolbar-all" data-placement="bottom" title = "英文">
+                    En
+                </span>
+            </div>
         </div>
-        <div id = "topWrapper">
+        <div id = "topWrapper" class = "structure">
             <div id = "innerTopLeft">
                 <!--<div id="tree-select-controller">-->
                     <!--<span class="sort-btn btn btn-default btn-xs">
@@ -93,7 +109,7 @@
                 </span>-->
                 <div id="innerTopRightTop">
                      <div id="label-A" class="label-wrapper">
-                         <span class="btn btn-default btn-xs label">A</span><br/>
+                         <span id = "node-type" class="btn btn-default btn-xs label">A</span><br/>
                          <span class="date_text"><strong>Date: </strong></span>
                          <span class="date_description"></span><br/>
                          <span class="value_text"><strong>Values: </strong></span>
@@ -134,8 +150,8 @@
                 </div>
             </div>
         </div>
-        <div id = "rightWrapper" class='remove-highlight'>
-            <div id = "rightToolbarWrapper">
+        <div id = "rightWrapper" class='remove-highlight structure'>
+            <div id = "rightToolbarWrapper" class = 'structure'>
                 <div id = "title-div" class = "button-group bind">
                     <span id = "title" class = "button toolbar-tree" title = "比较视图">Comparison</span>
                 </div>
@@ -155,7 +171,7 @@
                     <span id = "level-4" class = "button level-selection toolbar-tree active" title = "第4层">L4</span>
                 </div>
             </div>
-            <div id = "rightComparisonWrapper">
+            <div id = "rightComparisonWrapper" class = 'structure'>
                    <!-- <div>
                         <form id = "tree-compare-depth-controller">
                             <button type = "button" id="showSimilar">showSimilar</button>
@@ -167,15 +183,15 @@
                             <span class = "btn btn-default btn-xs active level-btn toolbar-tree" level=4>L4</span>
                         </form>
                     </div>-->
-                    <div id="multitree">
-                        <div id="treemapA" class="tree-container"></div>
-                        <div id="treehis" class="tree-container"></div>
-                        <div id="treemapB" class="tree-container"></div>
+                    <div id="multitree" class = 'structure'>
+                        <div id="treemapA" class="tree-container structure"></div>
+                        <div id="treehis" class="tree-container structure"></div>
+                        <div id="treemapB" class="tree-container structure"></div>
                     </div>
             </div>
         </div>
-        <div id = "leftWrapper" class='remove-highlight'>
-            <div id = "leftToolbarWrapper">
+        <div id = "leftWrapper" class='structure'>
+            <div id = "leftToolbarWrapper" class = 'structure remove-highlight'>
                 <div id = "title-div" class = "button-group bind">
                     <span id = "title" class = "button toolbar-compare" title = "信号树">A</span>
                 </div>
@@ -208,8 +224,8 @@
                     </span>
                 </div>
             </div>
-            <div id = "leftTreeWrapper">
-                <div id="leftTopWrapper">
+            <div id = "leftTreeWrapper" class = 'structure remove-highlight'>
+                <div id="leftTopWrapper" class = 'structure'>
                     <!--<div id="radial-depth-controller">-->
                     <!--<section class="model-14"><div class="checkbox"><input type="checkbox" mark=1 id="radialcheckbox"/>
                     </div></section><label>B</label>-->
@@ -220,20 +236,23 @@
                          <div class="btn btn-default btn-xs active level-btn" level=3>L3</div><br/>
                          <div class="btn btn-default btn-xs active level-btn" level=4>L4</div><br/>-->
                     <!--</div>-->
-                    <div id='leftTopLeftWrapper'>
+                    <div id='leftTopLeftWrapper-radial'>
                         <svg class="radial"></svg>
+                    </div>
+                    <div id='leftTopLeftWrapper-sunburst'>
+                        <svg class="sunburst"></svg>
                     </div>
                     <div id='leftTopRightWrapper'>
                         <svg class='radial-histogram'></svg>
                     </div>
                 </div>
-                <div id="leftBottomWrapper">
+                <div id="leftBottomWrapper" class = 'structure'>
                     <svg class="parset"></svg>
                 </div>
             </div>
-        </div>
-        <div id = 'projectionWrapper' class='remove-highlight'>
-            <svg class = "projection"></svg>
+            <div id = 'projectionWrapper' class='structure'>
+                <svg class = "projection"></svg>
+            </div>
         </div>
     </body>
     <!-- Libraries -->   
@@ -263,7 +282,7 @@
 	<script type="text/javascript" src="js/radial.js"></script> 
     <script type="text/javascript" src='js/radial_histogram.js'></script>
     <script type="text/javascript" src="js/datacenter.js"></script>
-    <!--<script type="text/javascript" src="js/sunburst.js"></script>-->
+    <script type="text/javascript" src="js/sunburst.js"></script>
 	<script type="text/javascript" src="js/parset.js"></script>    
 	<script type="text/javascript" src="js/tree_select.js"></script>
 

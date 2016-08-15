@@ -26,7 +26,12 @@ var dataCenter = {
 		'selection_array':["20120121-R06-81", "20120121-R07-75"],
 		'current_id': "20120121-R07-75",
 		'current_nodeid_before':["20120121-R06-81", "20120121-R07-75"],
-		'hover_arc_link_num': 5
+		'hover_arc_link_num': 5,
+		'sunburst_or_radial': 'radial',
+		'treeview_or_projection':'treeview',
+		'current_bg_color':'black',
+		'current_bg_language':'Chinese',
+		'projection_method': 'original_projection'
 	},
 	GLOBAL_STATIC: {
 		'radius': 2,

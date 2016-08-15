@@ -17,12 +17,22 @@ var toolbarSignaltree = {
 			if(!($('#sunburst-tree').hasClass('active'))){
 				$('#sunburst-tree').addClass('active');
 				$('#radial-tree').removeClass('active');
+				if(dataCenter.global_variable.treeview_or_projection == 'treeview'){
+					document.getElementById("leftTopLeftWrapper-sunburst").style.visibility= "visible" ;
+					document.getElementById("leftTopLeftWrapper-radial").style.visibility= "hidden" ;
+				}
+				dataCenter.set_global_variable('sunburst_or_radial', 'sunburst');
 			}
 		});
 		$('#radial-tree').on('click', function(d,i){
 			if(!($('#radial-tree').hasClass('active'))){
 				$('#radial-tree').addClass('active');
 				$('#sunburst-tree').removeClass('active');
+				if(dataCenter.global_variable.treeview_or_projection == 'treeview'){
+					document.getElementById("leftTopLeftWrapper-sunburst").style.visibility= "hidden" ;
+					document.getElementById("leftTopLeftWrapper-radial").style.visibility= "visible" ;
+				}
+				dataCenter.set_global_variable('sunburst_or_radial', 'radial');
 			}
 		});
 		//--------------
@@ -31,13 +41,31 @@ var toolbarSignaltree = {
 		$('.projection-method').on('click', function(d,i){
 			var thisId = $(this).attr('id');
 			if(!($(this).hasClass('active'))){
-				if(thisId != 'original-projection'){
-					$(this).removeClass('active');
-					$('#original-projection').addClass('active');
-				}
-			}else{
 				$('.projection-method').removeClass('active');
 				$(this).addClass('active');
+				if(thisId == "tree-view"){
+					document.getElementById("leftTreeWrapper").style.visibility= "visible" ;
+					document.getElementById("projectionWrapper").style.visibility= "hidden" ;
+					if(dataCenter.global_variable.sunburst_or_radial == 'radial'){
+						document.getElementById("leftTopLeftWrapper-sunburst").style.visibility= "hidden" ;
+						document.getElementById("leftTopLeftWrapper-radial").style.visibility= "visible" ;
+					}else{
+						document.getElementById("leftTopLeftWrapper-sunburst").style.visibility= "visible" ;
+						document.getElementById("leftTopLeftWrapper-radial").style.visibility= "hidden" ;
+					}
+					dataCenter.set_global_variable('treeview_or_projection', 'treeview');
+				}else{
+					if(thisId == 'original-projection'){
+						dataCenter.set_global_variable('projection_method', 'original-projection');
+					}else if(thisId == 'center-projection'){
+						dataCenter.set_global_variable('projection_method', 'center-projection');
+					}
+					document.getElementById("projectionWrapper").style.visibility= "visible" ;
+					document.getElementById("leftTreeWrapper").style.visibility= "hidden" ;
+					document.getElementById("leftTopLeftWrapper-sunburst").style.visibility= "hidden" ;
+					document.getElementById("leftTopLeftWrapper-radial").style.visibility= "hidden" ;
+					dataCenter.set_global_variable('treeview_or_projection', 'projection');
+				}
 			}
 		});
 		return this;

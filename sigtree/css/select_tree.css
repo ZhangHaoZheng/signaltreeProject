@@ -13,14 +13,6 @@
 #mainTimeline .bar {
   fill: #C0C0C0;
 }
-#mainTimeline .selection {
-  stroke: black !important;
-  stroke-width: 1px !important;
-  opacity: 1 !important;
-}
-.append-current-circle{
-  fill: black;
-}
 .label-wrapper > .label  {
   pointer-events: none;
   cursor: not-allowed;  
@@ -32,7 +24,7 @@
 #label-C {
   margin-top: 0.3em;
   padding-top: 0.3em;
-  border-top: 2px solid #ddd;
+  border-top: 1px solid gray;
 }
 .hover{
   stroke: black;
@@ -44,3 +36,9 @@
   stroke-width: 2px;
   fill: none;
 }
+ #mainTimeline .selection {
+    stroke: black !important;
+    stroke-width: 1.5px !important;
+    opacity: 1 !important;
+   // stroke-location: 
+  }

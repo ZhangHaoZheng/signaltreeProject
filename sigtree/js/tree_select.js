@@ -65,6 +65,7 @@ var treeSelect = function(){
 	    //.classed('opacity-highlight', false);
 	    d3.selectAll('.hover').remove();
 	    d3.selectAll('.bar:not(.opacity-click-highlight)').style('fill',null);
+	    ObserverManager.post("similarity-node-array", []);
 	}
 	$("#innerTopRight").css("font-size", 12 + "px");  
 	function processStatData() {
@@ -222,8 +223,9 @@ var treeSelect = function(){
 	    		if(dataCenter.global_variable.hover_show_arc){
 	    			add_arc(d.time, 'hover');
 	    			//d3.selectAll('.default').classed('opacity-remove', true);
+	    		}else{
+	    			ObserverManager.post("similarity-node-array", [element]);
 	    		}
-	    		ObserverManager.post("similarity-node-array", [element]);
 				tip.show(d);
 			})
 			.on("mouseout",function(d,i){
@@ -236,7 +238,7 @@ var treeSelect = function(){
 	    		var selectionArray = dataCenter.global_variable.selection_array;
 	    		//if(selectionArray.indexOf(id) == -1){
 	    		d3.selectAll('.default').classed('opacity-remove', false);
-		   		ObserverManager.post("similarity-node-array", []);
+		   		//ObserverManager.post("similarity-node-array", []);
 	    		/*}else{
 	    			d3.selectAll('.arc-path.hover').classed('click-remain', true);
 		   			d3.selectAll('.arc-path.hover').classed('hover', false);
@@ -254,6 +256,9 @@ var treeSelect = function(){
 				//d3.selectAll('.arc-path.click-remain').remove();
 				if(selectionArray.indexOf(signalTreeTime) == -1){
 					selectionArray.push(signalTreeTime);
+					var thisNode = d3.select(this);
+					add_selection_text(selectionArray);
+					
 					ObserverManager.post('changeData', selectionArray);
 					d3.select(this).classed('selection', true);
 					append_current_circle(signalTreeTime);
@@ -362,6 +367,26 @@ var treeSelect = function(){
 		//	ObserverManager.post("changeData", selectionArray);
 		//}
 	}
+	function add_selection_text(selection_array){
+		svg.selectAll('.selection-label').remove();
+        for(var i = 0;i < selection_array.length;i++){
+        	var thisNodeName = selectionArray[i];
+        	var thisNode = d3.select('.node' + thisNodeName);
+        	console.log('thisNode', thisNode);
+			var label = String.fromCharCode(97 + i);
+			var thisX = +thisNode.attr('x');
+			var thisY = +thisNode.attr('y');
+			var thisWidth = +thisNode.attr('width');
+			var centerX = thisX + margin.left; 
+			var centerY = thisY + margin.top - 2;
+			console.log('centerX:' + centerX + ',centerY:' + centerY);
+			svg.append('text')
+				.attr('class', 'selection-label')
+				.attr('x', centerX)
+				.attr('y', centerY)
+				.text(label);
+        }
+	}
 	function append_current_circle(signal_tree_time){
 		console.log(signal_tree_time);
 		d3.selectAll('.append-current-circle').remove();
@@ -380,6 +405,7 @@ var treeSelect = function(){
 			.attr('cy', centerY)
 			.attr('r', radius);
 		dataCenter.global_variable.current_id = signal_tree_time;
+		console.log('signal_tree_time', signal_tree_time);
 		ObserverManager.post('change-current-data', signal_tree_time);
 	}
 	function add_arc_to_all(){
@@ -509,18 +535,24 @@ var treeSelect = function(){
 		var rectWidth = + chart.select("#his-" + compareArray[1]).attr("width");
 		var rectHeight = + chart.select("#his-" + compareArray[1]).attr("height");
 		var newY = rectY + rectHeight * (1 - percentage);
+		console.log(percentage);
 		d3.select("#append-rect").select("#percen-rect").remove();
 		d3.select("#append-rect")
 		.append("rect")
 		.attr("id","percen-rect")
 		.attr("x",rectX)
-		.attr("y",(newY))
+		.attr("y",newY)
 		.attr("height",rectHeight * percentage)
 		.attr("width",hisWidth)
 		// .attr("fill","#b2df8a");
 		.classed("highlight", true);
 	}
 	changeLabelC("-", 0, 0, 0, 0);
+	/*if(dataCenter.global_variable.current_bg_color == 'black'){
+		_black_handler();
+	}else if(dataCenter.global_variable.current_bg_color == 'white'){
+		_white_handler();
+	}*/
 	function changeLabelC(dataset, nodeID, levelText, flowLevel, treeNodeNum, sumNodeNum){
 		$("#innerTopRight #label-C #node-type").text(dataset)
 		$("#innerTopRight #label-C #node-type").removeClass("background-A");
@@ -533,6 +565,21 @@ var treeSelect = function(){
 		$("#innerTopRight #label-C #tree-num-description").text(treeNodeNum);
 		$("#innerTopRight #label-C #sum-num-description").text(sumNodeNum);
 	}
+	function changeLabelA(date, value, node_num){
+		$("#innerTopRightTop #label-A .date_description").html(function() {
+				var timeArray = date.split("-");
+				return timeArray[0];
+			return "";
+		});
+		$("#innerTopRightTop #label-A .value_description").html(function() {
+				return  d3.format(".3s")(value) + "bytes" ;
+			return "";
+		});
+		$("#innerTopRightTop #label-A .node_num_description").html(function() {
+				return  node_num;
+			return "";
+		});
+	}
 	function update_selection_and_current(){
 		var selectionArray = dataCenter.global_variable.selection_array;
 		for(var i = 0;i < selectionArray.length;i++){
@@ -541,7 +588,66 @@ var treeSelect = function(){
 		var currentId = dataCenter.global_variable.current_id;
 		append_current_circle(currentId);
 	}
+	function _black_handler(){
+		$('body').css('background-color', '#333');
+		$('body').css('color', 'white');
+		$('body').css('fill', 'white');
+		$('.domain').css('stroke', 'white');
+		$('.arc-path').css('stroke','white');
+		$('.append-current-circle').css('fill', 'white');
+		$('.append-current-circle').css('stroke', 'white');
+		//$('span.button').css('border-bottom', '3px solid white');
+		//$('span.button.active').css('border-bottom', '3px solid #2060d5');
+		$('#label-C').css('border-top', '1px solid black');
+		$('.tick line').css('stroke', 'white');
+		$('.button-group div').css('color', 'white');
+		$('.button-group.bind div').css('color', 'white');
+		$('.structure').css('border-color','black');
+		$('.dimension line').css('stroke', 'white');
+		return;
+	}
+	function _white_handler(){
+		$('body').css('background-color', 'white');
+		$('body').css('color', 'black');
+		$('body').css('fill', 'black');
+		$('.domain').css('stroke', 'black');
+		$('.arc-path').css('stroke','black');
+		$('.append-current-circle').css('fill', 'black');
+		$('.append-current-circle').css('stroke', 'black');
+		//$('span.button').css('border-bottom', '3px solid #aaaaaa');
+		//$('.active').css('border-bottom', '3px solid #2060d5');
+		$('#label-C').css('border-top', '1px solid white');
+		$('.tick line').css('stroke', 'black');
+		$('.button-group div').css('color', '#bbbbbb');
+		$('.button-group.bind div').css('color', 'black');
+		$('.structure').css('border-color','#a0a0a0');
+		$('.dimension line').css('stroke', 'black');
+		return;
+	}
+	function _chinese_handler(){
+
+	}
+	function _english_handler(){
+
+	}
+	function _projection_highlight(data){
+		d3.selectAll('.bar')
+		.classed('opacity-highlight', false);
+		d3.selectAll('.bar')
+		.classed('opacity-unhighlight', true);
+		d3.select('.' + data)
+		.classed('opacity-unhighlight', false);
+		//d3.select('.' + data)
+		//.classed('opacity-highlight', true);
+	}
+	function _projection_unhighlight(){
+		d3.selectAll('.bar')
+	    .classed('opacity-unhighlight', false);
+	    d3.selectAll('.bar')
+	    .classed('opacity-highlight', false);
+	}
 	SelectTree.OMListen = function(message, data) {
+		console.log(message, data);
 	    if (message == "percentage") {
 			changePercentage(data);
 	    }
@@ -556,25 +662,20 @@ var treeSelect = function(){
 	    	changeLabelC(dataset, nodeID, levelText, flowLevel, treeNodeNum, sumNodeNum)
 	    }
 	    if(message == 'projection-highlight'){
+	    	console.log(data);
 	    	if(data != null){
-	    		svg.selectAll('.bar')
-	    		.classed('opacity-unhighlight', true);
-	    		svg.select('.' + data)
-	    		.classed('opacity-unhighlight', false);
-	    		svg.select('.' + data)
-	    		.classed('opacity-highlight', true);
+	    		_projection_highlight(data);
 	    	}else{
-	    		svg.selectAll('.bar')
-	    		.classed('opacity-unhighlight', false);
-	    		svg.selectAll('.bar')
-	    		.classed('opacity-highlight', false);
+	    		_projection_unhighlight();
 	    	}
 	    }
 	    if(message == 'set:show_arc'){
 	    	if(dataCenter.global_variable.show_arc){
 	    		add_arc_to_all();
+	    		$('#arc-link').addClass('active');
 	    	}else{
 	    		remove_arc_to_all();
+	    		$('#arc-link').removeClass('active');
 	    	}
 	    }
 	    if(message == 'set:sort_mode'){
@@ -583,17 +684,73 @@ var treeSelect = function(){
 				if(dataCenter.global_variable.show_arc){
 					add_arc_to_all();
 				}
+				$('#time-sort').addClass('active');
+				$('#size-sort').removeClass('active');
 	    	}else if(dataCenter.global_variable.sort_mode == 'size'){
 	    		drawHistogram(propotionArray);
 				if(dataCenter.global_variable.show_arc){
 					add_arc_to_all();
 				}
+				$('#size-sort').addClass('active');
+				$('#time-sort').removeClass('active');
+	    	}
+	    }
+	    if(message == 'set:hover_show_arc'){
+	    	if(dataCenter.global_variable.hover_show_arc){
+	    		$('#arc-link-hover').addClass('active');
+	    	}else{
+	    		$('#arc-link-hover').removeClass('active');
+	    	}
+	    }
+	    if(message == 'set:click_thisNode_shrink'){
+	    	if(dataCenter.global_variable.click_thisNode_shrink){
+	    		$('#click-node-shrink').addClass('active');
+				$('#click-other-node-shrink').removeClass('active');
+	    	}else{
+	    		$('#click-other-node-shrink').addClass('active');
+				$('#click-node-shrink').removeClass('active');
+	    	}
+	    }
+	    if(message == 'set:current_bg_color'){
+	    	if(dataCenter.global_variable.current_bg_color == 'black'){
+	    		$('#change-color-black').addClass('active');
+	    		$('#change-color-white').removeClass('active');
+	    		_black_handler();
+	    	}else{
+	    		$('#change-color-white').addClass('active');
+	    		$('#change-color-black').removeClass('active');
+	    		_white_handler();
+	    	}
+	    }
+	    if(message == 'set:current_bg_language'){
+	    	console.log('set:current_bg_language');
+	    	if(dataCenter.global_variable.current_bg_language == 'chinese'){
+	    		$('#change-language-chinese').addClass('active');
+	    		$('#change-language-english').removeClass('active');
+	    		_chinese_handler();
+	    	}else{
+	    		$('#change-language-english').addClass('active');
+	    		$('#change-language-chinese').removeClass('active');
+	    		_english_handler();
 	    	}
 	    }
 	    if(message == 'update-view'){
 	    	update_selection_and_current();
-	    	console.log(message);
+	    	if(message == "update-view"){
+        	var currentId = dataCenter.global_variable.current_id;
+		        for(var i = 0;i < dataCenter.datasets.length;i++){
+		        	if(currentId == dataCenter.datasets[i].id){
+		        		var tree_root = dataCenter.datasets[i].processor.result.treeRoot;
+		        		var nodeNum = tree_root.allChilldrenCount;
+		        		var flowSize = tree_root.flow;
+		        		var date = currentId;
+		        		changeLabelA(date, flowSize, nodeNum);
+		        		break;
+		        	}
+		        }
+	        }
 	    }
+
     }
 	return SelectTree;
 }

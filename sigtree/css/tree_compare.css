@@ -1,6 +1,6 @@
 .node{
 	stroke: steelblue;
-	stroke-width: 1;
+	stroke-width: 2;
 }
 .node-leaf{
 	fill: #CCC29C;
@@ -57,7 +57,8 @@
   background-color: #FF7F0E;
 }
 .single-tree{
-  border-color: gray;
-  border-width: 1px 1px 1px 1px;
+  //border-color: gray;
+  border-color: black;
+  border-width: 1px 1px 0px 0px;
   border-style: solid;
 }

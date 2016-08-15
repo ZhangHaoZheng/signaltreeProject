@@ -1,7 +1,6 @@
 var radial = {
 	initialize: function(){
 		var self = this;
-		console.log(dataCenter.datasets[1].processor.result);
 		self._add_to_listener();
 		self._bind_view();
 		var treeRoot = dataCenter.datasets[0].processor.result.treeRoot;
@@ -18,8 +17,8 @@ var radial = {
 		var self = this;
 		var dataProcessor = dataCenter.datasets[0].processor;
 		var padding = 10;
-		var width = $("#leftTopLeftWrapper").width();
-		var height = $("#leftTopLeftWrapper").height();
+		var width = $("#leftTopLeftWrapper-radial").width();
+		var height = $("#leftTopLeftWrapper-radial").height();
 
 		var diameter = d3.min([width,height]);
 		var eachTypeIdArray = new Array();
@@ -46,6 +45,7 @@ var radial = {
 			});
 		var treeNodeList;
 		treeNodeList = tree.nodes(rootA).reverse();
+		console.log(rootA);
 		//dataCenter.global_variable.tree_node_list = treeNodeList;
 		dataCenter.set_global_variable('tree_node_list', treeNodeList);
 		var index = 0;
@@ -57,6 +57,7 @@ var radial = {
 			.append('g')
 			.attr("id","radial")
 			.attr('transform', 'translate('+ width/2 + ',' +  height/2 +')');
+		console.log('select event', tree_root);
 		self._draw_depth(4, treeNodeList, tree, width, height, rootA);
 	},
 	_draw_depth: function(hide_depth, tree_node_list, tree, width, height, tree_root){
@@ -98,6 +99,17 @@ var radial = {
 			var node = svg.selectAll(".node")
 				.data(nodes, function(d) {return d.id});
 			var max_depth = 0;
+			node.on("click",function(d,i){
+				var this_node = d3.select(this);
+				console.log('click event',tree_root);
+				_click(d, i, this_node, tree_root);
+			})
+			.on("mouseover", function(d) {
+				ObserverManager.post("mouse-over", [d.id]);
+			})
+			.on("mouseout", function(d) {
+				ObserverManager.post("mouse-out", [d.id]);
+			})
 			var nodeUpdate = node.transition().duration(duration)
 			.attr('class', 'node')
 			.attr("transform",function(d){
@@ -123,6 +135,7 @@ var radial = {
 				})
 				.on("click",function(d,i){
 					var this_node = d3.select(this);
+					console.log('click event',tree_root);
 					_click(d, i, this_node, tree_root);
 				})
 				.on("mouseover", function(d) {
@@ -167,8 +180,9 @@ var radial = {
 		}
 		function _click(d, i, this_node, tree_root) {
 			var self = this;
-			var width = $("#leftTopLeftWrapper").width();
-			var height = $("#leftTopLeftWrapper").height();
+			console.log('click inner function',tree_root);
+			var width = $("#leftTopLeftWrapper-radial").width();
+			var height = $("#leftTopLeftWrapper-radial").height();
 			var diameter = d3.min([width,height]);
 			var tree = d3.layout.tree()
 				.size([360, diameter / 2 - 20])
@@ -188,6 +202,7 @@ var radial = {
 		            return 1;
 				});
 			var treeNodeList;
+			console.log(d.values);
 			if((+d.flow) == 0)	return null;		
 			if (d.values) {
 				d._values = d.values;
@@ -269,6 +284,7 @@ var radial = {
         	for(var i = 0;i < dataCenter.datasets.length;i++){
         		if(currentId == dataCenter.datasets[i].id){
         			var tree_root = dataCenter.datasets[i].processor.result.treeRoot;
+        			console.log(tree_root);
         			self._render_view(tree_root);
         			break;
         		}

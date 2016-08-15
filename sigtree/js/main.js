@@ -197,6 +197,7 @@ var mainController = function(){
         .done(function() {
             treeSelectView = treeSelect();
             dataCenter.view_collection.radial_view = radial.initialize();
+            dataCenter.view_collection.sunburst_view = sunburst.initialize();
             dataCenter.view_collection.radial_histogram = radialHistogram.initialize();  
             dataCenter.view_collection.tree_compare_view = treeCompare();     
             dataCenter.view_collection.parallel_set_view =  parset.initialize();     

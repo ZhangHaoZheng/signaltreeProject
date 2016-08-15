@@ -11,34 +11,26 @@ var toolbarAll = {
 	_bind_view: function(){
 		$('#arc-link').on('click', function(d,i){
 			if($('#arc-link').hasClass('active')){
-				$('#arc-link').removeClass('active');
 				dataCenter.set_global_variable('show_arc', false);
 			}else{
-				$('#arc-link').addClass('active');
 				dataCenter.set_global_variable('show_arc', true);
 			}
 		});
 		$('#arc-link-hover').on('click', function(d,i){
 			if($('#arc-link-hover').hasClass('active')){
-				$('#arc-link-hover').removeClass('active');
 				dataCenter.set_global_variable('hover_show_arc', false);
 			}else{
-				$('#arc-link-hover').addClass('active');
 				dataCenter.set_global_variable('hover_show_arc', true);
 			}
 		})
 		//group button
 		$('#time-sort').on('click', function(d,i){
 			if(!($('#time-sort').hasClass('active'))){
-				$('#time-sort').addClass('active');
-				$('#size-sort').removeClass('active');
 				dataCenter.set_global_variable('sort_mode', 'time');
 			}
 		});
 		$('#size-sort').on('click', function(d,i){
 			if(!($('#size-sort').hasClass('active'))){
-				$('#size-sort').addClass('active');
-				$('#time-sort').removeClass('active');
 				dataCenter.set_global_variable('sort_mode', 'size');
 			}
 		});
@@ -58,17 +50,25 @@ var toolbarAll = {
 		});
 		$('#click-node-shrink').on('click', function(d,i){
 			if(!($('#click-node-shrink').hasClass('active'))){
-				$('#click-node-shrink').addClass('active');
-				$('#click-other-node-shrink').removeClass('active');
 				dataCenter.set_global_variable('click_thisNode_shrink', true);
 			}
 		});
 		$('#click-other-node-shrink').on('click', function(d,i){
 			if(!($('#click-other-node-shrink').hasClass('active'))){
-				$('#click-other-node-shrink').addClass('active');
-				$('#click-node-shrink').removeClass('active');
 				dataCenter.set_global_variable('click_thisNode_shrink', false);
 			}
+		});
+		$('#change-color-black').on('click', function(d,i){
+			dataCenter.set_global_variable('current_bg_color', 'black');
+		});
+		$('#change-color-white').on('click', function(d,i){
+			dataCenter.set_global_variable('current_bg_color', 'white');
+		});
+		$('#change-language-chinese').on('click', function(d,i){
+			dataCenter.set_global_variable('current_bg_language', 'chinese');
+		});
+		$('#change-language-english').on('click', function(d,i){
+			dataCenter.set_global_variable('current_bg_language', 'english');
 		});
 		d3.selectAll('.toolbar-all')
 		.append('title')

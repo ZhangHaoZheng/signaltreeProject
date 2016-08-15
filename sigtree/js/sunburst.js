@@ -1,55 +1,69 @@
-var radial = function(){
-	var Radial = {};
-	ObserverManager.changeListener(Radial,2);
-	var dataProcessor = dataCenter.datasets[0].processor;
-	var divID = "leftTopWrapper";
-	var div = d3.select("#"+divID);
-	var width = $("#"+divID).width();
-	var height = $("#"+divID).height();
-
-	var depth = 4;
-
-	var rootB = dataCenter.datasets[1].processor.result.treeRoot;
-	var rootA = dataCenter.datasets[0].processor.result.treeRoot;
-
-	var is_displaying_treeB = ($("#radialcheckbox").attr("mark") == 2) ? true:false;
-	
-	var root;
-	if (is_displaying_treeB)
-		root = rootB;
-	else
-		root = rootA;
-
-	console.log(root)
-
-	var sunburst_outer = d3_sunburst()
-        	.drawn_depth(depth)
-         	.width(width)
+var sunburst = {
+    initialize: function(){
+        var self = this;
+        self._add_to_listener();
+        self._bind_view();
+        var treeRoot = dataCenter.datasets[0].processor.result.treeRoot;
+        self._render_view(treeRoot);
+        return self;
+    },
+    _add_to_listener: function(){
+        var self = this;
+        ObserverManager.addListener(self);
+        console.log('sunburst add to the listeners');
+    },
+    _bind_view: function(){
+    },
+    _render_view: function(tree_root){
+        var self = this;
+        var padding = 10;
+        var divID = "leftTopLeftWrapper-sunburst";
+        var div = d3.select("#"+divID);
+        var width = $("#leftTopLeftWrapper-sunburst").width();
+        var height = $("#leftTopLeftWrapper-sunburst").height();
+        var depth = 4;
+        var sunburst_outer = d3_sunburst()
+            .drawn_depth(depth)
+            .width(width)
             .height(height)
             .radius( (d3.min([width,height])/2)*1 )
             .cal_innerRadius(function(totalradius,depth){
                 return totalradius/4*(depth-1)*0.92+totalradius*0.08;
             })
             .group_id("outer_sunburst")
-    if (div.select("svg")[0][0]===null)
-    {
-    	div.append("svg")
+        if (div.select("svg")[0][0]===null)
+        {
+            div.append("svg")
+        }
+        var svg = div.select("svg")
+                .style("position","absolute")
+                .style("width",width)
+                .style("height",height)  
+                .datum(root)
+                .call(sunburst_outer)
+    },
+    OMListen: function(message, data){
+        console.log('sunburst-view message');
+        if(message == "update-view"){
+            console.log('sunburst-view update');
+            var self = this;
+            var currentId = dataCenter.global_variable.current_id;
+            for(var i = 0;i < dataCenter.datasets.length;i++){
+                if(currentId == dataCenter.datasets[i].id){
+                    var tree_root = dataCenter.datasets[i].processor.result.treeRoot;
+                    console.log(tree_root);
+                    self._render_view(tree_root);
+                    break;
+                }
+            }
+        }
     }
-    var svg = div.select("svg")
-     		.style("position","absolute")
-     		.style("width",width)
-            .style("height",height)  
-            .datum(root)
-            .call(sunburst_outer)        
-
-    return Radial;
 }
-
 	function d3_sunburst()
     {
-        var width = 960,  
-            height = 960, 
-            radius = 400,
+        var width = $("#leftTopLeftWrapper-sunburst").width(),
+            height = $("#leftTopLeftWrapper-sunburst").height(),
+            radius = d3.min([width,height]),
             drawn_depth = 1000000,
             is_origin = 1,
             cal_innerRadius = function(totalradius,depth)
@@ -57,7 +71,29 @@ var radial = function(){
                 return totalradius/5*depth*0.7+totalradius*0.3;
             },
             group_id = undefined;
-
+        update_tree_node_list(radius);
+        function update_tree_node_list(radius){
+            var tree = d3.layout.tree()
+            .size([360, radius / 2 - 20])
+            .children(function(d){
+                if(Array.isArray(d.values)) return d.values;
+                return undefined;
+            })
+            .separation(function(a, b) { 
+                var dis = (a.parent == b.parent ? 1 : 2) / a.depth;
+                if(a.depth <= 2 && b.depth <= 2)
+                    dis = 10;
+                if(a.depth == 3 && b.depth == 3)
+                    dis = 1;
+                if(a.parent && b.parent){
+                    return dis;
+                }
+                return 1;
+            });
+            var treeRoot = dataCenter.datasets[0].processor.result.treeRoot;
+            var treeNodeList = tree.nodes(treeRoot).reverse();
+            dataCenter.set_global_variable('tree_node_list', treeNodeList);
+        }
         function chart(selection)
         {
             selection.each(function(tree_data) 

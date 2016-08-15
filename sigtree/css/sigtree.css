@@ -85,7 +85,7 @@ path[class~=half-highlight], circle[class~=half-highlight], rect[class~=half-hig
   stroke: #ff5858 !important;
   stroke-width: 1px !important;
 }
-path[class~=opacity-highlight], rect[class~=opacity-highlight], g[class~=opacity-highlight] > circle {
+path[class~=opacity-highlight], circle[class~=opacity-highlight], rect[class~=opacity-highlight], g[class~=opacity-highlight] > circle {
   /*fill: #ff5858 !important;*/
   opacity: 1 !important;
   //fill: gray;
@@ -97,7 +97,7 @@ path[class~=opacity-click-highlight], rect[class~=opacity-click-highlight], g[cl
   //fill: gray;
   //opacity: 1 !important;
 }
-path[class~=opacity-unhighlight], rect[class~=opacity-unhighlight], g[class~=opacity-unhighlight] > circle {
+path[class~=opacity-unhighlight], circle[class~=opacity-unhighlight], rect[class~=opacity-unhighlight], g[class~=opacity-unhighlight] > circle {
   /*fill: #ff5858 !important;*/
   opacity: 0.3;
 }
