@@ -15,7 +15,13 @@
   fill: #b2df8a;
   stroke: #b2df8a;
 }
-
+.buttom-div{
+	position: absolute;
+	right: 0;
+	height: 100;
+	width: 40;
+	visibility: visible;
+}
 .link{
 	stroke-width:1px;
 	stroke: #888888;
