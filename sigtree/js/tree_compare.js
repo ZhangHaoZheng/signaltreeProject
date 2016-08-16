@@ -294,6 +294,7 @@ var treeCompare = function(){
 	var cur_depth = 4;
 	var scale = d3.scale.linear().range([0,trend_height]);		
 	change_comparison_A_B(nodes);
+	build_id_values(nodes);
 	var xscale = d3.scale.identity()
 		.domain([0,svg_size.width - leftPadding]);
 	brush_compare.x(xscale)
@@ -346,8 +347,6 @@ var treeCompare = function(){
 		cur_depth = depth;
 		expand_depth(total_root,depth);
 		nodes = tree.nodes(total_root);
-		console.log(cur_depth,total_root);
-		console.log(nodes.length)
 		// console.log("nodes********************",nodes);
 		// console.log("_nodes********************",_nodes);
 		//var _links = tree.links(_nodes);
@@ -808,7 +807,6 @@ var treeCompare = function(){
 						text += "<br>子节点数:" +  ct;
 					}
 					text += "<br>流量:" + nodesB[i].flow;
-					text += "<br>id:" + nodesB[i].id;
 					return text;
 				});
 				tip.show();
@@ -972,10 +970,8 @@ var treeCompare = function(){
 	}
 	//流量图的brush操作
 	function brushedcompare(){
-		console.log("brush");
 		var extentX = +d3.select(".extent").attr("x");
 		var extentWidth = +d3.select(".extent").attr("width");
-		console.log(extentX,extentWidth)
 		var nodel = nodes.filter(function(n){
 			var m1 = (n.hasObj1 == undefined || n.hasObj1 == false);
 			var m2 = (n.hasObj2 == undefined || n.hasObj2 == false);
@@ -1143,15 +1139,19 @@ var treeCompare = function(){
 	}*/
 	//显示相似部分
 	function completelyShowSimilarPart(){
-		var markifexpand = [];		
+		var markifexpand = [];	
+		var similar_nodes_id = [];
 		for(var i = 0; i < nodes.length; i++){
 			if(nodes[i].children){
 				nodes[i]._children = nodes[i].children;
 				delete nodes[i].children;
 			}
-			if(nodes[i].hasObj2 && nodes[i].hasObj1)
+			if(nodes[i].hasObj2 && nodes[i].hasObj1){
 				markifexpand.push(nodes[i]);
+				similar_nodes_id.push(nodes[i].id);
+			}
 		}
+		dataCenter.set_global_variable("similar_id_array",similar_nodes_id);
 		cur_depth = 0;
 		for(var i = 0; i < markifexpand.length; i++){
 			if(markifexpand[i].depth > cur_depth) cur_depth = markifexpand[i].depth;
@@ -1493,6 +1493,11 @@ var treeCompare = function(){
 			}
 		}
 		var tmp = mult_tree_smaller[value].tree_id;
+		if(pre_datasets_id.indexOf(tmp) != -1){
+			pre_datasets_id.splice(pre_datasets_id.indexOf(tmp),1);
+		}
+		var tmp_idlist = pre_datasets_id.slice(0);
+		dataCenter.set_global_variable("selection_array",tmp_idlist);
 		deletefrom = false;
 		delete_tree(tmp);
 	}
@@ -1672,7 +1677,7 @@ var treeCompare = function(){
 		for(var i = 0; i < mult_tree_smaller.length - 1; i++){
 			var buttondiv = mult_tree_smaller[i + 1].buttondiv;
 			var h = parseFloat($("#" + mult_tree_smaller[i].divid).height());
-			top +=h + 2 ;
+			top +=h + 1.4;
 			d3.select("#" + buttondiv).style("top",top + "px");
 			var alpabet_div = mult_tree_smaller[i + 1].alpabet_div;
 			d3.select("#"+alpabet_div).style("top",top + "px")
@@ -1714,6 +1719,7 @@ var treeCompare = function(){
 					var tmp = mult_tree_smaller[j].g;
 					tmp.select(idmulti + data[i]).classed("focus-highlight",true);
 				}
+				var tmp = nodes[id_nodes[data[i]]];
 			}
         }
         if(message == "mouse-out"){
@@ -1752,7 +1758,9 @@ var treeCompare = function(){
         	for(var i = deletelist.length - 1; i >= 0; i--){
         		pre_datasets_id.splice(deletelist[i],1);
         	}
-        	if(addlist.length > 0) addMultiTree(addlist,add_id_list);
+        	if(addlist.length > 0) {
+        		addMultiTree(addlist,add_id_list);
+        	}
         	pre_datasets = dataCenter.datasets;
         }
         if(message == "show-similiar"){

@@ -31,7 +31,8 @@ var dataCenter = {
 		'treeview_or_projection':'treeview',
 		'current_bg_color':'black',
 		'current_bg_language':'Chinese',
-		'projection_method': 'original_projection'
+		'projection_method': 'original_projection',
+		'similar_id_array':[]
 	},
 	GLOBAL_STATIC: {
 		'radius': 2,
