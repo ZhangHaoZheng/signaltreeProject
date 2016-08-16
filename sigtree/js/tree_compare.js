@@ -210,8 +210,7 @@ var treeCompare = function(){
 	var tmp_total_nodes = tree.nodes(total_root);
 	distinguishTree(nodes);
 	distinguishTree(tmp_total_nodes);
-	console.log(root)
-	accumulateFlow(root);
+//	accumulateFlow(root);
 	var id_nodes;
 	var Aindex = 1;
 	var Bindex = 2;
@@ -285,8 +284,8 @@ var treeCompare = function(){
 
 	var cur_depth = 4;
 	var scale = d3.scale.linear().range([0,trend_height]);		
-
-	draw_depth(cur_depth);
+	change_comparison_A_B(nodes);
+	//draw_depth(cur_depth);
 
 	$("#default").attr("checked",true);
 	$("#tree-compare-depth-controller").on("click", ".level-btn", function(){
@@ -968,7 +967,7 @@ var treeCompare = function(){
 			return true;
 		});
 		if(nodel.length < 1) 
-			xscale.domain(brush_compare.empty() ? xscale.domain() : brush_compare.extent());
+			brush_compare.clear();
 		else nodes_lenses(nodel);
 	}
 	function nodes_lenses(nodelist){
@@ -1009,6 +1008,7 @@ var treeCompare = function(){
 				dis *= 2;
 	        return dis;
 		 });
+		brush_compare.clear();
 	}
 	//点击展开模式和收缩模式
 	function node_click_focus(node){
@@ -1439,6 +1439,7 @@ var treeCompare = function(){
 	////////////////////////////////////////////////////////////////////////////////////////////////
 	//删除按钮操作
 	function delete_button_click(){
+		if(mult_tree_smaller.length == 2) return;
 		var value = parseInt(d3.select(this).attr("value"));
 		if(value == 0 || value == 1){
 			for(var i = 3; i < mult_tree_smaller.length; i++){
