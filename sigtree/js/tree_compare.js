@@ -76,6 +76,7 @@ var treeCompare = function(){
 				d3.select("#treemap-divA").style("visibility","hidden");
 		});
 	}
+	var tmptop;
 	if(justChangeDataA == true || compareAddSvgMark == false) {
 		var svg = d3.select("#treemapB").append("svg");
 		compare_g_second = initFrame(svg,svg2_size,false)
@@ -93,7 +94,8 @@ var treeCompare = function(){
 	var brush_compare = d3.svg.brush();
 	var brush_nodes_list = {};
 	var tree_main_nodes = {};
-	var tmptop = parseFloat($("#treemapA").height())+parseFloat($("#treehis svg").height());
+	var tree_alpabet_index = ["a","b","c","d","e","f","g","h","i","j","k","l","m"];
+	tmptop = parseFloat($("#treemapA").height())+parseFloat($("#treehis svg").height());
 	var mapBdiv = d3.select("#treemapB").append("div").attr("id","treemap-divB")
 		.style("position","absolute")
 		.style("right",0)
@@ -160,7 +162,6 @@ var treeCompare = function(){
 		return [d.x, tree_height - d.y]
 	});
 	var deletefrom = false;
-	var root;
 	var nodes;
 	var links;
 	var colors = function(i){
@@ -181,8 +182,18 @@ var treeCompare = function(){
 	console.log(dt_root2)
 	//mult_tree_smaller对应从上往下树的信息，nodes为tree.nodes(),node为根节点,g为包裹树的g,tree_id如"20120121-R07-75",index标记放在每个叶节点的has数组中标记当前节点有哪些树共用
 	var mult_tree_smaller = [];
-	mult_tree_smaller.push({nodes:nodesA, node:dt_root, g:compare_g_first, tree_id:datasets[0].id, index:1, divid:"treemapA",buttondiv:"treemap-divA"},
-		{nodes:nodesB, node:dt_root2, g:compare_g_second, tree_id:datasets[1].id, index:2, divid:"treemapB",buttondiv:"treemap-divB"});
+	mult_tree_smaller.push({nodes:nodesA, node:dt_root, g:compare_g_first, tree_id:datasets[0].id, index:1, divid:"treemapA",buttondiv:"treemap-divA",alpabet_index:0,alpabet_div:"treemap_alpabet_divA"},
+		{nodes:nodesB, node:dt_root2, g:compare_g_second, tree_id:datasets[1].id, index:2, divid:"treemapB",buttondiv:"treemap-divB",alpabet_index:1,alpabet_div:"treemap_alpabet_divB"});
+	d3.select("#treemapA").append("div").attr("id","treemap_alpabet_divA")
+		.style("position","absolute")
+		.style("left",0)
+		.style("top",0)
+	 	.html("<span class=\"btn btn-default btn-xs active level-btn toolbar-tree\">a</span>");
+	d3.select("#treemapB").append("div").attr("id","treemap_alpabet_divB")
+		.style("position","absolute")
+		.style("left",0)
+		.style("top",tmptop+"px")
+	 	.html("<span class=\"btn btn-default btn-xs active level-btn toolbar-tree\">b</span>");
 	change_tree_main_nodes();
 	// accumulate_flow(dt_root);
 	// accumulate_flow(dt_root2);
@@ -202,11 +213,10 @@ var treeCompare = function(){
 	// 	obj2: dt_root2,
 	// 	children:children
 	// };
-	root = sigtree.dataProcessor().mergeTwoListAsTree(dts, dts2);
 	var total_root = sigtree.dataProcessor().mergeTwoListAsTree(dts, dts2);
-	root.x0 = svg_size.width/2;
-	root.y0 = 0;
-	nodes = tree.nodes(root);
+	total_root.x0 = svg_size.width/2;
+	total_root.y0 = 0;
+	nodes = tree.nodes(total_root);
 	var tmp_total_nodes = tree.nodes(total_root);
 	distinguishTree(nodes);
 	distinguishTree(tmp_total_nodes);
@@ -285,6 +295,17 @@ var treeCompare = function(){
 	var cur_depth = 4;
 	var scale = d3.scale.linear().range([0,trend_height]);		
 	change_comparison_A_B(nodes);
+	var xscale = d3.scale.identity()
+		.domain([0,svg_size.width - leftPadding]);
+	brush_compare.x(xscale)
+		.on("brushend",brushedcompare);
+	g_trend.append("g")
+		.attr("stroke","#fff")
+		.attr("fill-opacity",0.125)
+		.call(brush_compare)
+		.selectAll("rect")
+		.attr("y",0)
+		.attr("height",trend_height);
 	//draw_depth(cur_depth);
 
 	$("#default").attr("checked",true);
@@ -295,33 +316,49 @@ var treeCompare = function(){
 			$("#tree-compare-depth-controller .level-btn[level=" + i + "]").addClass("active");		
 		draw_depth(dep);
 	});
-
-
+	//仅在draw_depth中调用，封锁深度大于等于depth的节点，展开深度小于depth的节点
+	function expand_depth(node,depth){
+		if(node.depth < depth) {
+			if(node._children){
+				node.children = node._children;
+				delete node._children;
+			}
+			if(node.children){
+				for(var i = 0; i < node.children.length; i++){
+					expand_depth(node.children[i],depth);
+				}
+			}
+		}
+		else if(node.depth == depth) {
+			if(node.children){
+				node._children = node.children;
+				delete node.children;
+			}
+		}
+		else {
+			if(node.children){
+				node._children = node.children;
+				delete node.children;
+			}
+		}
+	}
 	function draw_depth(depth){
 		// console.log("depth", depth, nodes.length)
 		cur_depth = depth;
-		nodes.forEach(function(n){
-			if(n.depth < depth && n._children){
-				n.children = n._children;
-				delete n._children;
-			}
-			if(n.depth >= depth && n.children){
-				n._children = n.children;
-				delete n.children;
-			}
-		});
-		var _nodes = tree.nodes(root);
-
+		expand_depth(total_root,depth);
+		nodes = tree.nodes(total_root);
+		console.log(cur_depth,total_root);
+		console.log(nodes.length)
 		// console.log("nodes********************",nodes);
 		// console.log("_nodes********************",_nodes);
 		//var _links = tree.links(_nodes);
 		//drawTree(_nodes, _links, svg_);
 		//var sep_trees = separate(root);
-		draw_separate_tree(_nodes, root);
-		draw_trend(_nodes, root);
-		build_id_nodes(_nodes);
+		draw_separate_tree(nodes, total_root);
+		draw_trend(nodes, total_root);
+		build_id_nodes(nodes);
 		for(var i = 2; i < mult_tree_smaller.length; i++){
-			draw_tree_lastTwoLevel(mult_tree_smaller[i].nodes,mult_tree_smaller[i].g,_nodes,null);
+			draw_tree_lastTwoLevel(mult_tree_smaller[i].nodes,mult_tree_smaller[i].g,nodes,null);
 		}
 	}
 	//仅在merge_trees中调用
@@ -529,7 +566,6 @@ var treeCompare = function(){
 	//画A,B树
 	function draw_separate_tree(nodes, source){
 		// console.log("nodes",nodes);
-
 		var nos = [];
 		nos[0] = nodes.filter(function(d){
 			return d.hasObj1;
@@ -887,7 +923,6 @@ var treeCompare = function(){
 
 	}
 
-	var xscale;
 	//
 	// draw trend
 	// 流量图
@@ -909,10 +944,6 @@ var treeCompare = function(){
 			return sum;
 		});
 		scale.domain([0,max*1.1]);
-		xscale = d3.scale.identity()
-			.domain([0,svg_size.width - leftPadding]);
-		brush_compare.x(xscale)
-			.on("brushend",brushedcompare);
 		var index = 0;
 		var bars = g_trend.selectAll(".bar")
 			.data(leaves);
@@ -926,9 +957,6 @@ var treeCompare = function(){
 			.attr("height",function(leaf){
 				if(leaf.flow1 < 1) return 0;
 				return scale(Math.log(leaf.flow1));
-			})
-			.on("mouseover",function(d,i){
-				ObserverManager.post("show-detail-info", { dataset:"A", node: d });
 			});
 		bars.select("rect.bottom_bar").attr("width",2)
 			.attr("height",function(leaf){
@@ -938,36 +966,34 @@ var treeCompare = function(){
 				if(leaf.flow2 < 1) return "translate(0)";
 				var t = trend_height - scale(Math.log(leaf.flow2));
 				return "translate(0,"+t+")";
-			})
-			.on("mouseover",function(d,i){
-				ObserverManager.post("show-detail-info", { dataset:"B", node: d });
 			});
 		bars.transition().duration(750).attr("transform", function(leaf){
 			return "translate(" + leaf.x + ")";
 		});
 		bars.exit().remove();
-/*		g_trend.append("g")
-			.attr("stroke","#fff")
-			.attr("fill-opacity",0.125)
-			.call(brush_compare)
-			.selectAll("rect")
-			.attr("y",0)
-			.attr("height",trend_height);*/
 	}
 	//流量图的brush操作
 	function brushedcompare(){
+		console.log("brush");
 		var extentX = +d3.select(".extent").attr("x");
 		var extentWidth = +d3.select(".extent").attr("width");
+		console.log(extentX,extentWidth)
 		var nodel = nodes.filter(function(n){
 			var m1 = (n.hasObj1 == undefined || n.hasObj1 == false);
 			var m2 = (n.hasObj2 == undefined || n.hasObj2 == false);
 			if(m1 && m2) return false;
-			if(n.depth < cur_depth) return false;
+			if(n.depth != cur_depth) return false;
 			if(n.x < extentX || n.x > extentX + extentWidth) return false;
 			return true;
 		});
-		if(nodel.length < 1) 
+		if(nodel.length < 1) {
 			brush_compare.clear();
+			nodes = tree.nodes(total_root);
+			change_comparison_A_B(nodes);
+			for(var i = 2; i < mult_tree_smaller.length; i++){
+				draw_tree_lastTwoLevel(mult_tree_smaller[i].nodes, mult_tree_smaller[i].g, nodes,null);
+			}
+		}
 		else nodes_lenses(nodel);
 	}
 	function nodes_lenses(nodelist){
@@ -1008,7 +1034,6 @@ var treeCompare = function(){
 				dis *= 2;
 	        return dis;
 		 });
-		brush_compare.clear();
 	}
 	//点击展开模式和收缩模式
 	function node_click_focus(node){
@@ -1030,17 +1055,17 @@ var treeCompare = function(){
 				cur_depth = node.depth + 1;
 			}
 		}
-		var _nodes = tree.nodes(root);
-		build_id_nodes(_nodes);	
-		draw_separate_tree(_nodes, node);
-		draw_trend(_nodes, node);
+		nodes = tree.nodes(total_root);
+		build_id_nodes(nodes);	
+		draw_separate_tree(nodes, node);
+		draw_trend(nodes, node);
 		for(var i = 2; i < mult_tree_smaller.length; i++){
-			draw_tree_lastTwoLevel(mult_tree_smaller[i].nodes,mult_tree_smaller[i].g,_nodes,node,null);
+			draw_tree_lastTwoLevel(mult_tree_smaller[i].nodes,mult_tree_smaller[i].g,nodes,node,null);
 		}
 	}
 	//展开
 	function node_focus(node){
-		if(node == root) {
+		if(node == total_root) {
 			draw_depth(4);
 			return;
 		}
@@ -1071,12 +1096,12 @@ var treeCompare = function(){
 			}
 		}
 		cur_depth = 4;
-		var _nodes = tree.nodes(root);
-		build_id_nodes(_nodes);		
-		draw_separate_tree(_nodes, node);
-		draw_trend(_nodes, node);
+		nodes = tree.nodes(total_root);
+		build_id_nodes(nodes);		
+		draw_separate_tree(nodes, node);
+		draw_trend(nodes, node);
 		for(var i = 2; i < mult_tree_smaller.length; i++){
-			draw_tree_lastTwoLevel(mult_tree_smaller[i].nodes,mult_tree_smaller[i].g,_nodes,node);
+			draw_tree_lastTwoLevel(mult_tree_smaller[i].nodes,mult_tree_smaller[i].g,nodes,node);
 		}
 	}
 	//仅在node_focus中调用
@@ -1161,19 +1186,19 @@ var treeCompare = function(){
 				node = node.parent;
 			}
 		}
-		var _nodes = tree.nodes(root);
-		build_id_nodes(_nodes);
-		draw_separate_tree(_nodes, root);
-		draw_trend(_nodes, root);	
+		nodes = tree.nodes(total_root);
+		build_id_nodes(nodes);
+		draw_separate_tree(nodes, total_root);
+		draw_trend(nodes, total_root);	
 		for(var i = 2; i < mult_tree_smaller.length; i++){
-			draw_tree_lastTwoLevel(mult_tree_smaller[i].nodes,mult_tree_smaller[i].g,_nodes,null);
+			draw_tree_lastTwoLevel(mult_tree_smaller[i].nodes,mult_tree_smaller[i].g,nodes,null);
 		}
-		for(var i = 0; i < _nodes.length; i++){
-			if(_nodes[i].originalChildren){
-				_nodes[i].children = _nodes[i].originalChildren;
-				delete _nodes[i].originalChildren;
-				if(_nodes[i].count1) delete _nodes[i].count1;
-				if(_nodes[i].count2) delete _nodes[i].count2;
+		for(var i = 0; i < nodes.length; i++){
+			if(nodes[i].originalChildren){
+				nodes[i].children = nodes[i].originalChildren;
+				delete nodes[i].originalChildren;
+				if(nodes[i].count1) delete nodes[i].count1;
+				if(nodes[i].count2) delete nodes[i].count2;
 			}
 		}
 	}
@@ -1243,12 +1268,18 @@ var treeCompare = function(){
 	function delete_tree(tree_id){
 		var index;
 		var d;
+		var alpabet_index;
 		for(var i = 0; i < mult_tree_smaller.length; i++){
 			if(mult_tree_smaller[i].tree_id == tree_id) {
 				d = i;
+				alpabet_index = mult_tree_smaller[i].alpabet_index;
 				index = mult_tree_smaller[i].index;
 				break;
 			}
+		}
+		for(var i = 0; i < mult_tree_smaller.length; i++){
+			if(mult_tree_smaller[i].alpabet_index > alpabet_index)
+				mult_tree_smaller[i].alpabet_index--;
 		}
 		delete total_root.has[index];
 		delete_index_fromroot(total_root,index);
@@ -1257,6 +1288,7 @@ var treeCompare = function(){
 			mult_tree_smaller[d].node = mult_tree_smaller[2].node;
 			mult_tree_smaller[d].index = mult_tree_smaller[2].index;
 			mult_tree_smaller[d].tree_id = mult_tree_smaller[2].tree_id;
+			mult_tree_smaller[d].alpabet_index = mult_tree_smaller[2].alpabet_index;
 			if(d == 0) Aindex = mult_tree_smaller[d].index;
 			else if(d == 1) Bindex = mult_tree_smaller[d].index;
 			d = 2;
@@ -1305,10 +1337,12 @@ var treeCompare = function(){
 	function up_down_tree(index1,index2){
 		if(index1 == Aindex && index2 == Bindex){
 			just_exchange_AB();
+			just_modify_alpabet_label();
 			return;
 		}
 		if(index1 == Aindex || index1 == Bindex){
 			exchangeAB_draw_all(index1,index2);
+			just_modify_alpabet_label();
 			return;
 		}
 		var tree1,tree2;
@@ -1325,14 +1359,18 @@ var treeCompare = function(){
 			tmpnode1 = tree1.node,
 			tmpindex1 = tree1.index,
 			tmptree_id = tree1.tree_id;
+			tmpalpabet = tree1.alpabet_index;
 		tree1.nodes = tree2.nodes;
 		tree1.node = tree2.node;
 		tree1.index = tree2.index;
 		tree1.tree_id = tree2.tree_id;
+		tree1.alpabet_index = tree2.alpabet_index;
 		tree2.nodes = tmpnodes1;
 		tree2.node = tmpnode1;
 		tree2.index = tmpindex1;
 		tree2.tree_id = tmptree_id;
+		tree2.alpabet_index = tmpalpabet;
+		just_modify_alpabet_label();
 		draw_tree_lastTwoLevel(tree1.nodes,tree1.g,nodes,null);
 		draw_tree_lastTwoLevel(tree2.nodes,tree2.g,nodes,null);
 	}
@@ -1347,14 +1385,17 @@ var treeCompare = function(){
 			tmpnode1 = A.node,
 			tmpindex1 = A.index,
 			tmptree_id = A.tree_id;
+			tmpalpabet = A.alpabet_index;
 		A.nodes = B.nodes;
 		A.node = B.node;
 		A.index = B.index;
 		A.tree_id = B.tree_id;
+		A.alpabet_index = B.alpabet_index;
 		B.nodes = tmpnodes1;
 		B.node = tmpnode1;
 		B.index = tmpindex1;
 		B.tree_id = tmptree_id;
+		B.alpabet_index = tmpalpabet;
 		change_comparison_A_B(nodes);
 	}
 	//交换A树与除B以外树的位置，或B与除A。。
@@ -1377,14 +1418,17 @@ var treeCompare = function(){
 			tmpnode1 = index1mark.node,
 			tmpindex1 = index1mark.index,
 			tmptree_id = index1mark.tree_id;
+			tmpalpabet = index1mark.alpabet_index;
 		index1mark.nodes = index2mark.nodes;
 		index1mark.node = index2mark.node;
 		index1mark.index = index2mark.index;
 		index1mark.tree_id = index2mark.tree_id;
+		index1mark.alpabet_index = index2mark.alpabet_index;
 		index2mark.nodes = tmpnodes1;
 		index2mark.node = tmpnode1;
 		index2mark.index = tmpindex1;
 		index2mark.tree_id = tmptree_id;
+		index2mark.alpabet_index = tmpalpabet;
 		change_tree_main_nodes();
 		nodes = tree.nodes(total_root);
 		change_comparison_A_B(nodes);
@@ -1464,17 +1508,27 @@ var treeCompare = function(){
 			var tree_g = g.append("g")
 				.attr("transform","translate(30,0)");
 			var nodes1 = tree.nodes(node);
-			mult_tree_smaller.push({nodes:nodes1, node:node, g:tree_g, tree_id:idlist[i], index:numoftreecompare+2, divid:"treemap"+numoftreecompare,buttondiv:"treemap-div"+numoftreecompare});
+			mult_tree_smaller.push({
+				nodes:nodes1, 
+				node:node, 
+				g:tree_g, 
+				tree_id:idlist[i], 
+				index:numoftreecompare+2, 
+				divid:"treemap"+numoftreecompare,
+				buttondiv:"treemap-div"+numoftreecompare,
+				alpabet_index:mult_tree_smaller.length,
+				alpabet_div:"treemap_alpabet_div" + numoftreecompare
+			});
 			modify_buttondiv_top();
 			if(mult_tree_smaller.length > 6) oneline_only_mark = true;	
 			total_root.has[numoftreecompare + 2] = true;
 			merge_trees(total_root,node,numoftreecompare + 2);
 		}
-		var _nodes = tree.nodes(total_root);
-		build_id_values(_nodes);
+		nodes = tree.nodes(total_root);
+		build_id_values(nodes);
 		for(var i = 2; i < mult_tree_smaller.length; i++){
 			var tmp = mult_tree_smaller[i];
-			draw_tree_lastTwoLevel(tmp.nodes,tmp.g,_nodes,null);
+			draw_tree_lastTwoLevel(tmp.nodes,tmp.g,nodes,null);
 		}
 		changeViewForSvg($("#treemapA svg").attr("height")-20,$("#treehis svg").attr("height"));
 	}
@@ -1531,6 +1585,9 @@ var treeCompare = function(){
 				$("#treemap" + (mult_tree_smaller[i].index-2)).height(remainheight);
 			}
 		}
+		d3.select("#treemap" + numoftreecompare).append("div").attr("id","treemap_alpabet_div" + numoftreecompare)
+			.style("position","absolute")
+			.style("left",0);
 		var tmpdiv = d3.select("#treemap"+numoftreecompare).append("div").attr("id","treemap-div"+numoftreecompare)
 			.style("position","absolute")
 			.style("right",0)
@@ -1606,12 +1663,8 @@ var treeCompare = function(){
 			return [d.x, height - d.y];
 		});
 		nodes = tree.nodes(total_root);
-		root = total_root;
 		tree_height = height;
 		trend_height = svgheighthis;
-		/*g_trend.select("rect").attr("width", svg_size.width - leftPadding)
-			.attr("height", svgheighthis)
-			.attr("class","trend");*/
 		scale = d3.scale.linear().range([0,svgheighthis]);
 		change_comparison_A_B(nodes);
 	}
@@ -1624,6 +1677,17 @@ var treeCompare = function(){
 			var h = parseFloat($("#" + mult_tree_smaller[i].divid).height());
 			top +=h + 2 ;
 			d3.select("#" + buttondiv).style("top",top + "px");
+			var alpabet_div = mult_tree_smaller[i + 1].alpabet_div;
+			d3.select("#"+alpabet_div).style("top",top + "px")
+				.html("<span class=\"btn btn-default btn-xs active level-btn toolbar-tree\">"+tree_alpabet_index[mult_tree_smaller[i+1].alpabet_index]+"</span>");
+		}
+		d3.select("#"+mult_tree_smaller[0].alpabet_div)
+			.html("<span class=\"btn btn-default btn-xs active level-btn toolbar-tree\">"+tree_alpabet_index[mult_tree_smaller[0].alpabet_index]+"</span>");
+	}
+	function just_modify_alpabet_label(){
+		for(var i = 0; i < mult_tree_smaller.length; i++){
+			d3.select("#" + mult_tree_smaller[i].alpabet_div)
+				.html("<span class=\"btn btn-default btn-xs active level-btn toolbar-tree\">"+tree_alpabet_index[mult_tree_smaller[i].alpabet_index]+"</span>")
 		}
 	}
     TreeCompare.OMListen = function(message, data) {
