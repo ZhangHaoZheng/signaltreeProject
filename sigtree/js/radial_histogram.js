@@ -94,8 +94,6 @@ var radialHistogram = {
 				countArray[i] = Math.log(countArray[i] + 1);
 			}
 		}
-		console.log(countArray);
-
 		lineX.range([0,width])
 		.domain([0,(d3.max(dataSizeArray) + 1)/multi]);
 
@@ -119,7 +117,6 @@ var radialHistogram = {
 			objArray[i].num = i;
 			objArray[i].count = countArray[i];
 		}
-		console.log(objArray);
 		var yAxis = d3.svg.axis()
 			.scale(lineY)
 			.orient("left");
@@ -137,7 +134,6 @@ var radialHistogram = {
 			})
 			.attr("class","his")
 			.attr("width",function(d,i){
-				console.log(his_width * 0.5);
 				return his_width;
 			})
 			.attr("height",function(d,i){

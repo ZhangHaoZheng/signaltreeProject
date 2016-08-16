@@ -40,22 +40,18 @@ var parset = {
 		dt.forEach(function(d){
 			d.root = "root";
 			if(d.tcp){
-				console.log(d.tcp);
 				d.cid = d.tcp;
 				delete d.tcp;
 			}
 			else if(d.udp){
-				console.log(d.udp);
 				d.cid = d.udp;
 				delete d.udp;
 			}
 			else if(d.icmp){
-				console.log(d.icmp);
 				d.cid = d.icmp;
 				delete d.icmp;
 			}
 			else if(d.other){
-				console.log(d.other);
 				d.cid = d.other;
 				delete d.other;
 			}

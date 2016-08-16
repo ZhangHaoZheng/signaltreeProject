@@ -10,10 +10,8 @@
 	utils.log = function(d,lev){
 		if(lev){
 			if(Array.isArray(d)){
-				console.log.apply(console,d);
 			}
 			else{
-				console.log(d);
 			}
 		}
 	};
@@ -207,7 +205,6 @@
 	 */
 	utils.printRectInfo = function(rect){
 		var s = [].concat(rect.x,rect.y,rect.dx,rect.dy).join(",");
-		console.log(s);
 	};
 	utils.interleaveRect = function(r){
 		return r.x >= this.x && r.y >= this.y

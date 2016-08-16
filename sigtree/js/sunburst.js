@@ -10,7 +10,6 @@ var sunburst = {
     _add_to_listener: function(){
         var self = this;
         ObserverManager.addListener(self);
-        console.log('sunburst add to the listeners');
     },
     _bind_view: function(){
     },
@@ -43,15 +42,12 @@ var sunburst = {
                 .call(sunburst_outer)
     },
     OMListen: function(message, data){
-        console.log('sunburst-view message');
         if(message == "update-view"){
-            console.log('sunburst-view update');
             var self = this;
             var currentId = dataCenter.global_variable.current_id;
             for(var i = 0;i < dataCenter.datasets.length;i++){
                 if(currentId == dataCenter.datasets[i].id){
                     var tree_root = dataCenter.datasets[i].processor.result.treeRoot;
-                    console.log(tree_root);
                     self._render_view(tree_root);
                     break;
                 }

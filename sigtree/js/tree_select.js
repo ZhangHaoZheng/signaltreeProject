@@ -287,6 +287,7 @@ var treeSelect = function(){
 						d3.select(this).classed('selection', false);
 						add_arc(signalTreeTime, 'unclick');
 						selectionArray.splice(selectionArray.indexOf(signalTreeTime), 1);
+						add_selection_text(selectionArray);
 						ObserverManager.post('changeData', selectionArray);
 						for(var j = 0;j < currentNodeIdBefore.length;j++){
 							if(currentNodeIdBefore[j] == signalTreeTime){
@@ -372,14 +373,12 @@ var treeSelect = function(){
         for(var i = 0;i < selection_array.length;i++){
         	var thisNodeName = selectionArray[i];
         	var thisNode = d3.select('.node' + thisNodeName);
-        	console.log('thisNode', thisNode);
 			var label = String.fromCharCode(97 + i);
 			var thisX = +thisNode.attr('x');
 			var thisY = +thisNode.attr('y');
 			var thisWidth = +thisNode.attr('width');
 			var centerX = thisX + margin.left; 
 			var centerY = thisY + margin.top - 2;
-			console.log('centerX:' + centerX + ',centerY:' + centerY);
 			svg.append('text')
 				.attr('class', 'selection-label')
 				.attr('x', centerX)
@@ -388,7 +387,6 @@ var treeSelect = function(){
         }
 	}
 	function append_current_circle(signal_tree_time){
-		console.log(signal_tree_time);
 		d3.selectAll('.append-current-circle').remove();
 		var signalTreeTimeRemove = signal_tree_time.replace('XX.csv', '');
 		var this_node = d3.select('.node' + signalTreeTimeRemove);
@@ -405,7 +403,6 @@ var treeSelect = function(){
 			.attr('cy', centerY)
 			.attr('r', radius);
 		dataCenter.global_variable.current_id = signal_tree_time;
-		console.log('signal_tree_time', signal_tree_time);
 		ObserverManager.post('change-current-data', signal_tree_time);
 	}
 	function add_arc_to_all(){
@@ -423,7 +420,6 @@ var treeSelect = function(){
 	* 			  arcNum表示当前是标记默认绘制arc连接的数量 
 	*/
 	function add_arc(file_name, type){
-		console.log(file_name);
 		var similarityObj = null;
 		for(var i = 0;i < dataCenter.similarityMatrix.length;i++){
 			if(dataCenter.similarityMatrix[i].fileName.replace('XX.csv', '') == file_name){
@@ -503,7 +499,6 @@ var treeSelect = function(){
 			if(type != 'unclick'){
 				draw_arc(radius, centerX, centerY, addClass, fillColorRectAndArc, fileName);
 			}else{
-				//console.log(d3.select('.arc-path'));
 				d3.selectAll('.path-' + fileName).remove();
 			}	
 		}
@@ -535,7 +530,6 @@ var treeSelect = function(){
 		var rectWidth = + chart.select("#his-" + compareArray[1]).attr("width");
 		var rectHeight = + chart.select("#his-" + compareArray[1]).attr("height");
 		var newY = rectY + rectHeight * (1 - percentage);
-		console.log(percentage);
 		d3.select("#append-rect").select("#percen-rect").remove();
 		d3.select("#append-rect")
 		.append("rect")
@@ -561,7 +555,7 @@ var treeSelect = function(){
 
 		$("#innerTopRight #label-C #node-description").html(nodeID);
 		$("#innerTopRight #label-C #level-description").html(levelText);
-		$("#innerTopRight #label-C #flow-description").text(flowLevel);
+		$("#innerTopRight #label-C #flow-description").text(d3.format(".3s")(flowLevel));
 		$("#innerTopRight #label-C #tree-num-description").text(treeNodeNum);
 		$("#innerTopRight #label-C #sum-num-description").text(sumNodeNum);
 	}
@@ -647,7 +641,6 @@ var treeSelect = function(){
 	    .classed('opacity-highlight', false);
 	}
 	SelectTree.OMListen = function(message, data) {
-		console.log(message, data);
 	    if (message == "percentage") {
 			changePercentage(data);
 	    }
@@ -662,7 +655,6 @@ var treeSelect = function(){
 	    	changeLabelC(dataset, nodeID, levelText, flowLevel, treeNodeNum, sumNodeNum)
 	    }
 	    if(message == 'projection-highlight'){
-	    	console.log(data);
 	    	if(data != null){
 	    		_projection_highlight(data);
 	    	}else{
@@ -723,7 +715,6 @@ var treeSelect = function(){
 	    	}
 	    }
 	    if(message == 'set:current_bg_language'){
-	    	console.log('set:current_bg_language');
 	    	if(dataCenter.global_variable.current_bg_language == 'chinese'){
 	    		$('#change-language-chinese').addClass('active');
 	    		$('#change-language-english').removeClass('active');

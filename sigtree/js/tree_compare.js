@@ -179,7 +179,6 @@ var treeCompare = function(){
 	var dt_root2 = datasets[1].processor.result.treeRoot;
 	var nodesA = tree.nodes(dt_root);
 	var nodesB = tree.nodes(dt_root2);
-	console.log(dt_root2)
 	//mult_tree_smaller对应从上往下树的信息，nodes为tree.nodes(),node为根节点,g为包裹树的g,tree_id如"20120121-R07-75",index标记放在每个叶节点的has数组中标记当前节点有哪些树共用
 	var mult_tree_smaller = [];
 	mult_tree_smaller.push({nodes:nodesA, node:dt_root, g:compare_g_first, tree_id:datasets[0].id, index:1, divid:"treemapA",buttondiv:"treemap-divA",alpabet_index:0,alpabet_div:"treemap_alpabet_divA"},
@@ -928,7 +927,6 @@ var treeCompare = function(){
 	// 流量图
 	
 	function draw_trend(_nodes, source){
-		console.log(cur_depth)
 		var leaves = _nodes.filter(function(n){
 			var tmp = n.hasObj1 || n.hasObj2;
 			return !n.children && n.depth == cur_depth && tmp;
@@ -1043,7 +1041,6 @@ var treeCompare = function(){
 	}
 	//收缩
 	function node_click(node){
-		console.log(node)
 		if(node.children){
 			node._children = node.children;
 			delete node.children;

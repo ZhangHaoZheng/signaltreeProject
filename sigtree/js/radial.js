@@ -45,7 +45,6 @@ var radial = {
 			});
 		var treeNodeList;
 		treeNodeList = tree.nodes(rootA).reverse();
-		console.log(rootA);
 		//dataCenter.global_variable.tree_node_list = treeNodeList;
 		dataCenter.set_global_variable('tree_node_list', treeNodeList);
 		var index = 0;
@@ -57,7 +56,6 @@ var radial = {
 			.append('g')
 			.attr("id","radial")
 			.attr('transform', 'translate('+ width/2 + ',' +  height/2 +')');
-		console.log('select event', tree_root);
 		self._draw_depth(4, treeNodeList, tree, width, height, rootA);
 	},
 	_draw_depth: function(hide_depth, tree_node_list, tree, width, height, tree_root){
@@ -85,7 +83,6 @@ var radial = {
 		function _update(tree_node_list){
 			var nodes = tree_node_list,
 				links = tree.links(nodes);
-			console.log('101',nodes.length);
 			var treeNodeNum = 0;
 			var duration = 750;
 			for(var i = 0;i < tree_node_list.length;i++){
@@ -101,7 +98,6 @@ var radial = {
 			var max_depth = 0;
 			node.on("click",function(d,i){
 				var this_node = d3.select(this);
-				console.log('click event',tree_root);
 				_click(d, i, this_node, tree_root);
 			})
 			.on("mouseover", function(d) {
@@ -135,7 +131,6 @@ var radial = {
 				})
 				.on("click",function(d,i){
 					var this_node = d3.select(this);
-					console.log('click event',tree_root);
 					_click(d, i, this_node, tree_root);
 				})
 				.on("mouseover", function(d) {
@@ -180,7 +175,6 @@ var radial = {
 		}
 		function _click(d, i, this_node, tree_root) {
 			var self = this;
-			console.log('click inner function',tree_root);
 			var width = $("#leftTopLeftWrapper-radial").width();
 			var height = $("#leftTopLeftWrapper-radial").height();
 			var diameter = d3.min([width,height]);
@@ -202,7 +196,6 @@ var radial = {
 		            return 1;
 				});
 			var treeNodeList;
-			console.log(d.values);
 			if((+d.flow) == 0)	return null;		
 			if (d.values) {
 				d._values = d.values;
@@ -218,7 +211,6 @@ var radial = {
 					this_node.attr("fill","#CCC29C");
 				}
 			}
-			console.log(tree_root);
 			treeNodeList = tree.nodes(tree_root).reverse();
 			_update(treeNodeList);
 		}
@@ -276,7 +268,6 @@ var radial = {
         	_draw_depth(data);
         }	
         if(message=="changeData"){
-        	console.log("radial",data);
         }
         if(message == "update-view"){
         	var self = this;
@@ -284,7 +275,6 @@ var radial = {
         	for(var i = 0;i < dataCenter.datasets.length;i++){
         		if(currentId == dataCenter.datasets[i].id){
         			var tree_root = dataCenter.datasets[i].processor.result.treeRoot;
-        			console.log(tree_root);
         			self._render_view(tree_root);
         			break;
         		}

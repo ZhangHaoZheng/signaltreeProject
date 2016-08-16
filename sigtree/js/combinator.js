@@ -70,7 +70,6 @@ function sigtree_combinatorCompare(d1, d2, p1, p2){
 }
 
 function sigtree_combinatorCombineByIndex(lst1, lst2){
-	console.log("sigtree_combinatorCombineByIndex");
 	var lst = [];
 	var len = lst1.length < lst2.length? lst1.length:lst2.length;
 	for(var i = 0; i < len; i++){

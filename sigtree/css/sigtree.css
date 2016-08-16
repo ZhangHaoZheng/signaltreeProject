@@ -91,6 +91,13 @@ path[class~=opacity-highlight], circle[class~=opacity-highlight], rect[class~=op
   //fill: gray;
   //opacity: 1 !important;
 }
+circle[class~=opacity-selection-highlight]{
+  opacity: 1 !important;
+}
+circle[class~=opacity-selection-unhighlight]{
+  opacity: 0.2 !important;
+  stroke: gray !important; 
+}
 path[class~=opacity-click-highlight], rect[class~=opacity-click-highlight], g[class~=opacity-click-highlight] > circle {
   /*fill: #ff5858 !important;*/
   opacity: 1 !important;

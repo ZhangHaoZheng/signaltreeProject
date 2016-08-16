@@ -178,7 +178,6 @@ sigtree.dataProcessor = function() {
 
     DataProcessor.mergeTwoListAsTree = function(nodeList1, nodeList2) {
         var list1 = nodeList1, list2 = nodeList2;
-        // console.log(list1, list2);
         var idHashmap = {};
         for (var i = 0; i < list1.length; i++) {
             var node = list1[i];
@@ -196,7 +195,6 @@ sigtree.dataProcessor = function() {
         }
 
         var nodes = [];
-        // console.log("idHashmap", idHashmap)
         for (var id in idHashmap) {
             var node = idHashmap[id];
             // console.log(node.obj1 != null, node.obj2 != null)

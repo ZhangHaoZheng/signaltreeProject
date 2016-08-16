@@ -15,7 +15,6 @@ var projection = {
 	},
 	_render_view: function(projection_method){
 		var self = this;
-		console.log('projection method',projection_method);
 		var padding  = 10;
 		var width = $('#projectionWrapper').width() - padding * 2;
 		var height = $('#projectionWrapper').height() - padding * 2;
@@ -29,7 +28,6 @@ var projection = {
 		svg.selectAll('*').remove();
 
 		var mdsByDistance = window["MDS"]["byDistance"];
-		console.log(dataCenter.distanceMatrix);
 		var coordinate = mdsByDistance(dataCenter.distanceMatrix);
 		var nodeNum = coordinate.length;
 		var nodeLocation = new Array(nodeNum);
@@ -39,7 +37,6 @@ var projection = {
 			nodeLocation[i][1] = coordinate[i][1] * height * 0.8 + height * 0.1;
 		}
 		if(projection_method == 'center-projection'){
-			console.log('draw link');
 			self.draw_link(nodeLocation);	
 		}
 		svg.selectAll(".nodes")
@@ -61,7 +58,6 @@ var projection = {
 	    .on('mouseover', function(d,i){
 			//send message, highlight the corresponding histogram
 			var thisId = d3.select(this).attr('id');
-			console.log(thisId);
 			ObserverManager.post("projection-highlight", thisId);
 			d3.selectAll('.projection-nodes').classed('opacity-unhighlight', true);
 			d3.select(this).classed('opacity-unhighlight', false);
@@ -86,6 +82,19 @@ var projection = {
 		    };
 		  };
 		}
+		//
+		/*var selectionArray = dataCenter.global_variable.selection_array;
+		d3.selectAll('.projection-nodes').classed('opacity-selection-unhighlight', true);
+		for(var i = 0;i < selectionArray.length;i++){
+			d3.select('#node' + selectionArray[i]).classed('opacity-selection-unhighlight', false);
+			d3.select('#node' + selectionArray[i]).classed('opacity-selection-highlight', true);
+		}*/
+	},
+	highlight_node: function(this_node_id){
+		var self = this;
+		self.re_draw_node(d3.select('#' + this_node_id));
+		d3.select('#' + this_node_id).classed('opacity-unhighlight', false);
+		d3.select('#' + this_node_id).classed('opacity-highlight', true);
 	},
 	re_draw_node: function(this_node){
 		if(this_node != null){
@@ -93,7 +102,6 @@ var projection = {
 			var this_id = this_node.attr('id');
 			//var translate = this_node.attr('transform');
 			//var translateArray = translate.replace('translate(','').replace(')','').split(',');
-			//console.log(translateArray);
 			var this_cx = +this_node.attr('cx');
 			var this_cy = +this_node.attr('cy');
 			d3.select('#' + this_id).remove();
@@ -110,7 +118,6 @@ var projection = {
 				.on('mouseover', function(d,i){
 					//send message, highlight the corresponding histogram
 					var thisId = d3.select(this).attr('id');
-					console.log(thisId);
 					ObserverManager.post("projection-highlight", thisId);
 					d3.selectAll('.projection-nodes').classed('opacity-unhighlight', true);
 					d3.select(this).classed('opacity-unhighlight', false);
@@ -134,7 +141,7 @@ var projection = {
 		    .tension(-1) // Catmull–Rom
 		    .interpolate("linear"));
 		var circle = svg.append("circle")
-		    .attr("r", 13)
+		    .attr("r", 10)
 		    .attr("transform", "translate(" + nodeLocation[0] + ")");
 		transition();
 		function transition() {
@@ -159,11 +166,8 @@ var projection = {
 		if (message == "similarity-node-array") {
 			d3.selectAll('.projection-nodes').classed('opacity-unhighlight', true);
 			if(data.length != 0){
-				console.log('mouseover-highlight', data.length);
 				for(var i = 0;i < data.length;i++){
-					self.re_draw_node(d3.select('#' + data[i]));
-					d3.select('#' + data[i]).classed('opacity-unhighlight', false);
-					d3.select('#' + data[i]).classed('opacity-highlight', true);
+					self.highlight_node(data[i]);
 				}
 			}else{
 				d3.selectAll('.projection-nodes').classed('opacity-unhighlight', false);
@@ -175,7 +179,6 @@ var projection = {
 			if(projectionMethod == 'original-projection'){
 				self._render_view('original-projection');
 			}else if(projectionMethod == 'center-projection'){
-				console.log('projection method', 'center projection');
 				self._render_view('center-projection');
 			}
 		}

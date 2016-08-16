@@ -126,7 +126,6 @@ var mainController = function(){
             else{
                 dataCenter.similarityMatrix = data;
             }
-            console.log('similarityMatrix',data);
             dtd.resolve();
         })
         return dtd.promise();
@@ -144,7 +143,6 @@ var mainController = function(){
         var datasetID = _.clone(data);
         dataCenter.datasets = [];
         var defers = [];
-        console.log(data);
         for (var i = data.length - 1; i >= 0; i--) {
             var id = data[i];
             var processor = new sigtree.dataProcessor();
@@ -160,9 +158,6 @@ var mainController = function(){
         }
         $.when(defers[0], defers[1])
             .done(function(){
-            console.log('read file finish');
-            console.log(dataCenter.datasets[1].processor.result);
-            console.log(dataCenter.datasets[0].processor.result);
             dtd.resolve();
         });
         return dtd.promise();

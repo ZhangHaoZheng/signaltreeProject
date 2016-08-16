@@ -73,7 +73,6 @@ var toolbarAll = {
 		d3.selectAll('.toolbar-all')
 		.append('title')
 		.text(function(d,i){
-			console.log(d);
 			return 'dddd';
 		})
 	}
