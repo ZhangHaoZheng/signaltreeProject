@@ -98,11 +98,18 @@ circle[class~=opacity-selection-unhighlight]{
   opacity: 0.2 !important;
   stroke: gray !important; 
 }
-path[class~=opacity-click-highlight], rect[class~=opacity-click-highlight], g[class~=opacity-click-highlight] > circle {
+circle[class~=opacity-click-highlight] {
   /*fill: #ff5858 !important;*/
   opacity: 1 !important;
+  fill: black !important;
+  stroke: black !important;
   //fill: gray;
   //opacity: 1 !important;
+}
+circle[class~=opacity-click-unhighlight] {
+  opacity: 1;
+  fill: gray;
+  stroke: black;
 }
 path[class~=opacity-unhighlight], circle[class~=opacity-unhighlight], rect[class~=opacity-unhighlight], g[class~=opacity-unhighlight] > circle {
   /*fill: #ff5858 !important;*/

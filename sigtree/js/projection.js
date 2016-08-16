@@ -18,12 +18,17 @@ var projection = {
 		var padding  = 10;
 		var width = $('#projectionWrapper').width() - padding * 2;
 		var height = $('#projectionWrapper').height() - padding * 2;
-
-		//d3.select('svg.projection').selectAll('*').remove();
-		
+		var tip = d3.tip()
+		  .attr('class', 'd3-tip')
+		  .offset([-10, 0])
+		  .html(function(d) {
+		    return "<strong>Date:</strong>" + d[2] + "</span>";
+		  });
 		var svg = d3.select('svg.projection')
 		.attr('width', width)
 		.attr('height', height);
+		
+		svg.call(tip);
 		
 		svg.selectAll('*').remove();
 
@@ -35,6 +40,7 @@ var projection = {
 			nodeLocation[i] = new Array();
 			nodeLocation[i][0] = coordinate[i][0] * width * 0.8 + width * 0.1;
 			nodeLocation[i][1] = coordinate[i][1] * height * 0.8 + height * 0.1;
+			nodeLocation[i][2] = dataCenter.distanceObject[i].fileName.replace('.csv','').replace('XX','')
 		}
 		if(projection_method == 'center-projection'){
 			self.draw_link(nodeLocation);	
@@ -43,10 +49,21 @@ var projection = {
 	    .data(nodeLocation)
 	  	.enter()
 	  	.append("circle")
-	  	.attr('class', 'projection-nodes')
+	  	.attr('class', function(d,i){
+	  		var className =  'projection-nodes';
+	  		var id = dataCenter.distanceObject[i].fileName.replace('.csv','').replace('XX','');
+	  		var selectionArray = dataCenter.global_variable.selection_array;
+			if(selectionArray.indexOf(id) != -1){
+				className = className + ' opacity-click-highlight';
+			}else{
+				className = className + ' opacity-click-unhighlight';
+			}
+			return className;
+	  	})
 		.attr('id', function(d,i){
 			var id = dataCenter.distanceObject[i].fileName.replace('.csv','').replace('XX','');
-			return 'node' + id;
+			var idName = 'node' + id;
+			return idName;
 		})
 	    .attr("r", 4)
 		.attr('cx', function(d,i){
@@ -57,6 +74,7 @@ var projection = {
 		})
 	    .on('mouseover', function(d,i){
 			//send message, highlight the corresponding histogram
+			tip.show(d);
 			var thisId = d3.select(this).attr('id');
 			ObserverManager.post("projection-highlight", thisId);
 			d3.selectAll('.projection-nodes').classed('opacity-unhighlight', true);
@@ -65,6 +83,7 @@ var projection = {
 		})
 		.on('mouseout', function(d,i){
 			//send message, unhighlight the corresponding histogram
+			tip.hide(d);
 			ObserverManager.post("projection-highlight", null);
 			d3.selectAll('.projection-nodes').classed('opacity-unhighlight', false);
 			d3.selectAll('.projection-nodes').classed('opacity-highlight', false);
@@ -95,9 +114,16 @@ var projection = {
 		self.re_draw_node(d3.select('#' + this_node_id));
 		d3.select('#' + this_node_id).classed('opacity-unhighlight', false);
 		d3.select('#' + this_node_id).classed('opacity-highlight', true);
+		d3.select('#' + this_node_id).classed('opacity-click-unhighlight', false);
 	},
 	re_draw_node: function(this_node){
 		if(this_node != null){
+			var tip = d3.tip()
+			  .attr('class', 'd3-tip')
+			  .offset([-10, 0])
+			  .html(function(d) {
+			    return "<strong>Frequency:</strong>" + 'frequency' + "</span>";
+			  });
 			var this_class = this_node.attr('class');
 			var this_id = this_node.attr('id');
 			//var translate = this_node.attr('transform');
@@ -122,12 +148,14 @@ var projection = {
 					d3.selectAll('.projection-nodes').classed('opacity-unhighlight', true);
 					d3.select(this).classed('opacity-unhighlight', false);
 					d3.select(this).classed('opacity-highlight', true);
+					tip.show(d);
 				})
 				.on('mouseout', function(d,i){
 					//send message, unhighlight the corresponding histogram
 					ObserverManager.post("projection-highlight", null);
 					d3.selectAll('.projection-nodes').classed('opacity-unhighlight', false);
 					d3.selectAll('.projection-nodes').classed('opacity-highlight', false);
+					tip.hide(d);
 				});
 		}
 	},
@@ -169,9 +197,11 @@ var projection = {
 				for(var i = 0;i < data.length;i++){
 					self.highlight_node(data[i]);
 				}
+				d3.selectAll('.opacity-click-highlight').classed('opacity-unhighlight', false);
 			}else{
 				d3.selectAll('.projection-nodes').classed('opacity-unhighlight', false);
 				d3.selectAll('.projection-nodes').classed('opacity-highlight', false);
+				d3.selectAll('.projection-nodes:not(.opacity-click-highlight)').classed('opacity-click-unhighlight', true);
 			}
 		}
 		if(message == 'set:projection_method'){
@@ -181,6 +211,9 @@ var projection = {
 			}else if(projectionMethod == 'center-projection'){
 				self._render_view('center-projection');
 			}
+		}
+		if(message == 'changeData'){
+			self._render_view();
 		}
     }
 }

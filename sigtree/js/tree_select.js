@@ -90,6 +90,7 @@ var treeSelect = function(){
 	}
 	function drawHistogram(dataArray){
 		svg.selectAll("*").remove();
+		sortMode = dataCenter.global_variable.sort_mode;
 		chart = svg.append("g")
 				.attr("transform", "translate(" + margin.left + "," + margin.top + ")")
 				.attr("id","append-rect");
@@ -184,7 +185,7 @@ var treeSelect = function(){
 	 		.on("mouseout",function(d,i){
 	 			$("#polygon"+i).attr("opacity",0);
 	 		});
-	 	rectg.append("rect")
+	 	var appendRect = rectg.append("rect")
 	 		.attr("id",function(d, i){
 				return "his-" + d.index;
 			})
@@ -193,6 +194,10 @@ var treeSelect = function(){
 			})
 			.attr("class", function(d, i) {
 				var className = "bar bar-add-arc node" + d.time;
+				var selectionArray = dataCenter.global_variable.selection_array;
+				if(selectionArray.indexOf(d.time) != -1){
+					className = className + ' selection';
+				}
 				return className;
 			})
 			.attr("width", function(d,i) {
@@ -331,7 +336,11 @@ var treeSelect = function(){
 				activeB = 4;
 				changeComparedData();
 				d3.select("#append-rect").select("#percen-rect").remove();*/
-			})
+			});
+		var currentId = dataCenter.global_variable.current_id;
+		append_current_circle(currentId);
+		var selectionArray = dataCenter.global_variable.selection_array;
+		add_selection_text(selectionArray);
 
 		rectg.append("polygon")
 			.attr("points",function(d,i){
@@ -610,7 +619,7 @@ var treeSelect = function(){
 		$('.append-current-circle').css('stroke', 'black');
 		//$('span.button').css('border-bottom', '3px solid #aaaaaa');
 		//$('.active').css('border-bottom', '3px solid #2060d5');
-		$('#label-C').css('border-top', '1px solid white');
+		$('#label-C').css('border-top', '1px solid gray');
 		$('.tick line').css('stroke', 'black');
 		$('.button-group div').css('color', '#bbbbbb');
 		$('.button-group.bind div').css('color', 'black');
