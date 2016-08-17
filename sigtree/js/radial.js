@@ -81,8 +81,18 @@ var radial = {
 
 		_update(tree_node_list);
 		function _update(tree_node_list){
+			var tip = d3.tip()
+			  .attr('class', 'd3-tip')
+			  .offset([-10, 0])
+			  .html(function(d) {
+			  	var flowSize = +d.flow;
+			  	var nameArray = d.index.split('-');
+			  	var name = nameArray[nameArray.length - 1];
+			    return "flowSize:" + d3.format(".3s")(flowSize) + " nodeName:" + name + "</span>";
+			  });
 			var nodes = tree_node_list,
 				links = tree.links(nodes);
+			console.log(nodes);
 			var treeNodeNum = 0;
 			var duration = 750;
 			for(var i = 0;i < tree_node_list.length;i++){
@@ -91,6 +101,7 @@ var radial = {
 				}
 			}
 			var svg = d3.select("#radial");
+			svg.call(tip);
 			var diagonal = d3.svg.diagonal.radial()
 				.projection(function(d) { return [d.y, d.x / 180 * Math.PI]; });	
 			var node = svg.selectAll(".node")
@@ -135,9 +146,11 @@ var radial = {
 				})
 				.on("mouseover", function(d) {
 					ObserverManager.post("mouse-over", [d.id]);
+					tip.show(d);
 				})
 				.on("mouseout", function(d) {
 					ObserverManager.post("mouse-out", [d.id]);
+					tip.hide(d);
 				});
 			nodeEnter.attr("fill",function(d,i){
 				if(d.values == null){//radialexpandmarkA.indexOf(d.id) != -1
@@ -279,6 +292,19 @@ var radial = {
         			break;
         		}
         	}
+        }
+        if(message == "set:similar_id_array"){
+        	var similarIdArray = dataCenter.global_variable.similar_id_array;
+        	svg.selectAll('.node')
+        	.classed('node-remove', true);
+        	//classed('opacity-non-similar', true);
+        	for(var i = 0;i < similarIdArray.length;i++){
+        		svg.select('#radial-node-' + similarIdArray[i]).classed('node-remove', false);//style('opacity', '1');
+        	}
+        }
+        if(message == 'show-all'){
+        	svg.selectAll('.node')
+        	.classed('node-remove', false);
         }
 	}
 }

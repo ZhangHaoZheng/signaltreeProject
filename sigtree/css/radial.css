@@ -45,3 +45,17 @@
   fill-opacity: .125;
   shape-rendering: crispEdges;
 }
+//g[class~=opacity-non-similar] > circle
+//  opacity: 0.5;
+//}
+.opacity-non-similar{
+  opacity: 0.5;
+}
+.node-remove{
+  stroke: #c0c0c0 !important;
+  stroke-width: 2px !important;
+}
+.path-remove{
+  fill: #c0c0c0 !important;
+  stroke: #c0c0c0 !important;
+}

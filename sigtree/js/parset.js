@@ -20,6 +20,12 @@ var parset = {
 		var svg = d3.select("svg.parset")
 		  .attr("width", width)
 		  .attr("height", height);
+		var tip = d3.tip()
+	    .attr('class', 'd3-tip')
+	    .offset([-10, 0])
+	    .html(function(d) {
+	      return "flowSize:" + d3.format(".3s")(d.count) + " nodeName:" + d.name + "</span>";
+	    });
 		var chart = d3.parsets()
 				.dimensions(["root", "atm", "aal", "vpi", "cid"])
 				.value(function(d){
@@ -61,6 +67,15 @@ var parset = {
 			data.push(d);
 		});
 		svg.datum(data).call(chart);
+		svg.call(tip);
+		svg.selectAll('path')
+			.on('mouseover', function(d,i){
+				console.log(d);
+				tip.show(d);
+			})
+			.on('mouseout', function(d,i){
+				tip.hide(d);
+			});
 		svg.selectAll("path").filter(function(d){
 			var tmp = d.id.slice(-4);
 			if(tmp == "none") return true;
@@ -114,6 +129,21 @@ var parset = {
         			break;
         		}
         	}
+        }
+        if(message == "set:similar_id_array"){
+        	var similarIdArray = dataCenter.global_variable.similar_id_array;
+        	console.log(similarIdArray);
+        	svg.selectAll('path')
+        	.classed('path-remove', true);
+        	//classed('opacity-non-similar', true);
+        	for(var i = 0;i < similarIdArray.length;i++){
+        		console.log( similarIdArray[i]);
+        		svg.select('#parset-ribbon-' + similarIdArray[i]).classed('path-remove', false);//.style('opacity', '1');
+        	}
+        }
+        if(message == 'show-all'){
+        	svg.selectAll('path')
+        	.classed('path-remove', false);
         }
     }	
 };

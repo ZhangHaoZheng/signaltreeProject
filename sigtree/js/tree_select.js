@@ -372,14 +372,20 @@ var treeSelect = function(){
 				}
 			}			
 		}
+		if(dataCenter.global_variable.show_arc){
+			add_arc_to_all();
+		}else{
+			remove_arc_to_all();
+		}
 		//changeComparedData();
 		//function changeComparedData() {
 		//	ObserverManager.post("changeData", selectionArray);
 		//}
 	}
-	function add_selection_text(selection_array){
+	function add_selection_text(){
 		svg.selectAll('.selection-label').remove();
-        for(var i = 0;i < selection_array.length;i++){
+		var selectionArray = dataCenter.global_variable.selection_array;
+        for(var i = 0;i < selectionArray.length;i++){
         	var thisNodeName = selectionArray[i];
         	var thisNode = d3.select('.node' + thisNodeName);
 			var label = String.fromCharCode(97 + i);
@@ -741,6 +747,7 @@ var treeSelect = function(){
 		        for(var i = 0;i < dataCenter.datasets.length;i++){
 		        	if(currentId == dataCenter.datasets[i].id){
 		        		var tree_root = dataCenter.datasets[i].processor.result.treeRoot;
+		        		console.log(tree_root);
 		        		var nodeNum = tree_root.allChilldrenCount;
 		        		var flowSize = tree_root.flow;
 		        		var date = currentId;
@@ -750,7 +757,26 @@ var treeSelect = function(){
 		        }
 	        }
 	    }
-
+	    if(message == 'set:selection_array'){
+	    	var selectionArray = dataCenter.global_variable.selection_array;
+	    	svg.selectAll('.bar').classed('selection', false);
+	    	for(var i = 0;i < selectionArray.length;i++){
+	    		svg.select('.node' + selectionArray[i]).classed('selection', true);
+	    	}
+	    	add_selection_text(selectionArray);
+	    	var currentId = dataCenter.global_variable.current_id
+	    	if(selectionArray.indexOf(currentId) == -1){
+	    		//目前删除的节点正是当前 focus的节点，则需要更换另一个节点作为当前操作的节点
+	    		var currentNodeIdBefore = dataCenter.global_variable.current_nodeid_before;
+	    		for(var j = 0;j < currentNodeIdBefore.length;j++){
+					if(currentNodeIdBefore[j] == currentId){
+						currentNodeIdBefore.splice(j, 1);
+					}
+				}
+				currentId = currentNodeIdBefore[currentNodeIdBefore.length - 1];
+	    	}
+	    	append_current_circle(currentId);
+	    }
     }
 	return SelectTree;
 }
