@@ -33,7 +33,8 @@ var dataCenter = {
 		'current_bg_color':'black',
 		'current_bg_language':'Chinese',
 		'projection_method': 'original_projection',
-		'similar_id_array':[]
+		'similar_id_array':[],
+		'numoftreecompare':0
 	},
 	GLOBAL_STATIC: {
 		'radius': 2,

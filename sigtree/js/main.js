@@ -4,7 +4,6 @@
 //         id: 
 //         processor:         
 //     ]
-var numoftreecompare = 0;
 /*$("#radialcheckbox").on("change",function(){
     var radialView, parsetView;
     var m = $("#radialcheckbox").attr("mark");
@@ -18,15 +17,6 @@ var numoftreecompare = 0;
     radialView = radial();     
     parsetView = parset();
 })*/
-var radialexpandmarkA = [];
-var radialexpandmarkB = [];
-var marknodesdepth = false;
-var nodesIddepthA = [];
-var nodesIddepthB = [];
-nodesIddepthA.length = 4;
-nodesIddepthB.length = 4;
-var activeA = 4;
-var activeB = 4;
 var tip = d3.tip()
     .attr('class', 'd3-tip')
     .offset([-10, 0])

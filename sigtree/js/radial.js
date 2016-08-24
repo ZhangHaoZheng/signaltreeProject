@@ -64,7 +64,6 @@ var radial = {
 		var iterator = 1;
 
 		activeA = hide_depth;
-		radialexpandmarkA = self._putnodesdepth(radialexpandmarkA,nodesIddepthA,hide_depth);
 		for(var i = 0;i < tree_node_list.length;i++){
 			if(tree_node_list[i].depth < hide_depth){
 				if(tree_node_list[i]._values){
