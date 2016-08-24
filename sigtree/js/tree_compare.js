@@ -79,11 +79,21 @@ var treeCompare = function(){
 	var draw_all_m = true;
 	var count = 0;
 	var c_mark = false;
+
 	var xscale = d3.scale.identity()
 		.domain([0,$("#multitree").width()]);
 	brush_compare.x(xscale)
 		.on("brushend",brushedcompare);
 	addMultiTree(add_node_list,add_tree_id_list);
+	var value_of_the_top_one;
+	$( "#multitree" ).sortable({
+		cancel:".g_for_brush",
+		axis:"y",
+		stop: function() {
+			update_brush_g();
+		}
+	});
+    $( "#multitree" ).disableSelection();
 	d3.select("#"+mult_tree_smaller[0].divid+" #tree_svg g").call(tip);
 	//id_nodes，用id查找结点的位置，同步id_nodes与nodes
 	function build_id_nodes(nodes){
@@ -518,7 +528,6 @@ var treeCompare = function(){
 			$("#" + mult_tree_smaller[div_i].divid + " #flow_top_svg").height(0);
 		}
 		scale.domain([0,Math.log(max_flow_of_depth[cur_depth])]);
-		console.log(max_flow_of_depth)
 		var bars = trendg.selectAll(".bar")
 			.data(leaves,function(d){return d.id;});
 		var bars_enter = bars.enter().insert("g").attr("class","bar")
@@ -737,7 +746,14 @@ var treeCompare = function(){
 	//显示相似部分
 	function completelyShowSimilarPart(){
 		if(mult_tree_smaller.length < 2) return;
-		var index = mult_tree_smaller[0].index;
+		var index;
+		var tree_id = dataCenter.global_variable.current_id;
+		for(var i = 0; i < mult_tree_smaller.length; i++){
+			if(mult_tree_smaller[i].tree_id == tree_id){
+				index = mult_tree_smaller[i].index;
+				break;
+			}
+		}
 		var markifexpand = [];	
 		var similar_nodes_id = [];
 		for(var i = 0; i < nodes.length; i++){
@@ -909,9 +925,6 @@ var treeCompare = function(){
 				break;
 			}
 		}
-		if((mult_tree_smaller[d].mark_draw_all == false || mult_tree_smaller[d].mark_only_flow) && d != (mult_tree_smaller.length-1)){
-			d3.select("#"+mult_tree_smaller[d+1].buttondiv).style("visibility","visible");
-		}
 		for(var i = 0; i < mult_tree_smaller.length; i++){
 			if(mult_tree_smaller[i].alpabet_index > alpabet_index)
 				mult_tree_smaller[i].alpabet_index--;
@@ -946,62 +959,6 @@ var treeCompare = function(){
 			}
 		}
 	}
-	//对换树的位置
-	function up_down_tree(value1,value2){
-		var tree1 = mult_tree_smaller[value1];
-		var tree2 = mult_tree_smaller[value2];
-		var tmpnodes1 = tree1.nodes,
-			tmpnode1 = tree1.node,
-			tmpindex1 = tree1.index,
-			tmptree_id = tree1.tree_id,
-			tmpalpabet = tree1.alpabet_index,
-			tmpmark_draw_all = tree1.mark_draw_all,
-			tmpmark_reversal = tree1.mark_reversal,
-			tmptree_height = tree1.tree_height;
-			tmpmark_only_flow = tree1.mark_only_flow;
-		tree1.nodes = tree2.nodes;
-		tree1.node = tree2.node;
-		tree1.index = tree2.index;
-		tree1.tree_id = tree2.tree_id;
-		tree1.alpabet_index = tree2.alpabet_index;
-		tree1.mark_draw_all = tree2.mark_draw_all;
-		tree1.mark_reversal = tree2.mark_reversal;
-		tree1.tree_height = tree2.tree_height;
-		tree1.mark_only_flow = tree2.mark_only_flow;
-		tree2.nodes = tmpnodes1;
-		tree2.node = tmpnode1;
-		tree2.index = tmpindex1;
-		tree2.tree_id = tmptree_id;
-		tree2.alpabet_index = tmpalpabet;
-		tree2.mark_draw_all = tmpmark_draw_all;
-		tree2.mark_reversal = tmpmark_reversal;
-		tree2.tree_height = tmptree_height;
-		tree2.mark_only_flow = tmpmark_only_flow;
-		if(!mult_tree_smaller[value1].mark_only_flow){
-			$("#"+mult_tree_smaller[value1].divid).height(mult_tree_smaller[value1].tree_height + trend_height + bottom_padding);
-			d3.select("#"+mult_tree_smaller[value1].divid+" #tree_svg").attr("height",mult_tree_smaller[value1].tree_height);
-		}
-		else {
-			$("#"+mult_tree_smaller[value1].divid).height(trend_height + bottom_padding);
-			d3.select("#"+mult_tree_smaller[value1].divid+" #tree_svg").attr("height",0);
-		}
-		if(!mult_tree_smaller[value2].mark_only_flow){
-			$("#"+mult_tree_smaller[value2].divid).height(mult_tree_smaller[value2].tree_height + trend_height + bottom_padding);
-			d3.select("#"+mult_tree_smaller[value2].divid+" #tree_svg").attr("height",mult_tree_smaller[value2].tree_height);
-		}
-		else{
-			$("#"+mult_tree_smaller[value2].divid).height(trend_height + bottom_padding);
-			d3.select("#"+mult_tree_smaller[value2].divid+" #tree_svg").attr("height",0);
-		}
-		modify_buttondiv_top();
-		draw_tree(mult_tree_smaller[value1].mark_reversal,mult_tree_smaller[value1].mark_draw_all,mult_tree_smaller[value1],null,value1);
-		draw_trend(mult_tree_smaller[value1].mark_reversal,value1,null)
-		draw_tree(mult_tree_smaller[value2].mark_reversal,mult_tree_smaller[value2].mark_draw_all,mult_tree_smaller[value2],null,value2);
-		draw_trend(mult_tree_smaller[value2].mark_reversal,value2,null);
-		if(value1 == 0 || value2 == 0)
-			update_brush_g();
-		draw_dash_line();
-	}
 	////////////////////////////////////////////////////////////////////////////////////////////////
 	//删除按钮操作
 	function delete_button_click(){
@@ -1019,7 +976,6 @@ var treeCompare = function(){
 		delete_tree(tmp);
 	}
 	//增加多棵树
-
 	function addMultiTree(nodes,idlist){
 		for(var i = 0; i < nodes.length; i++){
 			if(count == 0){
@@ -1084,9 +1040,10 @@ var treeCompare = function(){
 		update_brush_g();
 	}
 	function update_brush_g(){
+		value_of_the_top_one = d3.select("#multitree li div div span").attr("value");
 		if(mult_tree_smaller.length == 0) return;
 		d3.selectAll(".created_g_for_brush").remove();
-		d3.select("#"+mult_tree_smaller[0].divid).selectAll(".g_for_brush").append("g")
+		d3.select("#"+mult_tree_smaller[value_of_the_top_one].divid).selectAll(".g_for_brush").append("g")
 			.attr("class","created_g_for_brush")
 			.attr("stroke","#fff")
 			.attr("fill-opacity",0.125)
@@ -1094,6 +1051,16 @@ var treeCompare = function(){
 			.selectAll("rect")
 			.attr("y",0)
 			.attr("height",trend_height);
+	}
+	function hide_button_span(){
+		for(var i = 0; i < mult_tree_smaller.length; i++){
+			var j = mult_tree_smaller[i].buttondiv.slice(17);
+			if(d3.select("#delete"+j).style("visibility") == "visible"){
+				d3.select("#delete"+j).style("visibility","hidden");
+				d3.select("#reverse"+j).style("visibility","hidden");
+			}
+			d3.select("#"+mult_tree_smaller[i].buttondiv).style("visibility","visible");
+		}
 	}
 	//改变各div的高度，增加div，返回g
 	function addclick(){
@@ -1135,21 +1102,29 @@ var treeCompare = function(){
 				}
 			}
 			var global_numoftreecompare = dataCenter.global_variable.numoftreecompare;
-			d3.select("#multitree").append("div").attr("id",function(){
-				return "treemap" + global_numoftreecompare;
-			});
+			d3.select("#multitree").append("li")
+				.append("div").attr("id",function(){
+					return "treemap" + global_numoftreecompare;
+				}).style("position","relative");
 			if(count == 3) tree_height = two_level_height;
 			$("#treemap"+global_numoftreecompare).height(tree_height+trend_height+bottom_padding);
 			d3.select("#treemap"+global_numoftreecompare).append("svg").attr("id","flow_top_svg")
+				.attr("value",global_numoftreecompare)
+				.on("dblclick",double_click_draw_all_or_part_tree)
+				.on("click",hide_button_span)
 				.append("g").attr("transform","translate(30,0)")
 				.attr("class","g_for_brush");
 			d3.select("#treemap" + global_numoftreecompare).append("svg").attr("id","tree_svg")
 				.attr("width",$("#multitree").width())
 				.attr("height",tree_height)
 				.attr("value",global_numoftreecompare)
+				.on("click",hide_button_span)
 				.on("dblclick",double_click_draw_all_or_part_tree)
 				.append("g").attr("transform","translate(30,0)");
 			d3.select("#treemap"+global_numoftreecompare).append("svg").attr("id","flow_bottom_svg")
+				.attr("value",global_numoftreecompare)
+				.on("click",hide_button_span)
+				.on("dblclick",double_click_draw_all_or_part_tree)
 				.append("g").attr("transform","translate(30,0)")
 				.attr("class","g_for_brush");
 			tmp_tree_height = tree_height;
@@ -1163,20 +1138,31 @@ var treeCompare = function(){
 					$("#"+mult_tree_smaller[i].divid).height(min_tree_height+trend_height+bottom_padding);
 				}
 			}
-			d3.select("#multitree").append("div").attr("id",function(){
-				return "treemap" + global_numoftreecompare;
-			});
+			d3.select("#multitree").append("li")
+				.append("div").attr("id",function(){
+					return "treemap" + global_numoftreecompare;
+				}).style("position","relative");
 			$("#treemap"+global_numoftreecompare).height(two_level_height+trend_height+bottom_padding);
 			d3.select("#treemap"+global_numoftreecompare).append("svg").attr("id","flow_top_svg")
+				.attr("value",global_numoftreecompare)
+				.on("click",hide_button_span)
+				.on("dblclick",double_click_draw_all_or_part_tree)
+				.on("click",function(){
+
+				})
 				.append("g").attr("transform","translate(30,0)")
 				.attr("class","g_for_brush");
 			d3.select("#treemap" + global_numoftreecompare).append("svg").attr("id","tree_svg")
 				.attr("width",$("#multitree").width())
 				.attr("height",two_level_height)
 				.attr("value",global_numoftreecompare)
+				.on("click",hide_button_span)
 				.on("dblclick",double_click_draw_all_or_part_tree)
 				.append("g").attr("transform","translate(30,0)");
 			d3.select("#treemap"+global_numoftreecompare).append("svg").attr("id","flow_bottom_svg")
+				.attr("value",global_numoftreecompare)
+				.on("click",hide_button_span)
+				.on("dblclick",double_click_draw_all_or_part_tree)
 				.append("g").attr("transform","translate(30,0)")
 				.attr("class","g_for_brush");
 			tmp_tree_height = two_level_height;
@@ -1184,6 +1170,7 @@ var treeCompare = function(){
 		var global_numoftreecompare = dataCenter.global_variable.numoftreecompare;
 		var tmpdiv = d3.select("#treemap" + global_numoftreecompare).append("div").attr("id","treemap_label_div" + global_numoftreecompare)
 			.style("position","absolute")
+			.style("top",0)
 			.style("left",0);
 		tmpdiv.append("span").attr("id","label_alpabet" +global_numoftreecompare)
 			.attr("value",mult_tree_smaller.length)
@@ -1195,39 +1182,16 @@ var treeCompare = function(){
 					if(i == tmp) continue;
 					if(d3.select("#delete"+j).style("visibility") == "visible"){
 						d3.select("#delete"+j).style("visibility","hidden");
-						d3.select("#up"+j).style("visibility","hidden");
-						d3.select("#down"+j).style("visibility","hidden");
-						d3.select("#part_or_all"+j).style("visibility","hidden");
 						d3.select("#reverse"+j).style("visibility","hidden");
 					}
 				}
 				if(d3.select("#delete"+tmp_num).style("visibility") == "hidden"){
 					d3.select("#delete"+tmp_num).style("visibility","visible");
-					d3.select("#up"+tmp_num).style("visibility","visible");
-					d3.select("#down"+tmp_num).style("visibility","visible");
-					d3.select("#part_or_all"+tmp_num).style("visibility","visible");
 					d3.select("#reverse"+tmp_num).style("visibility","visible");
-					for(var z = 0; z < mult_tree_smaller.length; z++){
-						if(z == (tmp + 1)) continue;
-						d3.select("#"+mult_tree_smaller[z].buttondiv).style("visibility","visible");
-					}					
-					if(tmp == mult_tree_smaller.length - 1) return;
-					var m = mult_tree_smaller[tmp+1];
-					if(mult_tree_smaller[tmp].mark_draw_all == false || mult_tree_smaller[tmp].mark_only_flow){
-						d3.select("#"+m.buttondiv).style("visibility","hidden");
-					}
 				}
 				else {
 					d3.select("#delete"+tmp_num).style("visibility","hidden");
-					d3.select("#up"+tmp_num).style("visibility","hidden");
-					d3.select("#down"+tmp_num).style("visibility","hidden");
-					d3.select("#part_or_all"+tmp_num).style("visibility","hidden");
 					d3.select("#reverse"+tmp_num).style("visibility","hidden");
-					if(tmp == mult_tree_smaller.length - 1) return;
-					var m = mult_tree_smaller[tmp+1];
-					if(mult_tree_smaller[tmp].mark_draw_all == false || mult_tree_smaller[tmp].mark_only_flow){
-						d3.select("#"+m.buttondiv).style("visibility","visible");
-					}
 				}
 			})
 		tmpdiv.append("br");
@@ -1237,33 +1201,6 @@ var treeCompare = function(){
 			.attr("value",mult_tree_smaller.length)
 			.on("click",delete_button_click);
 		tmpdiv.append("br");
-		tmpdiv.append("span").attr("id","up" + global_numoftreecompare).style("visibility","hidden")
-			.attr("class","btn btn-default btn-xs active level-btn toolbar-tree")
-			.html("<span class=\"glyphicon glyphicon-chevron-up\"></span>")
-			.attr("value",mult_tree_smaller.length)
-			.on("click",function(){
-				var value = parseInt(d3.select(this).attr("value"));
-				if(value == 0) return;
-				up_down_tree(value-1,value);
-			});
-		tmpdiv.append("br");
-		tmpdiv.append("span").attr("id","down" + global_numoftreecompare).style("visibility","hidden")
-			.attr("class","btn btn-default btn-xs active level-btn toolbar-tree")
-			.html("<span class=\"glyphicon glyphicon-chevron-down\"></span>")
-			.attr("value",mult_tree_smaller.length)
-			.on("click",function(){
-				var value = parseInt(d3.select(this).attr("value"));
-				if(value == mult_tree_smaller.length - 1) return;
-				d3.select("#"+mult_tree_smaller[value+1].buttondiv).style("visibility","visible");
-				up_down_tree(value,value+1);
-			});
-		tmpdiv.append("br");
-		tmpdiv.append("span").attr("id","part_or_all" + global_numoftreecompare).style("visibility","hidden")
-			.attr("class","btn btn-default btn-xs active level-btn toolbar-tree")
-			.html("<span class=\"glyphicon glyphicon-resize-small\"></span>")
-			.attr("value",mult_tree_smaller.length)
-			.on("click",button_click_draw_all_or_part_tree);
-		tmpdiv.append("br");
 		tmpdiv.append("span").attr("id","reverse" + global_numoftreecompare).style("visibility","hidden")
 			.attr("class","btn btn-default btn-xs active level-btn toolbar-tree")
 			.html("<span class=\"glyphicon glyphicon-text-height\"></span>")
@@ -1271,16 +1208,24 @@ var treeCompare = function(){
 			.on("click",reverse_tree_click);
 		return tmp_tree_height;
 	}
+	//在只显示流量，最后两层，全部展开中切换
 	function draw_all_or_part_tree(value){
 		var tmp_tree = mult_tree_smaller[value];
-		if(tmp_tree.mark_only_flow) tmp_tree.mark_only_flow = false;
-		else tmp_tree.mark_draw_all = (tmp_tree.mark_draw_all == false);
+		if(tmp_tree.mark_only_flow){
+			tmp_tree.mark_only_flow = false;
+			tmp_tree.mark_draw_all = false;
+		}
+		else if(tmp_tree.mark_draw_all == true){
+			tmp_tree.mark_only_flow = true;
+		}
+		else tmp_tree.mark_draw_all = true;
 		modify_height_svg_treeHeight();
 		for(var i = 0; i < mult_tree_smaller.length; i++){
 			draw_tree(mult_tree_smaller[i].mark_reversal,mult_tree_smaller[i].mark_draw_all,mult_tree_smaller[i],null,i);
 		}
 		draw_dash_line();
 	}
+	//更改每棵树的div以及其中svg的高度
 	function modify_height_svg_treeHeight(){
 		var sum_height = 0,sum_min_tree_height = 0,sum_other_height = 0;
 		for(var i = 0; i < mult_tree_smaller.length; i++){
@@ -1339,45 +1284,14 @@ var treeCompare = function(){
 			}
 		}
 	}
-	function button_click_draw_all_or_part_tree(){
-		var value = parseInt(d3.select(this).attr("value"));
-		draw_all_or_part_tree(value);
-		modify_buttondiv_top();
-		if(mult_tree_smaller[value].mark_draw_all == true){
-			d3.select(this).html("<span class=\"glyphicon glyphicon-resize-small\"></span>")
-			if(value == mult_tree_smaller.length - 1) return;
-			d3.select("#"+mult_tree_smaller[value+1].buttondiv)
-				.style("visibility","visible");
-		}
-		else{
-			d3.select(this).html("<span class=\"glyphicon glyphicon-resize-full\"></span>")
-			if(value == mult_tree_smaller.length - 1) return;
-			d3.select("#"+mult_tree_smaller[value+1].buttondiv)
-				.style("visibility","hidden");
-		}
-	}
+	//双击在只显示流量，最后两层，全部展开中切换
 	function double_click_draw_all_or_part_tree(){
 		var n = d3.select(this).attr("value");
 		n = parseInt(n);
-		var value = d3.select("#part_or_all"+n).attr("value");
+		var value = d3.select("#delete"+n).attr("value");
 		value = parseInt(value);
 		draw_all_or_part_tree(value);
 		modify_buttondiv_top();
-		if(mult_tree_smaller[value].mark_draw_all == true){
-			d3.select("#part_or_all"+n)
-				.html("<span class=\"glyphicon glyphicon-resize-small\"></span>");
-			if(value == mult_tree_smaller.length - 1) return;
-			d3.select("#"+mult_tree_smaller[value+1].buttondiv)
-				.style("visibility","visible");
-		}
-		else{
-			d3.select("#part_or_all"+n)
-				.html("<span class=\"glyphicon glyphicon-resize-full\"></span>");
-			if(value == mult_tree_smaller.length - 1) return;
-			if(d3.select("#delete"+n).style("visibility") == "hidden") return;
-			d3.select("#"+mult_tree_smaller[value+1].buttondiv)
-				.style("visibility","hidden");
-		}
 	}
 	//翻转树
 	function reverse_tree_click(){
@@ -1402,12 +1316,7 @@ var treeCompare = function(){
 	//根据树的数目，调整对应操作栏的高度
 	function modify_buttondiv_top(){
 		if(mult_tree_smaller.length == 0) return;
-		var top = 0;
-		d3.select("#" + mult_tree_smaller[0].buttondiv).style("top",0);
 		for(var i = 0; i < mult_tree_smaller.length - 1; i++){
-			var h = $("#" + mult_tree_smaller[i].divid).height();
-			top += h;
-			d3.select("#" + mult_tree_smaller[i + 1].buttondiv).style("top",top+"px");
 			d3.select("#label_alpabet" + mult_tree_smaller[i+1].buttondiv.slice(17))
 				.html("<span class=\"span-label\">"
 					+mult_tree_smaller[i+1].alpabet_index+"</span>");
@@ -1433,8 +1342,6 @@ var treeCompare = function(){
 		modify_buttondiv_top();
 		for(var i = 0; i < mult_tree_smaller.length; i++){
 			draw_tree(mult_tree_smaller[i].mark_reversal,mult_tree_smaller[i].mark_draw_all,mult_tree_smaller[i],null,i);
-			d3.select("#part_or_all" + (mult_tree_smaller[i].index - 2))
-				.html("<span class=\"glyphicon glyphicon-resize-full\"></span>");
 		}
 		draw_dash_line();
 	}
@@ -1449,19 +1356,56 @@ var treeCompare = function(){
 		modify_buttondiv_top();
 		for(var i = 0; i < mult_tree_smaller.length; i++){
 			draw_tree(mult_tree_smaller[i].mark_reversal,mult_tree_smaller[i].mark_draw_all,mult_tree_smaller[i],null,i);
-			d3.select("#part_or_all" + (mult_tree_smaller[i].index - 2))
-				.html("<span class=\"glyphicon glyphicon-resize-small\"></span>");
 		}
 		draw_dash_line();
 	}
-	function modify_style_of_alpabet_label(tree_id){
+	//所有树仅显示流量
+	function only_show_flow_all_tree(){
+		for(var i = 0; i < mult_tree_smaller.length; i++){
+			mult_tree_smaller[i].mark_only_flow = true;
+		}
+		modify_height_svg_treeHeight();
+		modify_buttondiv_top();
+		for(var i = 0; i < mult_tree_smaller.length; i++){
+			draw_tree(mult_tree_smaller[i].mark_reversal,mult_tree_smaller[i].mark_draw_all,mult_tree_smaller[i],null,i);
+		}
+		draw_dash_line();
+	}
+	//为当前选中的signal tree添加黑色边框
+	function add_border_of_current_signal_tree(){
+		var tree_id = dataCenter.global_variable.current_id;
 		for(var i = 0; i < mult_tree_smaller.length; i++){
 			var tmp = mult_tree_smaller[i];
 			if(tmp.tree_id == tree_id){
-				d3.select("#label_alpabet" + mult_tree_smaller[i].buttondiv.slice(17))
-					.html("<span class=\"span-label\" style=\"background-color:#B0E0E6\">"
-						+mult_tree_smaller[i].alpabet_index+"</span>");
+				d3.select("#" + tmp.divid)
+					.style("border","1px solid")
+					.style("border-color","#000000");
+			}
+			else {
+				d3.select("#"+tmp.divid)
+					.style("border","0px solid");
+			}
+		}
+	}
+	//为柱状概览图中hover的树添加背景颜色
+	function add_background_color_of_hovered_tree(){
+		var tree_id;
+		for(var i = 0; i < mult_tree_smaller.length; i++){
+			var tmp = mult_tree_smaller[i];
+			if(tmp.tree_id == tree_id){
+				d3.select("#" + tmp.divid)
+					.style("background-color","whitesmoke");
 				break;
+			}
+		}
+	}
+	//去除所有背景颜色
+	function clear_background_color_when_no_hovered_tree(){
+		for(var i = 0; i < mult_tree_smaller.length; i++){
+			var tmp = mult_tree_smaller[i];
+			if(tmp.tree_id == tree_id){
+				d3.select("#"+tmp.divid)
+					.style("background-color","white");
 			}
 		}
 	}
@@ -1484,12 +1428,14 @@ var treeCompare = function(){
 		}
         if(message == "mouse-over"){
         	for (var i = 0; i < data.length; i++) {
+        		if(data[i].indexOf(";") != -1) return;
         		d3.select("#multitree").selectAll(idmulti + data[i]).classed("focus-highlight",true);
         		highlight_subtree_root(data[i]);
 			}
         }
         if(message == "mouse-out"){
         	for (var i = 0; i < data.length; i++) {
+        		if(data[i].indexOf(";") != -1) return;
         		d3.select("#multitree").selectAll(idmulti + data[i]).classed("focus-highlight",false);
         		unhighlight_subtree_root();
 			}
