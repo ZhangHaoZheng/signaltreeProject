@@ -10,6 +10,7 @@ var dataCenter = {
 		'projection_view': new Object(),
 	},
 	global_variable: {
+		'file_array_path': [],
 		'show_arc': true,
 		'hover_show_arc': false,
 		'sort_mode': 'time',

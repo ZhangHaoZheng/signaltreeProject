@@ -75,12 +75,18 @@ function changenodedepthB(){
     }
 }
 var justChangeDataA;
-var mainController = function(){
+var initial_toolbar = function(){
+    dataCenter.view_collection.toolbarAllView =  toolbarAll.initialize();
+    dataCenter.view_collection.toolbar_comparison_view =  toolbarComparison.initialize();
+    dataCenter.view_collection.toolbar_tree_view = toolbarSignaltree.initialize();
+}
+var mainController = function(file_path_name){
     //var treeSelectView, radialView, treeCompareView, parsetView, toolbarAllView, toolbarComparisonView, toolbartreeView;
     var datasetID = [];
+    var filePath = 'data/' + file_path_name + '/';
     function loadStatData() {
         var dtd = $.Deferred();
-        d3.json("stat.json", function(error, data){
+        d3.json(filePath + "stat.json", function(error, data){
             if (error) {
                 dtd.reject();
                 throw error;
@@ -94,7 +100,7 @@ var mainController = function(){
     }
     function load_distance_matrix_data(){
         var dtd = $.Deferred();
-        d3.csv('distance_matrix_file2.csv', function(error, data){
+        d3.csv(filePath + 'distance_matrix_file2.csv', function(error, data){
             if(error){
                 dtd.reject();
                 throw error;
@@ -118,7 +124,7 @@ var mainController = function(){
     }
     function load_similarity_matrix_data(){
         var dtd = $.Deferred();
-        d3.csv('similarity_matrix_file2.csv', function(error, data){
+        d3.csv(filePath + 'similarity_matrix_file2.csv', function(error, data){
             if(error){
                 dtd.reject();
                 throw error;
@@ -153,7 +159,7 @@ var mainController = function(){
             dataCenter.datasets.push(dataset)
             //var file = dataCenter.stats[id].file;
             var fileName = data[i] + 'XX.csv';
-            file = "data/" + fileName;
+            file = filePath + fileName;
             defers.push(dataset.processor.loadData(file));
         }
         $.when(defers[0], defers[1])
@@ -170,6 +176,7 @@ var mainController = function(){
             var defers = [];
             for (var i = data.length - 1; i >= 0; i--) {
                 var id = data[i];
+                console.log(sigtree);
                 var processor = new sigtree.dataProcessor();
                 var dataset = {
                     id: id,
@@ -178,7 +185,7 @@ var mainController = function(){
                 dataCenter.datasets.push(dataset)
                 //var file = dataCenter.stats[id].file;
                 var file = data[i] + 'XX.csv';
-                file = "data/" + file;
+                file = filePath + file;
                 defers.push(dataset.processor.loadData(file));
             }
             $.when.apply($, defers)
@@ -190,6 +197,7 @@ var mainController = function(){
     initInteractionHandler();
     $.when(loadStatData(), load_distance_matrix_data(), load_similarity_matrix_data(), load_init_data())
         .done(function() {
+            console.log('-----------------------initialize---------------------');
             treeSelectView = treeSelect();
             dataCenter.view_collection.radial_view = radial.initialize();
             dataCenter.view_collection.sunburst_view = sunburst.initialize();
@@ -197,13 +205,15 @@ var mainController = function(){
             dataCenter.view_collection.tree_compare_view = treeCompare();     
             dataCenter.view_collection.parallel_set_view =  parset.initialize();     
             dataCenter.view_collection.projectionView = projection.initialize();
-            dataCenter.view_collection.toolbarAllView =  toolbarAll.initialize();
-            dataCenter.view_collection.toolbar_comparison_view =  toolbarComparison.initialize();
-            dataCenter.view_collection.toolbar_tree_view = toolbarSignaltree.initialize();
+            $('.hidden-content').css({'visibility': 'visible'});
+            $('#loading').css({'visibility':'hidden'});
+            $('.toolbar').css({'visibility':'visible'});
         })
 }
 $(document).ready(function() {
-    mainController();
+      //document.write("The number of files in this folder is: " + filesCount);
+    initial_toolbar();
+    mainController('sample1');
 })
 
 

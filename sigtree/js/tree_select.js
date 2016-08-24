@@ -9,11 +9,10 @@ var treeSelect = function(){
 	var timeSortArray = [];
 	var dataList = timeSortArray;
 	var sortMode = dataCenter.global_variable.sort_mode;
-	var svg = d3.select("#innerTopLeft")
-		.append("svg")
-		.attr("id", "mainTimeline")
+	d3.select("#mainTimeline")
 		.attr("width", svgWidth)
 		.attr("height", svgHeight);
+	var svg = d3.select('#mainTimeline');
 	var tip = d3.tip()
 		.attr('class', 'd3-tip')
 		.html(function(d, i) {

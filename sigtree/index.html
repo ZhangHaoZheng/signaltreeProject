@@ -5,21 +5,22 @@
         <meta http-equiv="Content-Type" content="text/html;charset=utf-8"/>
         <title>Signal tree visualization</title>
         <link rel="stylesheet/less" href="css/less/all.less">
+        <link rel="stylesheet" type="text/css" href="libs/font-awesome-4.6.3/css/font-awesome.min.css">
+        <link rel="stylesheet" type="text/css" href="css/normalize.css">
+        <!--<link rel="stylesheet" type="text/css" href="css/reset.css">-->
     </head>
 
     <body>
-        <!--<div class="navbar navbar-default navbar-fixed-top">
-            <div class="container">
-                <strong class="navbar-brand" style="height:30px">复杂通信业务概览可视化</strong>
-
-                <div class="navbar-collapse collapse">
-                    <span class="nav navbar-nav navbar-right">
-                        <li><a><strong>北京大学</strong></a></li>
-                    </span>
-                </div>             
-            </div>
-        </div>-->
-        <div id = 'toolbar' class='remove-highlight'>
+        <!--直接将css写到html里面会大大减少html布局的加载时间-->
+        <div class="loading" id = 'loading' style='position: absolute; width: 100%; height:100%;' >
+          <div class="back" style="position: absolute; width: 100%; height: 100%; background-color: #ffffff; opacity: 1;"></div>
+          <div class="logo" 
+          style='position: absolute; margin: 50px auto; font-size: 30px; text-align: center; left:45%; top: 40%;'>
+              <i class="fa fa-spinner fa-spin fa-lg"></i>
+              <span> 加载中 ...</span>
+          </div>
+        </div>
+        <div id = 'toolbar' class='remove-highlight toolbar' style='visibility: hidden'>
             <div id = "title-div" class = "button-group bind">
                 <span id = "title" class = "button toolbar-all" data-placement="bottom" title = "关于本工具">SignalTree Visualization</span>
             </div>
@@ -27,9 +28,19 @@
                 <span id = "arc-link" class = "button toolbar-all active" data-placement="bottom" title = "初始arc连接">
                     <i class="icon iconfont">&#xe613;</i>
                 </span>
-                <span id = "arc-link-hover" class = 'button toolbar-all' data-placement="bottom" data-placement="bottom"title = "hover时arc连接">
+                <span id = "arc-link-hover" class = 'button toolbar-all' data-placement="bottom" data-placement="bottom" title = "hover时arc连接">
                     <i class="icon iconfont">&#xe61e;</i>
+                    <span class="small-arrow-down">
+                    </span>
                 </span>
+                <div id = 'hover-arc-div'>
+                    <div id="slider-container">
+                        <div id="slider"></div>
+                    </div>
+                    <div id="slider-text">
+                        5
+                    </div>
+                </div>
             </div>
             <!--<div id = "select-div" class = "button-group bind">
                 <span id = "dual-selection" class = "button selection" title = "选择两个信号树">
@@ -70,15 +81,29 @@
             </div>
             <div id = 'click-change-language' class = 'button-group bind'>
                 <span id = "change-language-chinese" class = "button click-chinese toolbar-all active" data-placement="bottom" title = "中文">
-                     中
+                    中
                 </span>
                 <span id = "change-language-english" class = "button click-english toolbar-all" data-placement="bottom" title = "英文">
                     En
                 </span>
             </div>
+            <div id = 'load-files' class = 'button-group bind'>
+                <span id = "load-file-name" class = "button click-chinese toolbar-all active" data-placement="bottom" title = "中文">
+                <span id = "set-select-name">
+                    sample1  
+                </span>        
+                <span class="arrow-down">
+                </span>
+                </span>
+                <div id="load-file-div" class="load-file">
+                    <table id = "load-file-table" class="load-file">
+                    </table>
+                </div>
+            </div>
         </div>
-        <div id = "topWrapper" class = "structure">
+        <div id = "topWrapper" class = "structure hidden-content">
             <div id = "innerTopLeft">
+                <svg id = "mainTimeline"></svg>
                 <!--<div id="tree-select-controller">-->
                     <!--<span class="sort-btn btn btn-default btn-xs">
                         <i class="icon iconfont">&#xe613;</i>
@@ -103,7 +128,7 @@
 
                 <!--</div>-->
             </div>
-            <div id="innerTopRight" class='remove-highlight structure'>
+            <div id="innerTopRight" class='remove-highlight structure toolbar' style='visibility: hidden'>
                 <!--<span class="sort-btn btn btn-default btn-xs">
                     <span class="glyphicon glyphicon-info-sign glyphicon-white"></span>
                 </span>-->
@@ -150,8 +175,8 @@
                 </div>
             </div>
         </div>
-        <div id = "rightWrapper" class='remove-highlight structure'>
-            <div id = "rightToolbarWrapper" class = 'structure'>
+        <div id = "rightWrapper" class='remove-highlight structure hidden-content'>
+            <div id = "rightToolbarWrapper" class = 'structure toolbar' style='visibility: hidden'>
                 <div id = "title-div" class = "button-group bind">
                     <span id = "title" class = "button toolbar-tree" title = "比较视图">Comparison</span>
                 </div>
@@ -188,8 +213,8 @@
                     </div>
             </div>
         </div>
-        <div id = "leftWrapper" class='structure'>
-            <div id = "leftToolbarWrapper" class = 'structure remove-highlight'>
+        <div id = "leftWrapper" class='structure hidden-content'>
+            <div id = "leftToolbarWrapper" class = 'structure remove-highlight toolbar' style='visibility: hidden'>
                 <div id = "title-div" class = "button-group bind">
                     <span id = "title" class = "button toolbar-compare" title = "信号树">A</span>
                 </div>
@@ -264,7 +289,7 @@
     <script type="text/javascript" src='libs/less.js'></script>
     <script type="text/javascript" src="libs/d3.parsets/d3.parsets.js"></script>   
     <script type="text/javascript" src="libs/bootstrap/js/bootstrap.js"></script>
-    
+    <script type="text/javascript" src="libs/jquery-ui/jquery-ui.js"></script>
     <!-- utils js -->
     <script type="text/javascript" src="js/sigtree.js"> </script>
     <script type="text/javascript" src="js/ObserverManager.js"> </script>

@@ -1,6 +1,7 @@
 var toolbarAll = {
 	initialize: function(){
 		var self = this;
+		self._add_sample_data();
 		self._add_to_listeners();
 		self._bind_view();
 		return self;
@@ -22,7 +23,23 @@ var toolbarAll = {
 			}else{
 				dataCenter.set_global_variable('hover_show_arc', true);
 			}
-		})
+			$("#slider").slider();
+			$( "#slider" ).slider({
+		      orientation: "horizontal",
+		      range: "min",
+		      max: 10,
+		      value: 5,
+		      slide: refreshText,
+		      change: refreshText
+		    });
+			if($('#hover-arc-div').css('display') == 'none'){
+				$('#hover-arc-div').slideDown('slow');
+			}
+		});
+		function refreshText(){
+			var num = $( "#slider" ).slider( "value" );
+			$('#slider-text').text(num);
+		}
 		//group button
 		$('#time-sort').on('click', function(d,i){
 			if(!($('#time-sort').hasClass('active'))){
@@ -70,11 +87,61 @@ var toolbarAll = {
 		$('#change-language-english').on('click', function(d,i){
 			dataCenter.set_global_variable('current_bg_language', 'english');
 		});
+		$('#load-file-name').on('click', function(d,i){
+			//var filePathArray = dataCenter.global_variable.file_array_path;
+			if($('#load-file-div').css('display') == 'none'){
+				$('#load-file-div').slideDown('qiuck');
+			}else{
+				$('#load-file-div').slideUp('quick');
+			}
+		});
+		$('span:not(#load-file-name, #arc-link-hover)').on('click', function(d,i){
+			console.log($(this).attr('id'));
+			$('#load-file-div').slideUp('quick');
+			$('#hover-arc-div').slideUp('slow');
+		});
+		$('div:not(#toolbar, #load-files, .load-file-item, #load-file-div, #arc-link-div, #slider-container, #slider)').on('click', function(d,i){
+			console.log($(this).attr('id'));
+			$('#load-file-div').slideUp('quick');	
+			$('#hover-arc-div').slideUp('slow');		
+		});
 		d3.selectAll('.toolbar-all')
-		.append('title')
-		.text(function(d,i){
-			return 'dddd';
-		})
+			.append('title')
+			.text(function(d,i){
+				return 'dddd';
+			})
+		$('tr').click(function(e){
+			alert('jjjjjj');
+		});
+	},
+	_add_sample_data: function(){
+		$.get("data/", function(data) 
+		{
+		    var filePathArray = dataCenter.global_variable.file_array_path;
+		    $(data).find("li > a").each(function(d){
+		        var fileName = $(this).attr('href').replace('/','');
+		        if(fileName != '.DS_Store'){
+		            filePathArray.push(fileName);
+		        }
+		    });
+		    var load_file_table_height = filePathArray.length * 20;
+		    $('#load-file-div').height(load_file_table_height);
+		    for(var j = 0;j < filePathArray.length;j++){
+				$("#load-file-table").append("<tr id = \"load-file-item\"><th id=\"load-file-th\">" + filePathArray[j] + "</th></tr>");
+			}
+			$('#load-file-div #load-file-table #load-file-item #load-file-th').click(function(d){
+				var selectFileName = $(this)[0].innerHTML;
+				$('#set-select-name').text(selectFileName);
+				mainController(selectFileName);
+				$('#load-file-div').slideUp('quick');
+			});
+			$('#load-file-div #load-file-table #load-file-item #load-file-th').mouseover(function(d){
+				$(this).addClass('active');
+			});
+			$('#load-file-div #load-file-table #load-file-item #load-file-th').mouseout(function(d){
+				$(this).removeClass('active');
+			});
+		});
 	}
 	/*
 	$('.click-shrink').on('click', function(d,i){

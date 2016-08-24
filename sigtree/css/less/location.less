@@ -1,33 +1,22 @@
 body{
-  /*background-color: #333;
-  color: white;
-  fill: white;
-  path.domain{
-    stroke: white;
+  //hidden-content类是在加载新数据的时将
+  //
+  .hidden-content{
+    visibility: hidden;
+    opacity: 1;
   }
-  .arc-path{
-    stroke: white;
-  }
-  .append-current-circle{
-    fill: white;
-    stroke: white;
-    //fill: black;
-  }*/
   //select tree.css #label-C { border-top属性
   //button group中的属性
   #mainTimeline .selection {
     stroke: black !important;
     stroke-width: 1.5px !important;
     opacity: 1 !important;
-   // stroke-location: 
   }
-  /*.tick line{
-    stroke: white; 
-  }*/
   .structure{
     border-color: #a0a0a0;
   }
   #toolbar{
+      z-index: 3;
       position: absolute;
       top: 0%;
       height: 35px;
@@ -147,7 +136,7 @@ body{
       border-left: 2px solid #a0a0a0;
       position: absolute;
       #leftToolbarWrapper{
-        border-bottom: 1px solid;
+        border-bottom: 1px solid #a0a0a0;
         //border-color: #a0a0a0;
         position: absolute;
         top: 0%;
@@ -171,7 +160,6 @@ body{
           left: 0%;
           right: 0%;
             #leftTopLeftWrapper-radial{
-              visibility: visible;
               position: absolute;
               top: 0%;
               bottom: 0%;

@@ -13,8 +13,11 @@ sigtree.dataProcessor = function() {
     DataProcessor.loadData = function(filePath) {
         var dtd = new $.Deferred();
         d3.csv(filePath, function(data){
+            console.log('data', data);
             result.dataList = changeAttr(data);
+            console.log('dataList', result.dataList);
             result.treeRoot = treefy(result.dataList);
+            console.log('result.treeRoot', result.treeRoot);
             dtd.resolve();
         });     
         return dtd;
@@ -112,7 +115,6 @@ sigtree.dataProcessor = function() {
                 arr.push(newObj);
                 f = 1;
             }
-
             raw.index = raw.atm + "-" + raw.aal + "-" + raw.vpi + "-" + raw.cid;
             var dupID = raw.atm + "-" + raw.aal + "-" + raw.vpi + "-" + raw.cid + "-" + raw.percent;
             if (dupMap[dupID] == true)
@@ -206,7 +208,6 @@ sigtree.dataProcessor = function() {
             nodes.push(node);
         }
         // console.log("before merge", nodes)
-
         return treefy(nodes);
     }
 
