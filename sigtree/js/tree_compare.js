@@ -40,7 +40,7 @@ var treeCompare = function(){
 	var deletefrom = false;
 	var nodes;
 	var links;
-	var bottom_padding = trend_height / 2.5;
+	var bottom_padding = trend_height / 2;
 	var colors = function(i){
 		var three_ = ["red","green","blue"];
 		return (function(){return three_[i]})();
@@ -969,8 +969,8 @@ var treeCompare = function(){
 		tree2.mark_draw_all = tmpmark_draw_all;
 		tree2.mark_reversal = tmpmark_reversal;
 		tree2.tree_height = tmptree_height;
-		$("#"+mult_tree_smaller[value1].divid).height(mult_tree_smaller[value1].tree_height + trend_height);
-		$("#"+mult_tree_smaller[value2].divid).height(mult_tree_smaller[value2].tree_height + trend_height);
+		$("#"+mult_tree_smaller[value1].divid).height(mult_tree_smaller[value1].tree_height + trend_height + bottom_padding);
+		$("#"+mult_tree_smaller[value2].divid).height(mult_tree_smaller[value2].tree_height + trend_height + bottom_padding);
 		d3.select("#"+mult_tree_smaller[value1].divid+" #tree_svg").attr("height",mult_tree_smaller[value1].tree_height);
 		d3.select("#"+mult_tree_smaller[value2].divid+" #tree_svg").attr("height",mult_tree_smaller[value2].tree_height);
 		modify_buttondiv_top();
@@ -1178,6 +1178,10 @@ var treeCompare = function(){
 					d3.select("#down"+tmp_num).style("visibility","visible");
 					d3.select("#part_or_all"+tmp_num).style("visibility","visible");
 					d3.select("#reverse"+tmp_num).style("visibility","visible");
+					for(var z = 0; z < mult_tree_smaller.length; z++){
+						if(z == (tmp + 1)) continue;
+						d3.select("#"+mult_tree_smaller[z].buttondiv).style("visibility","visible");
+					}					
 					if(tmp == mult_tree_smaller.length - 1) return;
 					var m = mult_tree_smaller[tmp+1];
 					if(mult_tree_smaller[tmp].mark_draw_all == false){
