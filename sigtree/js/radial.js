@@ -91,7 +91,6 @@ var radial = {
 			  });
 			var nodes = tree_node_list,
 				links = tree.links(nodes);
-			console.log(nodes);
 			var treeNodeNum = 0;
 			var duration = 750;
 			for(var i = 0;i < tree_node_list.length;i++){

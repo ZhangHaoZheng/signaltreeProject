@@ -70,8 +70,45 @@ var initial_toolbar = function(){
     dataCenter.view_collection.toolbar_comparison_view =  toolbarComparison.initialize();
     dataCenter.view_collection.toolbar_tree_view = toolbarSignaltree.initialize();
 }
+var set_initial_data = function(){
+    //reset the initial variable
+    var globalVariable = dataCenter.global_variable;
+    var initialGlobalVariable = dataCenter.initial_global_variable;
+    for(x in initialGlobalVariable)
+    {
+        dataCenter.global_variable[x] = _.clone(dataCenter.initial_global_variable[x]);
+    }
+    //set the selection value
+    var timeSortArray = [];
+    var propotionArray = [];
+    var statData = dataCenter.stats;
+    for (var i = 0; i < statData.length; i++) {
+        timeSortArray[i] = new Object();
+        timeSortArray[i].value = + statData[i].sumProportion;
+        timeSortArray[i].time = statData[i].file.replace("XX.csv","");
+        timeSortArray[i].index = i;
+        timeSortArray[i].position = i;
+        propotionArray[i] = new Object();
+        propotionArray[i].value =+ statData[i].sumProportion;
+        propotionArray[i].time = statData[i].file.replace("XX.csv","");
+        propotionArray[i].index = i;            
+    }
+    propotionArray.sort(function(a, b) {
+        return a.value - b.value;
+    })
+    for (var i = 0; i < propotionArray.length; i++) {
+        propotionArray[i].position = i;
+    }
+    dataCenter.global_variable.time_sort_array = timeSortArray;
+    dataCenter.global_variable.propotion_array = propotionArray;
+    dataCenter.global_variable.current_id = timeSortArray[1].time;
+    dataCenter.global_variable.selection_array = [timeSortArray[0].time, timeSortArray[1].time];
+    dataCenter.global_variable.current_nodeid_before = [timeSortArray[0].time, timeSortArray[1].time];
+    dataCenter.global_variable.current_id = timeSortArray[1].time;
+}   
 var mainController = function(file_path_name){
     //var treeSelectView, radialView, treeCompareView, parsetView, toolbarAllView, toolbarComparisonView, toolbartreeView;
+    //for item in 
     var datasetID = [];
     var filePath = 'data/' + file_path_name + '/';
     function loadStatData() {
@@ -84,6 +121,7 @@ var mainController = function(file_path_name){
             else {
                 dataCenter.stats = data;
             }
+            set_initial_data();
             dtd.resolve();
         });
         return dtd.promise();
@@ -166,7 +204,6 @@ var mainController = function(file_path_name){
             var defers = [];
             for (var i = data.length - 1; i >= 0; i--) {
                 var id = data[i];
-                console.log(sigtree);
                 var processor = new sigtree.dataProcessor();
                 var dataset = {
                     id: id,
@@ -185,19 +222,24 @@ var mainController = function(file_path_name){
         }
     }
     initInteractionHandler();
-    $.when(loadStatData(), load_distance_matrix_data(), load_similarity_matrix_data(), load_init_data())
-        .done(function() {
-            console.log('-----------------------initialize---------------------');
-            treeSelectView = treeSelect();
-            dataCenter.view_collection.radial_view = radial.initialize();
-            dataCenter.view_collection.sunburst_view = sunburst.initialize();
-            dataCenter.view_collection.radial_histogram = radialHistogram.initialize();  
-            dataCenter.view_collection.tree_compare_view = treeCompare();     
-            dataCenter.view_collection.parallel_set_view =  parset.initialize();     
-            dataCenter.view_collection.projectionView = projection.initialize();
-            $('.hidden-content').css({'visibility': 'visible'});
-            $('#loading').css({'visibility':'hidden'});
-            $('.toolbar').css({'visibility':'visible'});
+    $.when(loadStatData())
+        .done(function(){
+            $.when(load_distance_matrix_data(), load_similarity_matrix_data(), load_init_data())
+                .done(function() {
+                    console.log(dataCenter.global_variable.selection_array);
+                    console.log(dataCenter.global_variable.current_id);
+                    treeSelectView = treeSelect();
+                    dataCenter.view_collection.radial_view = radial.initialize();
+                    dataCenter.view_collection.sunburst_view = sunburst.initialize();
+                    dataCenter.view_collection.radial_histogram = radialHistogram.initialize();  
+                    //dataCenter.view_collection.tree_compare_view = treeCompare();     
+                    dataCenter.view_collection.parallel_set_view =  parset.initialize();     
+                    dataCenter.view_collection.projectionView = projection.initialize();
+                    $('.hidden-content').css({'visibility': 'visible'});
+                    $('#loading').css({'visibility':'hidden'});
+                    $('.toolbar').css({'visibility':'visible'});
+
+            });
         })
 }
 $(document).ready(function() {

@@ -13,11 +13,8 @@ sigtree.dataProcessor = function() {
     DataProcessor.loadData = function(filePath) {
         var dtd = new $.Deferred();
         d3.csv(filePath, function(data){
-            console.log('data', data);
             result.dataList = changeAttr(data);
-            console.log('dataList', result.dataList);
             result.treeRoot = treefy(result.dataList);
-            console.log('result.treeRoot', result.treeRoot);
             dtd.resolve();
         });     
         return dtd;

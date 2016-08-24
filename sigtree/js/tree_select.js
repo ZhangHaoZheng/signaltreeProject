@@ -5,8 +5,8 @@ var treeSelect = function(){
 	var svgHeight = $("#innerTopLeft").height() * 19/20;
 	var compareArray = [0, 1];
 	var statData = dataCenter.stats;
-	var propotionArray = [];
-	var timeSortArray = [];
+	//var propotionArray = [];
+	//var timeSortArray = [];
 	var dataList = timeSortArray;
 	var sortMode = dataCenter.global_variable.sort_mode;
 	d3.select("#mainTimeline")
@@ -26,10 +26,13 @@ var treeSelect = function(){
     		width = svgWidth - margin.left - margin.right,
     		height = svgHeight - margin.top - margin.bottom;
     var chart = null;
-	processStatData();
-	var selectionArray = dataCenter.global_variable.selection_array = [timeSortArray[0].time, timeSortArray[1].time];
-	var currentNodeIdBefore = dataCenter.global_variable.current_nodeid_before = [timeSortArray[0].time, timeSortArray[1].time];
-	var currentId = dataCenter.global_variable.current_id = timeSortArray[1].time;
+	var timeSortArray = dataCenter.global_variable.time_sort_array;
+	var propotionArray = dataCenter.global_variable.propotion_array;
+	//reset_selection(timeSortArray);
+	var currentId = dataCenter.global_variable.current_id;
+	console.log('33',currentId);
+	var selectionArray = dataCenter.global_variable.selection_array;
+    var currentNodeIdBefore = dataCenter.global_variable.current_nodeid_before;
 	drawHistogram(timeSortArray);
 	for(var i = 0;i < selectionArray.length;i++){
 		d3.selectAll('.node' + selectionArray[i]).classed('selection', true);
@@ -68,6 +71,8 @@ var treeSelect = function(){
 	}
 	$("#innerTopRight").css("font-size", 12 + "px");  
 	function processStatData() {
+		var timeSortArray = [];
+		var propotionArray = [];
 		for (var i = 0; i < statData.length; i++) {
 		 	timeSortArray[i] = new Object();
 		 	timeSortArray[i].value = + statData[i].sumProportion;
@@ -86,6 +91,7 @@ var treeSelect = function(){
 	 	for (var i = 0; i < propotionArray.length; i++) {
 	 		propotionArray[i].position = i;
 	 	}
+	 	return [timeSortArray, propotionArray];
 	}
 	function drawHistogram(dataArray){
 		svg.selectAll("*").remove();
@@ -174,6 +180,7 @@ var treeSelect = function(){
 			return [tmpy,tmpx];
 		});
 		svg.call(tip);
+		console.log(dataArray);
 		var rectg = chart.selectAll(".bar")
 	 		.data(dataArray)
 	 		.enter()
@@ -203,10 +210,18 @@ var treeSelect = function(){
 				return xScale(1) - 1.75;
 			})
 			.attr("height",function(d,i){
-				return height - yScale(Math.log(d.value)) - 1;
+				var logValue = 0;
+				if(d.value != 0){
+					logValue = Math.log(d.value);
+				}
+				return height - yScale(logValue);
 			})
 			.attr("y",function(d){
-				return yScale(Math.log(d.value));
+				var logValue = 0;
+				if(d.value != 0){
+					logValue = Math.log(d.value);
+				}
+				return yScale(logValue);
 			})
 			.attr("x",function(d,i){ 
 				return xScale(i) + 2;
@@ -341,7 +356,7 @@ var treeSelect = function(){
 		var selectionArray = dataCenter.global_variable.selection_array;
 		add_selection_text(selectionArray);
 
-		rectg.append("polygon")
+		/*rectg.append("polygon")
 			.attr("points",function(d,i){
 				var updotx = xScale(d.position)+xScale(1)/2;
 				var updoty = yScale(Math.log(d.value));
@@ -355,7 +370,7 @@ var treeSelect = function(){
 				return "polygon" + i;
 			})
 			.attr("fill","#000000")
-			.attr("opacity",0);
+			.attr("opacity",0);*/
 
 		// draw x-axis ticks
 		if (sortMode == "time") {
@@ -746,7 +761,6 @@ var treeSelect = function(){
 		        for(var i = 0;i < dataCenter.datasets.length;i++){
 		        	if(currentId == dataCenter.datasets[i].id){
 		        		var tree_root = dataCenter.datasets[i].processor.result.treeRoot;
-		        		console.log(tree_root);
 		        		var nodeNum = tree_root.allChilldrenCount;
 		        		var flowSize = tree_root.flow;
 		        		var date = currentId;
