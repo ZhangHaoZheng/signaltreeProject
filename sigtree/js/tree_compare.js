@@ -200,6 +200,10 @@ var treeCompare = function(){
 		}
 	}
 	function draw_tree(mark_reversal, mark_draw_all, mult_tree, source, div_i){
+		if(mult_tree_smaller[div_i].mark_only_flow){
+			d3.select("#"+mult_tree_smaller[div_i].divid+" #tree_svg g").selectAll("*").remove();
+			return;
+		}
 		var circle_color;
 		if(mark_reversal) circle_color = "#FF7F0E";
 		else circle_color = "steelblue";
@@ -333,7 +337,7 @@ var treeCompare = function(){
 			})
 			.style("stroke",circle_color)
 			.on("mouseover", function(d, i) {
-				var tmp = "M" + numoftreecompare;
+				var tmp = "M" + dataCenter.global_variable.numoftreecompare;
 				var n;
 				for(var i = 0; i < mult_tree.nodes.length; i++){
 					if(mult_tree.nodes[i].id == d.id){
@@ -514,6 +518,7 @@ var treeCompare = function(){
 			$("#" + mult_tree_smaller[div_i].divid + " #flow_top_svg").height(0);
 		}
 		scale.domain([0,Math.log(max_flow_of_depth[cur_depth])]);
+		console.log(max_flow_of_depth)
 		var bars = trendg.selectAll(".bar")
 			.data(leaves,function(d){return d.id;});
 		var bars_enter = bars.enter().insert("g").attr("class","bar")
@@ -678,8 +683,8 @@ var treeCompare = function(){
 	function draw_dash_line(){
 		d3.selectAll(".dash_line").remove();
 		for(var i = 1; i < mult_tree_smaller.length; i++){
-			if(mult_tree_smaller[i].mark_reversal && mult_tree_smaller[i].mark_draw_all){
-				if(!mult_tree_smaller[i-1].mark_reversal && mult_tree_smaller[i-1].mark_draw_all){
+			if(mult_tree_smaller[i].mark_reversal && mult_tree_smaller[i].mark_draw_all && !mult_tree_smaller[i].mark_only_flow){
+				if(!mult_tree_smaller[i-1].mark_reversal && mult_tree_smaller[i-1].mark_draw_all && !mult_tree_smaller[i-1].mark_only_flow){
 					var coordinate = [];
  					for(var j = 0; j < nodes.length; j++){
 						if(nodes[j].depth >= cur_depth) continue;
@@ -904,7 +909,7 @@ var treeCompare = function(){
 				break;
 			}
 		}
-		if(mult_tree_smaller[d].mark_draw_all == false && d != (mult_tree_smaller.length-1)){
+		if((mult_tree_smaller[d].mark_draw_all == false || mult_tree_smaller[d].mark_only_flow) && d != (mult_tree_smaller.length-1)){
 			d3.select("#"+mult_tree_smaller[d+1].buttondiv).style("visibility","visible");
 		}
 		for(var i = 0; i < mult_tree_smaller.length; i++){
@@ -953,6 +958,7 @@ var treeCompare = function(){
 			tmpmark_draw_all = tree1.mark_draw_all,
 			tmpmark_reversal = tree1.mark_reversal,
 			tmptree_height = tree1.tree_height;
+			tmpmark_only_flow = tree1.mark_only_flow;
 		tree1.nodes = tree2.nodes;
 		tree1.node = tree2.node;
 		tree1.index = tree2.index;
@@ -961,6 +967,7 @@ var treeCompare = function(){
 		tree1.mark_draw_all = tree2.mark_draw_all;
 		tree1.mark_reversal = tree2.mark_reversal;
 		tree1.tree_height = tree2.tree_height;
+		tree1.mark_only_flow = tree2.mark_only_flow;
 		tree2.nodes = tmpnodes1;
 		tree2.node = tmpnode1;
 		tree2.index = tmpindex1;
@@ -969,10 +976,23 @@ var treeCompare = function(){
 		tree2.mark_draw_all = tmpmark_draw_all;
 		tree2.mark_reversal = tmpmark_reversal;
 		tree2.tree_height = tmptree_height;
-		$("#"+mult_tree_smaller[value1].divid).height(mult_tree_smaller[value1].tree_height + trend_height + bottom_padding);
-		$("#"+mult_tree_smaller[value2].divid).height(mult_tree_smaller[value2].tree_height + trend_height + bottom_padding);
-		d3.select("#"+mult_tree_smaller[value1].divid+" #tree_svg").attr("height",mult_tree_smaller[value1].tree_height);
-		d3.select("#"+mult_tree_smaller[value2].divid+" #tree_svg").attr("height",mult_tree_smaller[value2].tree_height);
+		tree2.mark_only_flow = tmpmark_only_flow;
+		if(!mult_tree_smaller[value1].mark_only_flow){
+			$("#"+mult_tree_smaller[value1].divid).height(mult_tree_smaller[value1].tree_height + trend_height + bottom_padding);
+			d3.select("#"+mult_tree_smaller[value1].divid+" #tree_svg").attr("height",mult_tree_smaller[value1].tree_height);
+		}
+		else {
+			$("#"+mult_tree_smaller[value1].divid).height(trend_height + bottom_padding);
+			d3.select("#"+mult_tree_smaller[value1].divid+" #tree_svg").attr("height",0);
+		}
+		if(!mult_tree_smaller[value2].mark_only_flow){
+			$("#"+mult_tree_smaller[value2].divid).height(mult_tree_smaller[value2].tree_height + trend_height + bottom_padding);
+			d3.select("#"+mult_tree_smaller[value2].divid+" #tree_svg").attr("height",mult_tree_smaller[value2].tree_height);
+		}
+		else{
+			$("#"+mult_tree_smaller[value2].divid).height(trend_height + bottom_padding);
+			d3.select("#"+mult_tree_smaller[value2].divid+" #tree_svg").attr("height",0);
+		}
 		modify_buttondiv_top();
 		draw_tree(mult_tree_smaller[value1].mark_reversal,mult_tree_smaller[value1].mark_draw_all,mult_tree_smaller[value1],null,value1);
 		draw_trend(mult_tree_smaller[value1].mark_reversal,value1,null)
@@ -1041,17 +1061,19 @@ var treeCompare = function(){
 				nodes:nodes1, 
 				node:node, 
 				tree_id:idlist[i], 
-				index:numoftreecompare+2, 
-				divid:"treemap"+numoftreecompare,
-				buttondiv:"treemap_label_div" + numoftreecompare,
+				index:dataCenter.global_variable.numoftreecompare+2, 
+				divid:"treemap"+dataCenter.global_variable.numoftreecompare,
+				buttondiv:"treemap_label_div" + dataCenter.global_variable.numoftreecompare,
 				alpabet_index:mult_tree_smaller.length,
 				mark_reversal:reverse_m,
 				mark_draw_all:draw_all_m,
+				mark_only_flow:false,
 				tree_height:tree_height
 			});
-			total_root.has[numoftreecompare + 2] = true;
-			merge_trees(total_root,node,numoftreecompare + 2);
-			numoftreecompare++;
+			total_root.has[dataCenter.global_variable.numoftreecompare + 2] = true;
+			merge_trees(total_root,node,dataCenter.global_variable.numoftreecompare + 2);
+			var k = dataCenter.global_variable.numoftreecompare + 1;
+			dataCenter.set_global_variable("numoftreecompare",k);
 		}
 		if(c_mark == true){
 			c_mark = false;
@@ -1077,13 +1099,17 @@ var treeCompare = function(){
 	function addclick(){
 		var sum_height = 0,sum_min_tree_height = 0,sum_other_height = 0;
 		for(var i = 0; i < mult_tree_smaller.length; i++){
-			if(mult_tree_smaller[i].mark_draw_all == false){
+			if(mult_tree_smaller[i].mark_draw_all == false && !mult_tree_smaller[i].mark_only_flow){
 				sum_height += trend_height + two_level_height;
 				sum_other_height += trend_height + two_level_height;
 			}
-			else {
+			else if(!mult_tree_smaller[i].mark_only_flow){
 				sum_height += trend_height + min_tree_height;
 				sum_min_tree_height += min_tree_height;
+				sum_other_height += trend_height;
+			}
+			else{
+				sum_height += trend_height;
 				sum_other_height += trend_height;
 			}
 		}
@@ -1101,62 +1127,65 @@ var treeCompare = function(){
 			var k = (height - sum_other_height) / sum_min_tree_height;
 			var tree_height = k * min_tree_height;
 			for(var j = 0; j < mult_tree_smaller.length; j++){
-				if(mult_tree_smaller[j].mark_draw_all){
+				if(mult_tree_smaller[j].mark_draw_all && !mult_tree_smaller[j].mark_only_flow){
 					mult_tree_smaller[j].tree_height = k * min_tree_height;
 					tree_height = mult_tree_smaller[j].tree_height;
 					d3.select("#"+mult_tree_smaller[j].divid+" #tree_svg").attr("height",tree_height);
 					$("#"+mult_tree_smaller[j].divid).height(tree_height+trend_height+bottom_padding);
 				}
 			}
+			var global_numoftreecompare = dataCenter.global_variable.numoftreecompare;
 			d3.select("#multitree").append("div").attr("id",function(){
-				return "treemap" + numoftreecompare;
+				return "treemap" + global_numoftreecompare;
 			});
 			if(count == 3) tree_height = two_level_height;
-			$("#treemap"+numoftreecompare).height(tree_height+trend_height+bottom_padding);
-			d3.select("#treemap"+numoftreecompare).append("svg").attr("id","flow_top_svg")
+			$("#treemap"+global_numoftreecompare).height(tree_height+trend_height+bottom_padding);
+			d3.select("#treemap"+global_numoftreecompare).append("svg").attr("id","flow_top_svg")
 				.append("g").attr("transform","translate(30,0)")
 				.attr("class","g_for_brush");
-			d3.select("#treemap" + numoftreecompare).append("svg").attr("id","tree_svg")
+			d3.select("#treemap" + global_numoftreecompare).append("svg").attr("id","tree_svg")
 				.attr("width",$("#multitree").width())
 				.attr("height",tree_height)
-				.attr("value",numoftreecompare)
+				.attr("value",global_numoftreecompare)
 				.on("dblclick",double_click_draw_all_or_part_tree)
 				.append("g").attr("transform","translate(30,0)");
-			d3.select("#treemap"+numoftreecompare).append("svg").attr("id","flow_bottom_svg")
+			d3.select("#treemap"+global_numoftreecompare).append("svg").attr("id","flow_bottom_svg")
 				.append("g").attr("transform","translate(30,0)")
 				.attr("class","g_for_brush");
 			tmp_tree_height = tree_height;
 		}
 		else{
+			var global_numoftreecompare = dataCenter.global_variable.numoftreecompare;
 			for(var i = 0; i < mult_tree_smaller.length; i++){
-				if(mult_tree_smaller[i].mark_draw_all){
+				if(mult_tree_smaller[i].mark_draw_all && !mult_tree_smaller[i].mark_only_flow){
 					mult_tree_smaller[i].tree_height = min_tree_height;
 					d3.select("#"+mult_tree_smaller[i].divid+" #tree_svg").attr("height",min_tree_height);
 					$("#"+mult_tree_smaller[i].divid).height(min_tree_height+trend_height+bottom_padding);
 				}
 			}
 			d3.select("#multitree").append("div").attr("id",function(){
-				return "treemap" + numoftreecompare;
+				return "treemap" + global_numoftreecompare;
 			});
-			$("#treemap"+numoftreecompare).height(two_level_height+trend_height+bottom_padding);
-			d3.select("#treemap"+numoftreecompare).append("svg").attr("id","flow_top_svg")
+			$("#treemap"+global_numoftreecompare).height(two_level_height+trend_height+bottom_padding);
+			d3.select("#treemap"+global_numoftreecompare).append("svg").attr("id","flow_top_svg")
 				.append("g").attr("transform","translate(30,0)")
 				.attr("class","g_for_brush");
-			d3.select("#treemap" + numoftreecompare).append("svg").attr("id","tree_svg")
+			d3.select("#treemap" + global_numoftreecompare).append("svg").attr("id","tree_svg")
 				.attr("width",$("#multitree").width())
 				.attr("height",two_level_height)
-				.attr("value",numoftreecompare)
+				.attr("value",global_numoftreecompare)
 				.on("dblclick",double_click_draw_all_or_part_tree)
 				.append("g").attr("transform","translate(30,0)");
-			d3.select("#treemap"+numoftreecompare).append("svg").attr("id","flow_bottom_svg")
+			d3.select("#treemap"+global_numoftreecompare).append("svg").attr("id","flow_bottom_svg")
 				.append("g").attr("transform","translate(30,0)")
 				.attr("class","g_for_brush");
 			tmp_tree_height = two_level_height;
 		}
-		var tmpdiv = d3.select("#treemap" + numoftreecompare).append("div").attr("id","treemap_label_div" + numoftreecompare)
+		var global_numoftreecompare = dataCenter.global_variable.numoftreecompare;
+		var tmpdiv = d3.select("#treemap" + global_numoftreecompare).append("div").attr("id","treemap_label_div" + global_numoftreecompare)
 			.style("position","absolute")
 			.style("left",0);
-		tmpdiv.append("span").attr("id","label_alpabet" +numoftreecompare)
+		tmpdiv.append("span").attr("id","label_alpabet" +global_numoftreecompare)
 			.attr("value",mult_tree_smaller.length)
 			.on("click",function(){
 				var tmp = parseInt(d3.select(this).attr("value"));
@@ -1184,7 +1213,7 @@ var treeCompare = function(){
 					}					
 					if(tmp == mult_tree_smaller.length - 1) return;
 					var m = mult_tree_smaller[tmp+1];
-					if(mult_tree_smaller[tmp].mark_draw_all == false){
+					if(mult_tree_smaller[tmp].mark_draw_all == false || mult_tree_smaller[tmp].mark_only_flow){
 						d3.select("#"+m.buttondiv).style("visibility","hidden");
 					}
 				}
@@ -1196,19 +1225,19 @@ var treeCompare = function(){
 					d3.select("#reverse"+tmp_num).style("visibility","hidden");
 					if(tmp == mult_tree_smaller.length - 1) return;
 					var m = mult_tree_smaller[tmp+1];
-					if(mult_tree_smaller[tmp].mark_draw_all == false){
+					if(mult_tree_smaller[tmp].mark_draw_all == false || mult_tree_smaller[tmp].mark_only_flow){
 						d3.select("#"+m.buttondiv).style("visibility","visible");
 					}
 				}
 			})
 		tmpdiv.append("br");
-		tmpdiv.append("span").attr("id","delete" + numoftreecompare).style("visibility","hidden")
+		tmpdiv.append("span").attr("id","delete" + global_numoftreecompare).style("visibility","hidden")
 			.attr("class","btn btn-default btn-xs active level-btn toolbar-tree")
 			.html("<span class=\"glyphicon glyphicon-remove\"></span>")
 			.attr("value",mult_tree_smaller.length)
 			.on("click",delete_button_click);
 		tmpdiv.append("br");
-		tmpdiv.append("span").attr("id","up" + numoftreecompare).style("visibility","hidden")
+		tmpdiv.append("span").attr("id","up" + global_numoftreecompare).style("visibility","hidden")
 			.attr("class","btn btn-default btn-xs active level-btn toolbar-tree")
 			.html("<span class=\"glyphicon glyphicon-chevron-up\"></span>")
 			.attr("value",mult_tree_smaller.length)
@@ -1218,7 +1247,7 @@ var treeCompare = function(){
 				up_down_tree(value-1,value);
 			});
 		tmpdiv.append("br");
-		tmpdiv.append("span").attr("id","down" + numoftreecompare).style("visibility","hidden")
+		tmpdiv.append("span").attr("id","down" + global_numoftreecompare).style("visibility","hidden")
 			.attr("class","btn btn-default btn-xs active level-btn toolbar-tree")
 			.html("<span class=\"glyphicon glyphicon-chevron-down\"></span>")
 			.attr("value",mult_tree_smaller.length)
@@ -1229,13 +1258,13 @@ var treeCompare = function(){
 				up_down_tree(value,value+1);
 			});
 		tmpdiv.append("br");
-		tmpdiv.append("span").attr("id","part_or_all" + numoftreecompare).style("visibility","hidden")
+		tmpdiv.append("span").attr("id","part_or_all" + global_numoftreecompare).style("visibility","hidden")
 			.attr("class","btn btn-default btn-xs active level-btn toolbar-tree")
 			.html("<span class=\"glyphicon glyphicon-resize-small\"></span>")
 			.attr("value",mult_tree_smaller.length)
 			.on("click",button_click_draw_all_or_part_tree);
 		tmpdiv.append("br");
-		tmpdiv.append("span").attr("id","reverse" + numoftreecompare).style("visibility","hidden")
+		tmpdiv.append("span").attr("id","reverse" + global_numoftreecompare).style("visibility","hidden")
 			.attr("class","btn btn-default btn-xs active level-btn toolbar-tree")
 			.html("<span class=\"glyphicon glyphicon-text-height\"></span>")
 			.attr("value",mult_tree_smaller.length)
@@ -1244,7 +1273,8 @@ var treeCompare = function(){
 	}
 	function draw_all_or_part_tree(value){
 		var tmp_tree = mult_tree_smaller[value];
-		tmp_tree.mark_draw_all = (tmp_tree.mark_draw_all == false);
+		if(tmp_tree.mark_only_flow) tmp_tree.mark_only_flow = false;
+		else tmp_tree.mark_draw_all = (tmp_tree.mark_draw_all == false);
 		modify_height_svg_treeHeight();
 		for(var i = 0; i < mult_tree_smaller.length; i++){
 			draw_tree(mult_tree_smaller[i].mark_reversal,mult_tree_smaller[i].mark_draw_all,mult_tree_smaller[i],null,i);
@@ -1254,13 +1284,17 @@ var treeCompare = function(){
 	function modify_height_svg_treeHeight(){
 		var sum_height = 0,sum_min_tree_height = 0,sum_other_height = 0;
 		for(var i = 0; i < mult_tree_smaller.length; i++){
-			if(mult_tree_smaller[i].mark_draw_all == false){
+			if(mult_tree_smaller[i].mark_draw_all == false && !mult_tree_smaller[i].mark_only_flow){
 				sum_height += trend_height + two_level_height;
 				sum_other_height += trend_height + two_level_height;
 			}
-			else {
+			else if(mult_tree_smaller[i].mark_draw_all == true && !mult_tree_smaller[i].mark_only_flow){
 				sum_height += trend_height + min_tree_height;
 				sum_min_tree_height += min_tree_height;
+				sum_other_height += trend_height;
+			}
+			else{
+				sum_height += trend_height;
 				sum_other_height += trend_height;
 			}
 		}
@@ -1268,31 +1302,39 @@ var treeCompare = function(){
 			var k = (height - sum_other_height) / sum_min_tree_height;
 			var tree_height;
 			for(var j = 0; j < mult_tree_smaller.length; j++){
-				if(mult_tree_smaller[j].mark_draw_all){
+				if(mult_tree_smaller[j].mark_draw_all && !mult_tree_smaller[j].mark_only_flow){
 					mult_tree_smaller[j].tree_height = k * min_tree_height;
 					tree_height = mult_tree_smaller[j].tree_height;
 					d3.select("#"+mult_tree_smaller[j].divid+" #tree_svg").attr("height",tree_height);
 					$("#"+mult_tree_smaller[j].divid).height(tree_height+trend_height+bottom_padding);
 				}
-				else{
+				else if(!mult_tree_smaller[j].mark_only_flow){
 					mult_tree_smaller[j].tree_height = two_level_height;
 					d3.select("#"+mult_tree_smaller[j].divid+" #tree_svg").attr("height",two_level_height);
 					$("#"+mult_tree_smaller[j].divid).height(two_level_height+trend_height+bottom_padding);
+				}
+				else{
+					d3.select("#"+mult_tree_smaller[j].divid+" #tree_svg").attr("height",0);
+					$("#"+mult_tree_smaller[j].divid).height(trend_height+bottom_padding);
 				}
 			}
 		}
 		else{
 			for(var j = 0; j < mult_tree_smaller.length; j++){
-				if(mult_tree_smaller[j].mark_draw_all){
+				if(mult_tree_smaller[j].mark_draw_all && !mult_tree_smaller[j].mark_only_flow){
 					mult_tree_smaller[j].tree_height = min_tree_height;
 					tree_height = min_tree_height;
 					d3.select("#" + mult_tree_smaller[j].divid +" #tree_svg").attr("height",tree_height);
 					$("#"+mult_tree_smaller[j].divid).height(tree_height+trend_height+bottom_padding);
 				}
-				else{
+				else if(!mult_tree_smaller[j].mark_only_flow){
 					mult_tree_smaller[j].tree_height = two_level_height;
 					d3.select("#" + mult_tree_smaller[j].divid +" #tree_svg").attr("height",two_level_height);
 					$("#"+mult_tree_smaller[j].divid).height(two_level_height+trend_height+bottom_padding);
+				}
+				else{
+					d3.select("#"+mult_tree_smaller[j].divid+" #tree_svg").attr("height",0);
+					$("#"+mult_tree_smaller[j].divid).height(trend_height+bottom_padding);
 				}
 			}
 		}
@@ -1385,6 +1427,7 @@ var treeCompare = function(){
 		for(var i = 0; i < mult_tree_smaller.length; i++){
 			mult_tree_smaller[i].mark_draw_all = false;
 			mult_tree_smaller[i].tree_height = two_level_height;
+			mult_tree_smaller[i].mark_only_flow = false;
 		}
 		modify_height_svg_treeHeight();
 		modify_buttondiv_top();
@@ -1399,6 +1442,8 @@ var treeCompare = function(){
 	function expand_all_tree(){
 		for(var i = 0; i < mult_tree_smaller.length; i++){
 			mult_tree_smaller[i].mark_draw_all = true;
+			mult_tree_smaller[i].mark_only_flow = false;
+			mult_tree_smaller[i].tree_height = min_tree_height;
 		}
 		modify_height_svg_treeHeight();
 		modify_buttondiv_top();
