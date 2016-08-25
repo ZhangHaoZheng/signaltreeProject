@@ -367,7 +367,7 @@ var treeSelect = function(){
 		//}
 	}
 	function add_selection_text(){
-		svg.selectAll('.selection-label').remove();
+		svg.selectAll('.selection-node').remove();
 		var selectionArray = dataCenter.global_variable.selection_array;
         for(var i = 0;i < selectionArray.length;i++){
         	var thisNodeName = selectionArray[i];

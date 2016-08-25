@@ -85,6 +85,7 @@ var set_initial_data = function(){
 var mainController = function(file_path_name){
     //var treeSelectView, radialView, treeCompareView, parsetView, toolbarAllView, toolbarComparisonView, toolbartreeView;
     //for item in 
+    ObserverManager.addListener(this);
     var datasetID = [];
     var filePath = 'data/' + file_path_name + '/';
     function loadStatData() {
@@ -193,6 +194,7 @@ var mainController = function(file_path_name){
             }
             $.when.apply($, defers)
                 .done(function() {
+                    console.log('main', 'update-view');
                     ObserverManager.post("update-view", dataCenter.datasets);
                     var currentId = dataCenter.global_variable.current_id;
                     if(currentId == null){
@@ -212,7 +214,7 @@ var mainController = function(file_path_name){
                     dataCenter.view_collection.radial_view = radial.initialize();
                     dataCenter.view_collection.sunburst_view = sunburst.initialize();
                     dataCenter.view_collection.radial_histogram = radialHistogram.initialize();  
-                    //dataCenter.view_collection.tree_compare_view = treeCompare();     
+                    dataCenter.view_collection.tree_compare_view = treeCompare();     
                     dataCenter.view_collection.parallel_set_view =  parset.initialize();     
                     dataCenter.view_collection.projectionView = projection.initialize();
                     $('.hidden-content').css({'visibility': 'visible'});

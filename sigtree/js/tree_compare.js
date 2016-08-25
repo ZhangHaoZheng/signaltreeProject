@@ -2,6 +2,7 @@ var treeCompare = function(){
 	d3.select("#rightComparisonWrapper").style("padding",0);
 	var TreeCompare = {};
 	ObserverManager.changeListener(TreeCompare,3);
+	ObserverManager.addListener(TreeCompare);
 	var datasets = dataCenter.datasets;
 	var pre_datasets = datasets;
 	var pre_datasets_id = [];
