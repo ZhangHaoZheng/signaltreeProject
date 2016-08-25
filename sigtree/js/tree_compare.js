@@ -68,7 +68,7 @@ var treeCompare = function(){
 	var Aindex;
 	var Bindex;
 	var cur_depth = 4;
-	var scale = d3.scale.linear().range([0,trend_height]);		
+	var scale = d3.scale.sqrt().range([0,trend_height]);		
 	var max_flow_of_depth = [0,0,0,0,0];
 	var flow_of_depth = [];
 	flow_of_depth.length = 5;
@@ -85,7 +85,9 @@ var treeCompare = function(){
 	brush_compare.x(xscale)
 		.on("brushend",brushedcompare);
 	addMultiTree(add_node_list,add_tree_id_list);
+	add_border_of_current_signal_tree();
 	var value_of_the_top_one;
+	//使能够拖动div
 	$( "#multitree" ).sortable({
 		cancel:".g_for_brush",
 		axis:"y",
@@ -527,7 +529,7 @@ var treeCompare = function(){
 				.selectAll("g").remove();
 			$("#" + mult_tree_smaller[div_i].divid + " #flow_top_svg").height(0);
 		}
-		scale.domain([0,Math.log(max_flow_of_depth[cur_depth])]);
+		scale.domain([0,Math.sqrt(max_flow_of_depth[cur_depth])]);
 		var bars = trendg.selectAll(".bar")
 			.data(leaves,function(d){return d.id;});
 		var bars_enter = bars.enter().insert("g").attr("class","bar")
@@ -540,17 +542,17 @@ var treeCompare = function(){
 			bars.selectAll("rect").attr("width",2)
 				.attr("height",function(leaf){
 					if(leaf.flow < 1) return 0;
-					return scale(Math.log(leaf.flow));
+					return scale(Math.sqrt(leaf.flow));
 				});
 		}
 		else{
 			bars.selectAll("rect").attr("width",2)
 				.attr("height",function(leaf){
 					if(leaf.flow < 1) return 0;
-					return scale(Math.log(leaf.flow));
+					return scale(Math.sqrt(leaf.flow));
 				}).attr("transform",function(leaf){
 					if(leaf.flow < 1) return "translate(0)";
-					var t = trend_height - scale(Math.log(leaf.flow));
+					var t = trend_height - scale(Math.sqrt(leaf.flow));
 					return "translate(0,"+t+")";
 				});
 		}
@@ -942,7 +944,7 @@ var treeCompare = function(){
 		mult_tree_smaller.splice(d,1);
 		modify_height_svg_treeHeight();
 		changeViewForSvg();
-		modify_buttondiv_top();
+		modify_buttondiv_label_style();
 		update_brush_g();
 	}
 	function update_scale_domain_when_delete(nodes){
@@ -1035,7 +1037,7 @@ var treeCompare = function(){
 			c_mark = false;
 			modify_height_svg_treeHeight();
 		}
-		modify_buttondiv_top();
+		modify_buttondiv_label_style();
 		changeViewForSvg();
 		update_brush_g();
 	}
@@ -1291,7 +1293,7 @@ var treeCompare = function(){
 		var value = d3.select("#delete"+n).attr("value");
 		value = parseInt(value);
 		draw_all_or_part_tree(value);
-		modify_buttondiv_top();
+		modify_buttondiv_label_style();
 	}
 	//翻转树
 	function reverse_tree_click(){
@@ -1302,6 +1304,7 @@ var treeCompare = function(){
 		draw_trend(tmp_tree.mark_reversal,value);
 		update_brush_g();
 		draw_dash_line();
+		modify_buttondiv_label_style();
 	}
 	//树的数目改变时，改变树的布局
 	function changeViewForSvg(){
@@ -1314,16 +1317,18 @@ var treeCompare = function(){
 		draw_dash_line();
 	}
 	//根据树的数目，调整对应操作栏的高度
-	function modify_buttondiv_top(){
+	function modify_buttondiv_label_style(){
 		if(mult_tree_smaller.length == 0) return;
-		for(var i = 0; i < mult_tree_smaller.length - 1; i++){
-			d3.select("#label_alpabet" + mult_tree_smaller[i+1].buttondiv.slice(17))
-				.html("<span class=\"span-label\">"
-					+mult_tree_smaller[i+1].alpabet_index+"</span>");
+		for(var i = 0; i < mult_tree_smaller.length; i++){
+			if(mult_tree_smaller[i].mark_reversal)
+				d3.select("#label_alpabet" + mult_tree_smaller[i].buttondiv.slice(17))
+					.html("<span class=\"btn btn-default btn-xs span-label\" style=\'background-color: #FF7F0E\'>"
+						+mult_tree_smaller[i].alpabet_index+"</span>");
+			else
+				d3.select("#label_alpabet" + mult_tree_smaller[i].buttondiv.slice(17))
+					.html("<span class=\"btn btn-default btn-xs span-label\" style=\'background-color: steelblue\'>"
+						+mult_tree_smaller[i].alpabet_index+"</span>");
 		}
-		d3.select("#label_alpabet" + mult_tree_smaller[0].buttondiv.slice(17))
-				.html("<span class=\"span-label\">"
-					+mult_tree_smaller[0].alpabet_index+"</span>");
 	}
 	//清空视图中的树
 	function delete_all_trees(){
@@ -1339,7 +1344,7 @@ var treeCompare = function(){
 			mult_tree_smaller[i].mark_only_flow = false;
 		}
 		modify_height_svg_treeHeight();
-		modify_buttondiv_top();
+		modify_buttondiv_label_style();
 		for(var i = 0; i < mult_tree_smaller.length; i++){
 			draw_tree(mult_tree_smaller[i].mark_reversal,mult_tree_smaller[i].mark_draw_all,mult_tree_smaller[i],null,i);
 		}
@@ -1353,7 +1358,7 @@ var treeCompare = function(){
 			mult_tree_smaller[i].tree_height = min_tree_height;
 		}
 		modify_height_svg_treeHeight();
-		modify_buttondiv_top();
+		modify_buttondiv_label_style();
 		for(var i = 0; i < mult_tree_smaller.length; i++){
 			draw_tree(mult_tree_smaller[i].mark_reversal,mult_tree_smaller[i].mark_draw_all,mult_tree_smaller[i],null,i);
 		}
@@ -1365,7 +1370,7 @@ var treeCompare = function(){
 			mult_tree_smaller[i].mark_only_flow = true;
 		}
 		modify_height_svg_treeHeight();
-		modify_buttondiv_top();
+		modify_buttondiv_label_style();
 		for(var i = 0; i < mult_tree_smaller.length; i++){
 			draw_tree(mult_tree_smaller[i].mark_reversal,mult_tree_smaller[i].mark_draw_all,mult_tree_smaller[i],null,i);
 		}
@@ -1470,6 +1475,7 @@ var treeCompare = function(){
         		addMultiTree(addlist,add_id_list);
         	}
         	pre_datasets = dataCenter.datasets;
+        	add_border_of_current_signal_tree();
         }
         if(message == "show-similiar"){
         	completelyShowSimilarPart();

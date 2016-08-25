@@ -80,19 +80,18 @@
   border-style: solid;
 }
 .span-label{
-	background-color: #ccc;
-	border-color: #000000;
-	display: inline;
+	visibility: visible;
+	box-sizing: border-box;
 	cursor: pointer;
+	display: inline;
     padding: .2em .6em .3em;
     font-size: 75%;
     font-weight: bold;
     line-height: 1;
     text-align: center;
+    white-space: nowrap;
     vertical-align: baseline;
     border-radius: .25em;
-    margin: 0;
-    margin-bottom: 0;
-    background-image: none;
-    border: 1px solid transparent;
+    color: white;
+    background-color: #1F77B4;
 }
