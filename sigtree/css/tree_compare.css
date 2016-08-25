@@ -3,7 +3,7 @@
 	stroke-width: 2;
 }
 .routenode-inner{
-	fill: #FF77FF;
+	fill: #4A4AFF;
 }
 .node-leaf{
 	fill: #CCC29C;
@@ -36,7 +36,7 @@
 }
 .route-link{
 	stroke-width:1px;
-	stroke: #FF77FF;
+	stroke: #4A4AFF;
 	fill:none;
 	opacity: 1;	
 }

@@ -76,6 +76,15 @@ var parset = {
 			.on('mouseout', function(d,i){
 				tip.hide(d);
 			});
+		svg.selectAll("rect")
+			.on("mouseover",function(){
+				if(d3.select(this).attr("class") != "category-0") return;
+				ObserverManager.post("mouse-over", ["-root"]);
+			})
+			.on("mouseout",function(){
+				if(d3.select(this).attr("class") != "category-0") return;
+				ObserverManager.post("mouse-out", ["-root"]);
+			});
 		svg.selectAll("path").filter(function(d){
 			var tmp = d.id.slice(-4);
 			if(tmp == "none") return true;

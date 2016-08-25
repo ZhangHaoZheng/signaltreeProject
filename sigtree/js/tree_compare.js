@@ -529,7 +529,7 @@ var treeCompare = function(){
 				.selectAll("g").remove();
 			$("#" + mult_tree_smaller[div_i].divid + " #flow_top_svg").height(0);
 		}
-		scale.domain([0,Math.sqrt(max_flow_of_depth[cur_depth])]);
+		scale.domain([0,1.2 * Math.sqrt(max_flow_of_depth[cur_depth])]);
 		var bars = trendg.selectAll(".bar")
 			.data(leaves,function(d){return d.id;});
 		var bars_enter = bars.enter().insert("g").attr("class","bar")
