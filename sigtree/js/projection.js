@@ -38,8 +38,8 @@ var projection = {
 		var nodeLocation = new Array(nodeNum);
 		for(var i = 0;i < nodeNum;i++){
 			nodeLocation[i] = new Array();
-			nodeLocation[i][0] = coordinate[i][0] * width * 0.8 + width * 0.1;
-			nodeLocation[i][1] = coordinate[i][1] * height * 0.8 + height * 0.1;
+			nodeLocation[i][0] = coordinate[i][0] * width * 0.9 + width * 0.05;
+			nodeLocation[i][1] = coordinate[i][1] * height * 0.9 + height * 0.05;
 			nodeLocation[i][2] = dataCenter.distanceObject[i].fileName.replace('.csv','').replace('XX','')
 		}
 		if(projection_method == 'center-projection'){
@@ -111,7 +111,9 @@ var projection = {
 	},
 	highlight_node: function(this_node_id){
 		var self = this;
-		self.re_draw_node(d3.select('#' + this_node_id));
+		if(d3.select('#' + this_node_id) != null){
+			//self.re_draw_node(d3.select('#' + this_node_id));
+		}
 		d3.select('#' + this_node_id).classed('opacity-unhighlight', false);
 		d3.select('#' + this_node_id).classed('opacity-highlight', true);
 		d3.select('#' + this_node_id).classed('opacity-click-unhighlight', false);
@@ -124,6 +126,7 @@ var projection = {
 			  .html(function(d) {
 			    return "<strong>Frequency:</strong>" + 'frequency' + "</span>";
 			  });
+			console.log(this_node);
 			var this_class = this_node.attr('class');
 			var this_id = this_node.attr('id');
 			//var translate = this_node.attr('transform');
@@ -160,17 +163,76 @@ var projection = {
 		}
 	},
 	draw_link: function(node_location){
-		var nodeLocation = node_location;
+		var nodeLocation = _.clone(node_location);
+		console.log(nodeLocation);
+		var similiarNodeArray = new Array();
+		for(var i = 0;i < nodeLocation.length;i++){
+			var x = nodeLocation[i][0];
+			var y = nodeLocation[i][1];
+			var findSimiliarNode = false;
+			//遍历similiarNodeArray数组，判断是否已经存在临近的节点被存储
+			for(var j = 0;j < similiarNodeArray.length;j++){
+				var templateX = similiarNodeArray[j].x;
+				var templateY = similiarNodeArray[j].y;
+				//为什么取10
+				if((Math.abs(templateY - y) <= 20) && (Math.abs(templateX - x) <= 20)){
+					similiarNodeArray[j].nodeArray.push(nodeLocation[i]);
+					similiarNodeArray[j].sumX = similiarNodeArray[j].sumX + x;
+					similiarNodeArray[j].sumY = similiarNodeArray[j].sumY + y;
+					similiarNodeArray[j].x = Math.round(similiarNodeArray[j].sumX/similiarNodeArray[j].nodeArray.length);
+					similiarNodeArray[j].y = Math.round(similiarNodeArray[j].sumY/similiarNodeArray[j].nodeArray.length);
+					findSimiliarNode= true;
+					break;
+				}
+			}
+			if(findSimiliarNode == false){
+				similiarNodeArray[j] = new Object();
+				similiarNodeArray[j].nodeArray = [nodeLocation[i]];
+				similiarNodeArray[j].sumX = +x;
+				similiarNodeArray[j].sumY = +y;
+				similiarNodeArray[j].x = Math.round(similiarNodeArray[j].sumX/similiarNodeArray[j].nodeArray.length);
+				similiarNodeArray[j].y = Math.round(similiarNodeArray[j].sumY/similiarNodeArray[j].nodeArray.length);
+			}
+		}
+		var ModifyNodeArray = new Array();
+		for(i = 0;i < similiarNodeArray.length;i++){
+			var templateX = similiarNodeArray[i].x;
+			var templateY = similiarNodeArray[i].y;
+			var nodeArray = similiarNodeArray[i].nodeArray;
+			for(var j = 0;j < nodeArray.length;j++){
+				ModifyNodeArray.push([templateX, templateY, nodeArray[j][2]]);
+			}
+		}
+		console.log(ModifyNodeArray);
+		console.log(similiarNodeArray);
 		var svg = d3.select('svg.projection');
 		var path = svg.append("path")
 			.attr('class', 'projection-node-path')
-		    .data([nodeLocation])
+		    .data([ModifyNodeArray])
 		    .attr("d", d3.svg.line()
-		    .tension(-1) // Catmull–Rom
-		    .interpolate("linear"));
-		var circle = svg.append("circle")
+		    .tension(2) // Catmull–Rom
+		    .interpolate("monotone"));//cardinal-open
+		    /*
+		    linear - 线性插值
+			linear-closed - 线性插值，封闭起点和终点形成多边形
+			step - 步进插值，曲线只能沿x轴和y轴交替伸展
+			step-before - 步进插值，曲线只能沿y轴和x轴交替伸展
+			step-after - 同step
+			basis - B样条插值
+			basis-open - B样条插值，起点终点不相交
+			basis-closed - B样条插值，连接起点终点形成多边形
+			bundle - 基本等效于basis，除了有额外的tension参数用于拉直样条
+			cardinal - Cardina样条插值
+			cardinal-open - Cardina样条插值，起点终点不相交
+			cardinal-closed - Cardina样条插值，连接起点终点形成多边形
+			monotone - 立方插值，保留y方向的单调性
+		     */
+		   // .interpolate("linear"));
+		/*var circle = svg.append("circle")
 		    .attr("r", 10)
-		    .attr("transform", "translate(" + nodeLocation[0] + ")");
+		    .attr("transform", function(d,i){
+		    	return "translate(" + nodeLocation[0] + ")";
+		    });
 		transition();
 		function transition() {
 		  circle.transition()
@@ -178,7 +240,7 @@ var projection = {
 		      .ease("linear")
 		      .attrTween("transform", translateAlong(path.node()))
 		      .each("end", transition);
-		}
+		}*/
 		function translateAlong(path) {
 		  var l = path.getTotalLength();
 		  return function(d, i, a) {

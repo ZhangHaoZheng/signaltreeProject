@@ -134,6 +134,7 @@ circle[class~=opacity-click-unhighlight] {
 path[class~=opacity-unhighlight], circle[class~=opacity-unhighlight], rect[class~=opacity-unhighlight], g[class~=opacity-unhighlight] > circle {
   /*fill: #ff5858 !important;*/
   opacity: 0.3;
+  fill: #C0C0C0;
 }
 circle[class~=opacity-unhighlight]{
   opacity: 0.2;
@@ -141,6 +142,9 @@ circle[class~=opacity-unhighlight]{
 }
 path[class~=opacity-remove]{
   opacity: 0;
+}
+path[class~=half-opacity-remove]{
+  opacity: 0.1;
 }
 path[class~=focus-highlight], circle[class~=focus-highlight], rect[class~=focus-highlight], g[class~=focus-highlight] > circle {
   fill: #ff5858 !important;

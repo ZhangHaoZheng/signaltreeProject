@@ -283,13 +283,18 @@ var radial = {
         if(message == "update-view"){
         	var self = this;
         	var currentId = dataCenter.global_variable.current_id;
-        	for(var i = 0;i < dataCenter.datasets.length;i++){
-        		if(currentId == dataCenter.datasets[i].id){
-        			var tree_root = dataCenter.datasets[i].processor.result.treeRoot;
-        			self._render_view(tree_root);
-        			break;
-        		}
+        	if(currentId != null){
+        		for(var i = 0;i < dataCenter.datasets.length;i++){
+	        		if(currentId == dataCenter.datasets[i].id){
+	        			var tree_root = dataCenter.datasets[i].processor.result.treeRoot;
+	        			self._render_view(tree_root);
+	        			break;
+	        		}
+	        	}
         	}
+        }
+        if(message == 'clean-view'){
+        	svg.selectAll('*').remove();
         }
         if(message == "set:similar_id_array"){
         	var similarIdArray = dataCenter.global_variable.similar_id_array;

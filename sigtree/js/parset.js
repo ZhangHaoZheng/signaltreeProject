@@ -154,5 +154,8 @@ var parset = {
         	svg.selectAll('path')
         	.classed('path-remove', false);
         }
+        if(message == 'clean-view'){
+        	svg.selectAll('*').remove();
+        }
     }	
 };

@@ -1,22 +1,11 @@
-// dataCenter:
-//     stats: 各个数据文件的统计
-//     datasets: [   //各个数据集
-//         id: 
-//         processor:         
-//     ]
-/*$("#radialcheckbox").on("change",function(){
-    var radialView, parsetView;
-    var m = $("#radialcheckbox").attr("mark");
-    if(m==1) {$("#radialcheckbox").attr("mark",2);}
-    else $("#radialcheckbox").attr("mark",1);
-    m = $("#radialcheckbox").attr("mark");
-    $("svg[class=radial]").html("");
-    $("svg[class=parset]").html("");
-    //var listeners = _.without(ObserverManager.getListeners(),radialView,parsetView); //remove old views in listeners
-    ObserverManager.setListeners(listeners);
-    radialView = radial();     
-    parsetView = parset();
-})*/
+/*
+   dataCenter:
+   stats: 各个数据文件的统计
+   datasets: [   //各个数据集
+     id: 
+     processor:         
+   ]
+*/
 var tip = d3.tip()
     .attr('class', 'd3-tip')
     .offset([-10, 0])
@@ -26,25 +15,6 @@ var tip = d3.tip()
 $(document).ready(function(){
     $('.button').tooltip(); 
 });
-//将不同层级的节点塞入到不同的数组中，方便当切换层级的时候将整个数组的节点都放到收缩的数组中
-/*function changenodedepthA(){
-    var tree = d3.layout.tree()
-        .children(function(d){
-            if(Array.isArray(d.values)) return d.values;
-            return undefined;
-        }); 
-    for(var i = 0; i < 4; i++)
-        nodesIddepthA[i] = [];
-    var rootA = dataCenter.datasets[0].processor.result.treeRoot;
-    var treeNodeLista = tree.nodes(rootA).reverse();
-    for(var i = 0; i < treeNodeLista.length; i++){
-        var d = treeNodeLista[i].depth;
-        var flow = treeNodeLista[i].flow;
-        if(d == 4 || (+flow) == 0) continue;
-        var tmp = treeNodeLista[i];
-        nodesIddepthA[d].push(tmp);
-     }
-}*/
 //将不同层级的节点塞入到不同的数组中
 function changenodedepthB(){
     var tree = d3.layout.tree()
@@ -89,13 +59,19 @@ var set_initial_data = function(){
         timeSortArray[i].index = i;
         timeSortArray[i].position = i;
         propotionArray[i] = new Object();
-        propotionArray[i].value =+ statData[i].sumProportion;
+        propotionArray[i].value = +statData[i].sumProportion;
         propotionArray[i].time = statData[i].file.replace("XX.csv","");
         propotionArray[i].index = i;            
     }
     propotionArray.sort(function(a, b) {
         return a.value - b.value;
     })
+    timeSortArray.sort(function(a,b){
+        var a_time = a.time.split('-')[0];
+        var b_time = b.time.split('-')[0];
+        return a_time - b_time;
+    });
+    console.log(timeSortArray);
     for (var i = 0; i < propotionArray.length; i++) {
         propotionArray[i].position = i;
     }
@@ -128,7 +104,7 @@ var mainController = function(file_path_name){
     }
     function load_distance_matrix_data(){
         var dtd = $.Deferred();
-        d3.csv(filePath + 'distance_matrix_file2.csv', function(error, data){
+        d3.csv(filePath + 'distance_matrix.csv', function(error, data){
             if(error){
                 dtd.reject();
                 throw error;
@@ -152,7 +128,7 @@ var mainController = function(file_path_name){
     }
     function load_similarity_matrix_data(){
         var dtd = $.Deferred();
-        d3.csv(filePath + 'similarity_matrix_file2.csv', function(error, data){
+        d3.csv(filePath + 'similarity_matrix.csv', function(error, data){
             if(error){
                 dtd.reject();
                 throw error;
@@ -218,6 +194,10 @@ var mainController = function(file_path_name){
             $.when.apply($, defers)
                 .done(function() {
                     ObserverManager.post("update-view", dataCenter.datasets);
+                    var currentId = dataCenter.global_variable.current_id;
+                    if(currentId == null){
+                        ObserverManager.post('clean-view');
+                    }
             });
         }
     }
@@ -238,7 +218,6 @@ var mainController = function(file_path_name){
                     $('.hidden-content').css({'visibility': 'visible'});
                     $('#loading').css({'visibility':'hidden'});
                     $('.toolbar').css({'visibility':'visible'});
-
             });
         })
 }

@@ -10,6 +10,11 @@ var toolbarAll = {
 		ObserverManager.addListener(this);
 	},
 	_bind_view: function(){
+		/*$('.toolbar-all').on('click', function(d,i){
+			if(!$(this).hasClass('active')){
+				$(this).addClass('active');
+			}
+		})*/
 		$('#arc-link').on('click', function(d,i){
 			if($('#arc-link').hasClass('active')){
 				dataCenter.set_global_variable('show_arc', false);
@@ -18,27 +23,31 @@ var toolbarAll = {
 			}
 		});
 		$('#arc-link-hover').on('click', function(d,i){
-			if($('#arc-link-hover').hasClass('active')){
-				dataCenter.set_global_variable('hover_show_arc', false);
-			}else{
-				dataCenter.set_global_variable('hover_show_arc', true);
-			}
 			$("#slider").slider();
 			$( "#slider" ).slider({
-		      orientation: "horizontal",
-		      range: "min",
-		      max: 10,
-		      value: 5,
-		      slide: refreshText,
-		      change: refreshText
+			      orientation: "horizontal",
+			      range: "min",
+			      max: 10,
+			      value: dataCenter.global_variable.hover_arc_link_num,
+			      slide: refreshText,
+			      change: refreshText
 		    });
 			if($('#hover-arc-div').css('display') == 'none'){
 				$('#hover-arc-div').slideDown('slow');
+			}else{
+				$('#hover-arc-div').slideUp('slow');
 			}
 		});
+		//hover的按钮是否通过高亮标记是由数量决定
 		function refreshText(){
 			var num = $( "#slider" ).slider( "value" );
 			$('#slider-text').text(num);
+			dataCenter.set_global_variable('hover_arc_link_num', num);
+			if(num > 0){
+				dataCenter.set_global_variable('hover_show_arc', true);
+			}else{
+				dataCenter.set_global_variable('hover_show_arc', false);
+			}
 		}
 		//group button
 		$('#time-sort').on('click', function(d,i){
@@ -96,12 +105,10 @@ var toolbarAll = {
 			}
 		});
 		$('span:not(#load-file-name, #arc-link-hover)').on('click', function(d,i){
-			console.log($(this).attr('id'));
 			$('#load-file-div').slideUp('quick');
 			$('#hover-arc-div').slideUp('slow');
 		});
 		$('div:not(#toolbar, #load-files, .load-file-item, #load-file-div, #arc-link-div, #slider-container, #slider)').on('click', function(d,i){
-			console.log($(this).attr('id'));
 			$('#load-file-div').slideUp('quick');	
 			$('#hover-arc-div').slideUp('slow');		
 		});

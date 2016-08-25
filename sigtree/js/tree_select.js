@@ -13,14 +13,6 @@ var treeSelect = function(){
 		.attr("width", svgWidth)
 		.attr("height", svgHeight);
 	var svg = d3.select('#mainTimeline');
-	var tip = d3.tip()
-		.attr('class', 'd3-tip')
-		.html(function(d, i) {
-			var time = d.time;
-			var aTime = time.replace("XX.csv","");
-			var aValue = d.value;
-			return "<span style='font-size:12px;  '>date:" + aTime +"&nbsp;&nbsp;Values:" + d3.format(".3s")(aValue) + "bytes" + d.index +"</span>";
-		});
 	var hisWidth = 0;
 	var margin = {top: 20, right: 40, bottom: 20, left: 40},
     		width = svgWidth - margin.left - margin.right,
@@ -30,7 +22,6 @@ var treeSelect = function(){
 	var propotionArray = dataCenter.global_variable.propotion_array;
 	//reset_selection(timeSortArray);
 	var currentId = dataCenter.global_variable.current_id;
-	console.log('33',currentId);
 	var selectionArray = dataCenter.global_variable.selection_array;
     var currentNodeIdBefore = dataCenter.global_variable.current_nodeid_before;
 	drawHistogram(timeSortArray);
@@ -39,7 +30,7 @@ var treeSelect = function(){
 	}
 	append_current_circle(currentId);
 	// click on sort buttons
-	$("#switch-selection-div .data-btn").click(function() {
+	/*$("#switch-selection-div .data-btn").click(function() {
 		var command = $(this).attr("data-type");
 		if (sortMode == "time") {
 			drawHistogram(timeSortArray);
@@ -52,10 +43,18 @@ var treeSelect = function(){
 				add_arc_to_all();
 			}
 		}
-	});
+	});*/
 	//click the other part in the histogram view to cancel selection
-	$('.background-control-highlight').mouseout(function(d,i){
+	$('.background-control-highlight,.toolbar,.arc-path').mouseout(function(d,i){
 		remove_hover_highlight();
+		remove_arc_num_text();
+		re_display_halfremove_arc_to_all();
+		add_arc(dataCenter.global_variable.current_id, 'click');
+		if(dataCenter.global_variable.show_arc){
+			re_display_remove_arc_to_all();
+		}else{
+			hide_arc_to_all();
+		}
 	});
 	$('.remove-highlight').mouseover(function(d,i){
 		remove_hover_highlight();
@@ -66,7 +65,7 @@ var treeSelect = function(){
 	    //svg.selectAll('.bar')
 	    //.classed('opacity-highlight', false);
 	    d3.selectAll('.hover').remove();
-	    d3.selectAll('.bar:not(.opacity-click-highlight)').style('fill',null);
+	    d3.selectAll('.bar:not(.opacity-click-highlight)').style('fill','#C0C0C0');
 	    ObserverManager.post("similarity-node-array", []);
 	}
 	$("#innerTopRight").css("font-size", 12 + "px");  
@@ -168,18 +167,6 @@ var treeSelect = function(){
 					.range([height, 0]);
 
 		hisWidth = xScale(1) - 1;
-		tip.offset(function(d,i){
-			var tmpy = -yScale(Math.log(d.value));
-			var tmpx = 0;
-			if(i < 10){
-				tmpx = (10 - i) * xScale(1);
-			}
-			else if(i > 76){
-				tmpx = (76 - i) * xScale(1);
-			}
-			return [tmpy,tmpx];
-		});
-		svg.call(tip);
 		console.log(dataArray);
 		var rectg = chart.selectAll(".bar")
 	 		.data(dataArray)
@@ -193,7 +180,7 @@ var treeSelect = function(){
 	 		});
 	 	var appendRect = rectg.append("rect")
 	 		.attr("id",function(d, i){
-				return "his-" + d.index;
+				return "his-" + i;
 			})
 			.attr("index", function(d, i) {
 				return d.index;
@@ -214,7 +201,7 @@ var treeSelect = function(){
 				if(d.value != 0){
 					logValue = Math.log(d.value);
 				}
-				return height - yScale(logValue);
+				return height - yScale(logValue) - 1;
 			})
 			.attr("y",function(d){
 				var logValue = 0;
@@ -227,25 +214,31 @@ var treeSelect = function(){
 				return xScale(i) + 2;
 			})
 			.on("mouseover",function(d,i){
+				if(dataCenter.global_variable.show_arc){
+					half_hide_arc_to_all();
+				}else{
+					hide_arc_to_all();
+				}
+				remove_arc_num_text();
 				d3.selectAll('.bar:not(.opacity-click-highlight)')
 	    			.classed('opacity-unhighlight', true);
-		    		//d3.selectAll('.bar')
-		    		//.classed('opacity-highlight', false);
-	    		d3.selectAll('.bar:not(.opacity-click-highlight)')
-	    			.style('fill',null);
 	    		d3.selectAll('.arc-path:not(.click):not(.default)').remove();
+	    		d3.selectAll('.arc-path:not(.default)').remove();
 	    		d3.select(this)
 	    			.classed('opacity-unhighlight', false);
 	    		var element = 'node' + d.time.replace("XX.csv","");
 	    		//add arc
 	    		var id = d3.select(this).attr('id');
 	    		if(dataCenter.global_variable.hover_show_arc){
-	    			add_arc(d.time, 'hover');
-	    			//d3.selectAll('.default').classed('opacity-remove', true);
+	    			var currentFill = d3.select(this).style('fill');
+	    			if(currentFill == 'rgb(192, 192, 192)'){
+	    				add_arc(d.time, 'hover');
+	    			}else{
+	    				add_arc(dataCenter.global_variable.current_id, 'hover');
+	    			}
 	    		}else{
 	    			ObserverManager.post("similarity-node-array", [element]);
 	    		}
-				tip.show(d);
 			})
 			.on("mouseout",function(d,i){
 				/*svg.selectAll('.bar')
@@ -256,58 +249,52 @@ var treeSelect = function(){
 	    		var id = d3.select(this).attr('id');
 	    		var selectionArray = dataCenter.global_variable.selection_array;
 	    		//if(selectionArray.indexOf(id) == -1){
-	    		d3.selectAll('.default').classed('opacity-remove', false);
+	    		//d3.selectAll('.default').classed('opacity-remove', false);
 		   		//ObserverManager.post("similarity-node-array", []);
 	    		/*}else{
 	    			d3.selectAll('.arc-path.hover').classed('click-remain', true);
 		   			d3.selectAll('.arc-path.hover').classed('hover', false);
 	    		}*/
-				tip.hide(d);
 			})
 			.on('click',function(d,i){
 				var this_node = d3.select(this);
 				var id = d3.select(this).attr('id');
 				var signalTreeTime = d.time;
 				var selectionArray = dataCenter.global_variable.selection_array;
+				var selectionObjectArray = dataCenter.global_variable.selection_object_array;
 				var currentId = dataCenter.global_variable.current_id;
 				var currentNodeIdBefore = dataCenter.global_variable.current_nodeid_before;
 				//d3.selectAll('.bar.opacity-unhighlight').style('fill',null);
 				//d3.selectAll('.arc-path.click-remain').remove();
 				if(selectionArray.indexOf(signalTreeTime) == -1){
+					var selectionObject = new Object();
+					selectionObject.tree_name = signalTreeTime;
+					selectionObjectArray.push(selectionObject);
 					selectionArray.push(signalTreeTime);
 					var thisNode = d3.select(this);
-					add_selection_text(selectionArray);
-					
+					add_selection_text(selectionArray);		
 					ObserverManager.post('changeData', selectionArray);
 					d3.select(this).classed('selection', true);
 					append_current_circle(signalTreeTime);
 					currentNodeIdBefore.push(signalTreeTime);
 					//增加节点
-					//d3.selectAll('.click').remove();
-					//d3.selectAll('.bar:not(.opacity-click-highlight)').style('fill',null);
-					//for(var j = 0;j < selectionArray.length;j++){
-						for(var j = 0;j < selectionArray.length;j++){
-							if(selectionArray != signalTreeTime){
-								add_arc(selectionArray[j], 'unclick');
-							}
-						}
-						add_arc(signalTreeTime, 'click');
-					//}
-				}else{				
 					for(var j = 0;j < selectionArray.length;j++){
 						if(selectionArray != signalTreeTime){
 							add_arc(selectionArray[j], 'unclick');
 						}
 					}
 					add_arc(signalTreeTime, 'click');
-					append_current_circle(signalTreeTime);
-					ObserverManager.post('changeData', selectionArray);
+				}else{				
+					for(var j = 0;j < selectionArray.length;j++){
+						if(selectionArray != signalTreeTime){
+							add_arc(selectionArray[j], 'unclick');
+						}
+					}
 					if(currentId == signalTreeTime){
 						d3.select(this).classed('selection', false);
 						add_arc(signalTreeTime, 'unclick');
 						selectionArray.splice(selectionArray.indexOf(signalTreeTime), 1);
 						add_selection_text(selectionArray);
-						ObserverManager.post('changeData', selectionArray);
 						for(var j = 0;j < currentNodeIdBefore.length;j++){
 							if(currentNodeIdBefore[j] == signalTreeTime){
 								currentNodeIdBefore.splice(j, 1);
@@ -323,36 +310,17 @@ var treeSelect = function(){
 							}
 							add_arc(formerSignalTreeTime, 'click');
 						}else{
-							d3.select('.append-current-circle').remove();
+							dataCenter.set_global_variable('current_id', null);
+							d3.selectAll('.append-current-circle').remove();
 						}
-					}
-				}
-				//对于鼠标点击的事件，需要维持一个选中状态的列表，每次重新计算列表中的节点的连接状态
-				/*var selectedID = +d.index;
-				if(changeA == true) Aindex = selectedID;
-				else Bindex = selectedID;
-				if (compareArray.indexOf(selectedID) < 0){
-					//compareArray[0] = compareArray[1];
-					if(changeA){
-						compareArray[1] = selectedID; 
+						ObserverManager.post('changeData', selectionArray);
 					}else{
-						compareArray[0] = selectedID; 
+						add_arc(signalTreeTime, 'click');
+						append_current_circle(signalTreeTime);
+						ObserverManager.post('changeData', selectionArray);
 					}
-				} 
-				else {
-					var index = compareArray.indexOf(selectId);
-					compareArray.splice(index,1);
 				}
-				radialexpandmarkA = [];
-				radialexpandmarkB = [];
-				$("#radial-depth-controller .level-btn").addClass("active");	
-				activeA = 4;
-				activeB = 4;
-				changeComparedData();
-				d3.select("#append-rect").select("#percen-rect").remove();*/
 			});
-		var currentId = dataCenter.global_variable.current_id;
-		append_current_circle(currentId);
 		var selectionArray = dataCenter.global_variable.selection_array;
 		add_selection_text(selectionArray);
 
@@ -374,7 +342,8 @@ var treeSelect = function(){
 
 		// draw x-axis ticks
 		if (sortMode == "time") {
-			var xBegin = 0;
+			var xBegin = -1;
+			console.log(dataArray);
 			for (var i = 0; i < dataArray.length; i++) {
 				if (dataArray[i].time.substring(0, 4) != xBegin) {
 					xBegin = dataArray[i].time.substring(0, 4);
@@ -382,14 +351,15 @@ var treeSelect = function(){
 						.attr("class", "tick-label")
 						.attr("y", 15)
 						.attr("x", chart.select("#his-" + i).attr("x"))
-						.text(xBegin);	
+						.text(xBegin);
 				}
+				xBegin = dataArray[i].time.substring(0, 4);
 			}			
 		}
 		if(dataCenter.global_variable.show_arc){
 			add_arc_to_all();
 		}else{
-			remove_arc_to_all();
+			hide_arc_to_all();
 		}
 		//changeComparedData();
 		//function changeComparedData() {
@@ -402,14 +372,22 @@ var treeSelect = function(){
         for(var i = 0;i < selectionArray.length;i++){
         	var thisNodeName = selectionArray[i];
         	var thisNode = d3.select('.node' + thisNodeName);
-			var label = String.fromCharCode(97 + i);
-			var thisX = +thisNode.attr('x');
-			var thisY = +thisNode.attr('y');
+			var label = String.fromCharCode(97 + i).toUpperCase();;
+			var thisX = +thisNode.attr('x') + margin.left;
+			var thisY = +thisNode.attr('y') + margin.top;
 			var thisWidth = +thisNode.attr('width');
-			var centerX = thisX + margin.left; 
-			var centerY = thisY + margin.top - 2;
-			svg.append('text')
-				.attr('class', 'selection-label')
+			var rectY = thisY - thisWidth - 1;
+			var centerX = thisX + thisWidth / 2; 
+			var centerY = thisY - 3;
+			var textNode = svg.append('g')
+				.attr('class', 'selection-node');
+			/*textNode.append('rect')
+				.attr('x', thisX)
+				.attr('y', rectY)
+				.attr('width', thisWidth)
+				.attr('height', thisWidth);*/
+			textNode.append('text')
+				.attr("text-anchor", "middle")
 				.attr('x', centerX)
 				.attr('y', centerY)
 				.text(label);
@@ -435,13 +413,26 @@ var treeSelect = function(){
 		ObserverManager.post('change-current-data', signal_tree_time);
 	}
 	function add_arc_to_all(){
-		d3.selectAll('.bar-add-arc').each(function(d,i){
-			var id = d3.select(this).attr('id');
-			add_arc(d.time, 'default');
-		})
+		if(d3.selectAll('.arc-path.default')[0].length == 0){
+			d3.selectAll('.bar-add-arc').each(function(d,i){
+				var id = d3.select(this).attr('id');
+				add_arc(d.time, 'default');
+			});
+		}else{
+			re_display_remove_arc_to_all();
+		}
 	}
-	function remove_arc_to_all(){
-		d3.selectAll('.default').remove();
+	function re_display_remove_arc_to_all(){
+		d3.selectAll('.default').classed('opacity-remove', false);
+	}
+	function re_display_halfremove_arc_to_all(){
+		d3.selectAll('.default').classed('half-opacity-remove', false);
+	}
+	function half_hide_arc_to_all(){
+		d3.selectAll('.default').classed('half-opacity-remove', true);
+	}
+	function hide_arc_to_all(){
+		d3.selectAll('.default').classed('opacity-remove', true);
 	}
 	/*
 	* @parameter: index用来在similarityMatrix中寻找当前哪一列是用来绘制的相似度数组 
@@ -450,6 +441,7 @@ var treeSelect = function(){
 	*/
 	function add_arc(file_name, type){
 		var similarityObj = null;
+		//计算与传入节点最相似的节点名称
 		for(var i = 0;i < dataCenter.similarityMatrix.length;i++){
 			if(dataCenter.similarityMatrix[i].fileName.replace('XX.csv', '') == file_name){
 				similarityObj = dataCenter.similarityMatrix[i];
@@ -457,9 +449,13 @@ var treeSelect = function(){
 		}
 		var similarityObjArray = new Array();
 		for(var i = 0;i < dataCenter.similarityMatrix.length;i++){
-			similarityObjArray[i] = new Object();
-			similarityObjArray[i].fileName = dataCenter.similarityMatrix[i].fileName.replace('.csv','').replace('XX','');
-			similarityObjArray[i].similarityValue = +similarityObj['attr' + i];
+			var allFileName = dataCenter.similarityMatrix[i].fileName.replace('.csv','').replace('XX','');
+			//寻找除自己之外的最相似节点，因此在得到相似节点数组的时候将自己排除在外
+			if(allFileName != file_name){
+				similarityObjArray[i] = new Object();
+				similarityObjArray[i].fileName = dataCenter.similarityMatrix[i].fileName.replace('.csv','').replace('XX','');
+				similarityObjArray[i].similarityValue = +similarityObj['attr' + i];
+			}
 		}
 		similarityObjArray.sort(function(a,b){
 			return b.similarityValue - a.similarityValue;
@@ -491,12 +487,23 @@ var treeSelect = function(){
 			.range([0,1]);
 		var dark = d3.rgb(200,200,200);
 		var bright = d3.rgb(50,50,50);
-		var compute = d3.interpolate(bright,dark);  
+		var compute = d3.interpolate(bright,dark); 
+		remove_arc_num_text();
+		d3.selectAll('.bar:not(.opacity-click-highlight):not(.node' + file_name + ')')
+			.classed('opacity-unhighlight', true);
+		d3.selectAll('.bar').style('fill', '#C0C0C0')
+		d3.selectAll('.bar.opacity-click-highlight')
+			.classed('opacity-unhighlight', true)
+			.classed('opacity-click-highlight',false);
+		d3.selectAll('.bar').classed('opacity-click-highlight', false);
 		for(var i = 0;i < arcNum;i++){
 			var fileName = similarityObjArray[i].fileName;
 			var selectClassName = 'node' + fileName;
 			var element = d3.select('.' + selectClassName);
 			highlightNodeArray.push(selectClassName);
+			if(type == 'hover' || type == 'click'){
+				add_arc_num_text(fileName, i);
+			}	
 			d3.select('.node' + fileName)
 				.classed('opacity-unhighlight',false);
 			if(type == 'click'){
@@ -514,7 +521,7 @@ var treeSelect = function(){
 					.style('fill', fillColorRectAndArc);
 			}else if(type == 'unclick'){
 				d3.select('.node' + fileName)
-					.style('fill', null);
+					.style('fill', '#C0C0C0');
 			}
 			var rectX = +element.attr('x');
 			var rectY = +element.attr('y');
@@ -532,6 +539,26 @@ var treeSelect = function(){
 			}	
 		}
 		ObserverManager.post("similarity-node-array", highlightNodeArray);
+	}
+	function add_arc_num_text(select_class_name, number){
+		//防止选中的rect的text与顺序的text冲突
+		var selectionArray = dataCenter.global_variable.selection_array;
+		if(selectionArray.indexOf(select_class_name) == -1){
+			var thisNode = d3.select('.node' + select_class_name);
+			var thisX = +thisNode.attr('x');
+			var thisY = +thisNode.attr('y');
+			var thisWidth = +thisNode.attr('width');
+			var centerX = thisX + margin.left; 
+			var centerY = thisY + margin.top - 2;
+			svg.append('text')
+				.attr('class', 'arc-num-label')
+				.attr('x', centerX)
+				.attr('y', centerY)
+				.text(number + 1);
+		}
+	}
+	function remove_arc_num_text(){
+		d3.selectAll('.arc-num-label').remove(); 
 	}
 	function draw_arc(radius, center_x, center_y, add_class, fill_color_rect_and_arc, file_name){
 		var beginRadians = Math.PI / 2,
@@ -608,8 +635,6 @@ var treeSelect = function(){
 		for(var i = 0;i < selectionArray.length;i++){
 			d3.select('.node' + selectionArray[i]).classed('selection', true);
 		}
-		var currentId = dataCenter.global_variable.current_id;
-		append_current_circle(currentId);
 	}
 	function _black_handler(){
 		$('body').css('background-color', '#333');
@@ -695,7 +720,7 @@ var treeSelect = function(){
 	    		add_arc_to_all();
 	    		$('#arc-link').addClass('active');
 	    	}else{
-	    		remove_arc_to_all();
+	    		hide_arc_to_all();
 	    		$('#arc-link').removeClass('active');
 	    	}
 	    }
@@ -760,12 +785,14 @@ var treeSelect = function(){
         	var currentId = dataCenter.global_variable.current_id;
 		        for(var i = 0;i < dataCenter.datasets.length;i++){
 		        	if(currentId == dataCenter.datasets[i].id){
-		        		var tree_root = dataCenter.datasets[i].processor.result.treeRoot;
-		        		var nodeNum = tree_root.allChilldrenCount;
-		        		var flowSize = tree_root.flow;
-		        		var date = currentId;
-		        		changeLabelA(date, flowSize, nodeNum);
-		        		break;
+		        		if(dataCenter.datasets[i].processor.result.treeRoot != undefined){
+		        			var tree_root = dataCenter.datasets[i].processor.result.treeRoot;
+			        		var nodeNum = tree_root.allChilldrenCount;
+			        		var flowSize = tree_root.flow;
+			        		var date = currentId;
+			        		changeLabelA(date, flowSize, nodeNum);
+			        		break;
+		        		}
 		        	}
 		        }
 	        }
@@ -788,7 +815,13 @@ var treeSelect = function(){
 				}
 				currentId = currentNodeIdBefore[currentNodeIdBefore.length - 1];
 	    	}
-	    	append_current_circle(currentId);
+	    }
+	    if(message == 'set:hover_arc_link_num'){
+	    	var hoverArcLinkNum = dataCenter.global_variable.hover_arc_link_num;
+	    	if(dataCenter.global_variable.hover_show_arc 
+	    		&& (dataCenter.global_variable.current_id != null)){
+	    		add_arc(dataCenter.global_variable.current_id, 'click');
+	    	}
 	    }
     }
 	return SelectTree;

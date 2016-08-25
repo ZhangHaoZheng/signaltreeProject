@@ -1,6 +1,3 @@
-.text{
-  font-size: 12px;
-}
 .time{
   font-size: 12px;
 }
@@ -33,7 +30,7 @@
 }
 .click, .unclick, .default{
   stroke: gray;
-  stroke-width: 2px;
+  stroke-width: 1px;
   fill: none;
 }
  #mainTimeline .selection {
@@ -42,3 +39,7 @@
     opacity: 1 !important;
    // stroke-location: 
   }
+.selection-label{
+  font-size: 2px;
+  fill: black;
+}

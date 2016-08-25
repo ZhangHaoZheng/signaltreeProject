@@ -218,8 +218,12 @@ var radialHistogram = {
 	},
 	OMListen: function(message, data){
 		var self = this;
+		var svg = d3.select("svg.radial-histogram");
 		if(message == 'set:tree_node_list'){
 			self._render_view();
+		}
+		if(message == 'clean-view'){
+			svg.selectAll('*').remove();
 		}
 	}
 }
