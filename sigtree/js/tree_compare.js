@@ -19,6 +19,7 @@ var treeCompare = function(){
 	var leftPadding = 25;
 	var brush_compare = d3.svg.brush();
 	var brush_nodes_list = {};
+	var alpabet_list = ['A','B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S','T','U','V','W','X','Y','Z'];
 	/*
 	 * layout
 	 */
@@ -1323,11 +1324,11 @@ var treeCompare = function(){
 			if(mult_tree_smaller[i].mark_reversal)
 				d3.select("#label_alpabet" + mult_tree_smaller[i].buttondiv.slice(17))
 					.html("<span class=\"btn btn-default btn-xs span-label\" style=\'background-color: #FF7F0E\'>"
-						+mult_tree_smaller[i].alpabet_index+"</span>");
+						+alpabet_list[mult_tree_smaller[i].alpabet_index]+"</span>");
 			else
 				d3.select("#label_alpabet" + mult_tree_smaller[i].buttondiv.slice(17))
 					.html("<span class=\"btn btn-default btn-xs span-label\" style=\'background-color: steelblue\'>"
-						+mult_tree_smaller[i].alpabet_index+"</span>");
+						+alpabet_list[mult_tree_smaller[i].alpabet_index]+"</span>");
 		}
 	}
 	//清空视图中的树
