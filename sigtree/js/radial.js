@@ -106,29 +106,10 @@ var radial = {
 			var node = svg.selectAll(".node")
 				.data(nodes, function(d) {return d.id});
 			var max_depth = 0;
-			node.on("click",function(d,i){
-				var this_node = d3.select(this);
-				_click(d, i, this_node, tree_root);
-			})
-			.on("mouseover", function(d) {
-				ObserverManager.post("mouse-over", [d.id]);
-			})
-			.on("mouseout", function(d) {
-				ObserverManager.post("mouse-out", [d.id]);
-			})
 			var nodeUpdate = node.transition().duration(duration)
-			.attr('class', 'node')
 			.attr("transform",function(d){
 				return "rotate(" + (d.x - 90) + ")translate(" + d.y + ")";
 			})
-			.attr("fill",function(d,i){
-				if(d.values == null){
-					return "steelblue";
-				}
-				else{
-					return "#CCC29C";
-				}
-			});
 			var nodeEnter = node.enter().append("g")
 				.attr("class", "node")
 				.attr("transform", function(d) { return "rotate(" + (d.x - 90) + ")translate(" + (d.y) + ")"; })
@@ -158,7 +139,7 @@ var radial = {
 					return "steelblue";
 				}
 				else{
-					return "#CCC29C";
+					return "#EEEEEE";
 				}
 			});
 			var nodecircle = nodeEnter.append("circle")
@@ -225,7 +206,7 @@ var radial = {
 				if(d.values == null){
 					this_node.attr("fill","steelblue");
 				}else{
-					this_node.attr("fill","#CCC29C");
+					this_node.attr("fill","#EEEEEE");
 				}
 			}
 			treeNodeList = tree.nodes(tree_root).reverse();

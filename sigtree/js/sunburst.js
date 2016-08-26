@@ -46,7 +46,7 @@ var sunburst = {
                 .style("width",width)
                 .style("height",height) 
                 .style('left', padding) 
-                .datum(root)
+                .datum(tree_root)
                 .call(sunburst_outer)
     },
     OMListen: function(message, data){
@@ -65,39 +65,16 @@ var sunburst = {
 }
 	function d3_sunburst()
     {
-        var width = $("#leftTopLeftWrapper-sunburst").width(),
-            height = $("#leftTopLeftWrapper-sunburst").height(),
-            radius = d3.min([width,height]),
+        var width = 800,
+            height = 800,
+            radius = d3.min([width,height])/2,
             drawn_depth = 1000000,
-            is_origin = 1,
             cal_innerRadius = function(totalradius,depth)
             {
                 return totalradius/5*depth*0.7+totalradius*0.3;
             },
             group_id = undefined;
-        update_tree_node_list(radius);
-        function update_tree_node_list(radius){
-            var tree = d3.layout.tree()
-            .size([360, radius / 2 - 20])
-            .children(function(d){
-                if(Array.isArray(d.values)) return d.values;
-                return undefined;
-            })
-            .separation(function(a, b) { 
-                var dis = (a.parent == b.parent ? 1 : 2) / a.depth;
-                if(a.depth <= 2 && b.depth <= 2)
-                    dis = 10;
-                if(a.depth == 3 && b.depth == 3)
-                    dis = 1;
-                if(a.parent && b.parent){
-                    return dis;
-                }
-                return 1;
-            });
-            var treeRoot = dataCenter.datasets[0].processor.result.treeRoot;
-            var treeNodeList = tree.nodes(treeRoot).reverse();
-            dataCenter.set_global_variable('tree_node_list', treeNodeList);
-        }
+            
         function chart(selection)
         {
             selection.each(function(tree_data) 
@@ -134,15 +111,9 @@ var sunburst = {
                     		return d.x + d.dx - .03 / (d.depth + .5); 
                     	return d.x+0.002
                     })
+                    //.endAngle(function(d) { return d.x + d.dx - .01 / (d.depth + .5); })
                     .innerRadius(function(d) { return cal_innerRadius(radius,d.depth); })
-                    .outerRadius(function(d) { return cal_innerRadius(radius,d.depth+1) - 2; });
-
-                var tooltip = d3.select("body")
-                    .append("div")
-                    .attr("id", "tooltip")
-                    .style("position", "absolute")
-                    .style("z-index", "10")
-                    .style("opacity", 0);
+                    .outerRadius(function(d) { return cal_innerRadius(radius,d.depth+1) - 2; });      
 
                 //控制每块弧上的文字的角度，使得文字在radial的layout中能够散开
                 function computeTextRotation(d) {
@@ -153,31 +124,38 @@ var sunburst = {
                 //鼠标移动到arc上的交互
                 function mouseOverArc(d,this_ele) 
                 {
-                    d3.selectAll("#tooltip").style("opacity", 0);//把别的tooltip调成全透明，避免出现多个tooltip影响视线
+                    d3.selectAll(".sunburst_arc").classed("mouseover_hide-sunburst_arc",true);
+                    d3.select(this_ele).classed("mouseover_hide-sunburst_arc",false);
+                    var parent = d.parent;
+                    while (true)
+                    {
+                        if (typeof(parent)=="undefined")
+                            break;
+                        d3.select("#"+parent.id).classed("mouseover_hide-sunburst_arc",false);
+                        parent = parent.parent;
+                    }
 
-                    d3.selectAll(".sunburst_arc")
-                        .classed("mouseover_hide-sunburst_arc",function(d,i){
-                            if (this != this_ele)
-                                return true;
-                            return false;
-                        })
-
-                    tooltip.html('<b>' + _id_to_name(d.id) + '</b> (' +"flow:" + d.flow + ')');
-                    return tooltip.transition()//让tooltip从上一个状态平滑转换到这一个状态
-                            .duration(500)//tooltip的opacity变化的效果的时间长度
-                            .style("opacity", 0.9);
+                    _communicate()
+                    function _communicate(){
+                        var this_node = d3.select(this_ele);
+                        ObserverManager.post("mouse-over", [d.id]);
+                        dataCenter.set_global_variable('mouse_over_signal_node', this_node);
+                    }
                 }
 
                 function mouseOutArc(d){
                     d3.selectAll(".sunburst_arc")
                         .classed("mouseover_hide-sunburst_arc",false)
-                    return tooltip.style("opacity", 0);
+
+                    _communicate()
+                    function _communicate(){
+                        ObserverManager.post("mouse-out", [d.id]);
+                        tip.hide(d);
+                    }
                 }
 
                 function mouseMoveArc (d) {
-                    return tooltip
-                            .style("top", (d3.event.pageY-10)+"px")
-                            .style("left", (d3.event.pageX+10)+"px");
+
                 }
 
                 partition
@@ -189,29 +167,27 @@ var sunburst = {
                     .children(function(d, depth) { return depth < drawn_depth ? d.children : null; })//使用的数据的树的最大深度
                     .value(function(d) { return d.flow; });
 
-                if (is_origin==1)//只有最初始的sunburst拥有中心用于跳出的圆
-                {   
-                    var center = svg.append("circle")//中心用于跳出的圆
-                        .attr("class","zoomout_circle")
-                        .attr("r", cal_innerRadius(radius,1))
-                        .on("click", zoomOut);
-                }
+                 
+                var center = svg.append("circle")//中心用于跳出的圆
+                    .attr("class","zoomout_circle")
+                    .attr("r", cal_innerRadius(radius,1))
+                    .on("click", zoomOut);
              
                 var partitioned_data = partition.nodes(tree_data).slice(1)
 
                 //弧的属性控制
                 var path = svg.selectAll("path")
                         .data(partitioned_data,function(d,i){return d.id})
-
                 path.enter().append("path")
                     .attr("d", arc)
                     .attr("class","sunburst_arc")
                     .attr("id",function(d){return d.id})//按照节点在树中的位置唯一标记每一个node的arc
-                    .style("fill", function(d) { return fill(d); })//载入时的sunburst的着色s
+                    .style("fill", function(d) { return fill(d); })//载入时的sunburst的着色
                     .each(function(d) { this._current = updateArc(d); })
                     .on("mouseover", function(d,i){mouseOverArc(d,this);})
                     .on("mousemove", mouseMoveArc)
-                    .on("mouseout", mouseOutArc);
+                    .on("mouseout", mouseOutArc)
+                    .on("click", zoomIn);
 
                 path.exit().transition()
                     .style("fill-opacity", function(d) { return 0; })
@@ -220,9 +196,6 @@ var sunburst = {
                 path.transition()
                     .style("fill-opacity", 1)
                     .attrTween("d", function(d) { return arcTween.call(this, updateArc(d)); });    
-
-                if (is_origin==1)//只有主视图有zoomIn的交互
-                    path.on("click", zoomIn);
                   
                 var texts = svg.selectAll("text")
                                 .data(partitioned_data,function(d,i){return d.id})
@@ -235,8 +208,8 @@ var sunburst = {
                                 .text(function(d,i) {return _id_to_name(d.id)})
                 texts.exit().remove()      
                 
-                //如果p不是root下面的第一层结点，那么调用zoomIn(p)是进入结点p的父
-                //如果p是root下面的第一层结点，那么调用zoomIn(p)是进入结点p               
+                //如果p不是root下面的第一层结点，那么调用zoom in(p)是进入结点p的父
+                //如果p是root下面的第一层结点，那么调用zoom in(p)是进入结点p               
                 function zoomIn(p) 
                 {
                     if (p.depth > 1) p = p.parent;
@@ -271,7 +244,7 @@ var sunburst = {
 
                     center.datum(root);
 
-                    // When zooming in, arcs enter from the outside and exit to the inside.
+                    // When zoom ing in, arcs enter from the outside and exit to the inside.
                     // Entering outside arcs start from the old layout.
                     if (root === p) enterArc = outsideArc, exitArc = insideArc, outsideAngle.range([p.x, p.x + p.dx]);
                     
@@ -279,7 +252,7 @@ var sunburst = {
 
                     path = path.data(new_data, function(d) { return d.id; });
                          
-                    // When zooming out, arcs enter from the inside and exit to the outside.
+                    // When zoom ing out, arcs enter from the inside and exit to the outside.
                     // Exiting outside arcs transition to the new layout.
                     if (root !== p) enterArc = insideArc, exitArc = outsideArc, outsideAngle.range([p.x, p.x + p.dx]);
 
@@ -408,18 +381,6 @@ var sunburst = {
                 return;
             }
             drawn_depth = value;
-            return chart;
-        };
-
-        chart.is_origin = function(value)
-        {
-            if (!arguments.length) return is_origin;
-            if (typeof(value)!="number")
-            {
-                console.warn("invalid value for is_origin",value);
-                return;
-            }
-            is_origin = value;
             return chart;
         };
 
