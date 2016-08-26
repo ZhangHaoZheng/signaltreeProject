@@ -177,6 +177,9 @@ var radial = {
 			var link = svg.selectAll("path.link")
 				.data(links,function(d) { return d.target.id; });
 			link.enter().insert("path", "g")
+			  .attr("id",function(l){
+			  	return "radial-link-" + l.target.id;
+			  })
 			  .attr("class", "link")
 			  .attr("d", diagonal);
 			link.transition().duration(duration)
@@ -235,6 +238,53 @@ var radial = {
 		}
 		return radialexpandmark;
 	},
+	_highlight_subtree_and_route_from_root: function(id) {
+		var treeNodeList = dataCenter.global_variable.tree_node_list;
+		var self = this;
+		var highlight_id_list = [];
+		var node = null;
+		for(var i = 0; i < treeNodeList.length; i++){
+			if(treeNodeList[i].id == id) {
+				node = treeNodeList[i];
+				break;
+			}
+		}
+		if(node == null) return;
+		var node1 = node;
+		while(node1.parent != undefined){
+			if(node1.parent.id.indexOf(";") == -1)
+				highlight_id_list.push(node1.parent.id);
+			node1 = node1.parent;
+		}
+		node1 = node;
+		self._put_subtree_node_id(node1,highlight_id_list);
+		for(var i = 0; i < highlight_id_list.length; i++){
+			d3.select("#radial-node-" + highlight_id_list[i]).classed("radial-route-node-inner",true);
+			d3.select("#radial-link-" + highlight_id_list[i]).classed("radial-route-link",true);
+			d3.select("#radial-link-" + id).classed("radial-route-link",true);
+		}
+		highlight_id_list.push(id);
+		dataCenter.set_global_variable('radial_highlight_id_list', highlight_id_list);
+	},
+	_unhighlight_subtree_root: function(){
+		var highlight_id_list = dataCenter.global_variable.radial_highlight_id_list;
+		for(var i = 0; i < highlight_id_list.length; i++){
+			d3.select("#radial-node-" + highlight_id_list[i]).classed("radial-route-node-inner",false);
+			d3.select("#radial-link-" + highlight_id_list[i]).classed("radial-route-link",false);
+			d3.select("#radial-node-" + highlight_id_list[i]).classed("node",true);
+			d3.select("#radial-link-" + highlight_id_list[i]).classed("link",true);
+		}
+		dataCenter.set_global_variable('radial_highlight_id_list', []);
+	},
+	 _put_subtree_node_id: function(node,list){
+	 	var self = this;
+		if(node.values == undefined) return;
+		for(var i = 0; i < node.values.length; i++){
+			if(node.values[i].id.indexOf(";") == -1)
+				list.push(node.values[i].id);
+			self._put_subtree_node_id(node.values[i],list);
+		}
+	},
 	OMListen: function(message, data){
 		var idPrefix = "#radial-node-";
 		var svg = d3.select('#radial');
@@ -257,10 +307,12 @@ var radial = {
 			}
 		}
         if(message == "mouse-over"){
+        	var self = this;
         	for (var i = 0; i < data.length; i++) {
         		if(data[i] != null){
 					data[i] = data[i].replace(';','');
 				}
+				self._highlight_subtree_and_route_from_root(data[i]);
 				svg.select(idPrefix + data[i]).classed("focus-highlight", true);
 				if (svg.select(idPrefix + data[i]).data().length > 0) {
 					var nodeData = svg.select(idPrefix + data[i]).data()[0];
@@ -268,10 +320,12 @@ var radial = {
 			}
         }
         if(message == "mouse-out"){
+        	var self = this;
         	for(var i = 0; i < data.length; i++) {
         		if(data[i] != null){
 					data[i] = data[i].replace(';','');
 				}
+				self._unhighlight_subtree_root();
 				svg.select(idPrefix + data[i]).classed("focus-highlight", false);
 			}
         }

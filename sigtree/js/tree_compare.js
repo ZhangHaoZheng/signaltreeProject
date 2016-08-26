@@ -42,7 +42,7 @@ var treeCompare = function(){
 	var deletefrom = false;
 	var nodes;
 	var links;
-	var bottom_padding = trend_height / 2;
+	var bottom_padding = trend_height/1.3;
 	var colors = function(i){
 		var three_ = ["red","green","blue"];
 		return (function(){return three_[i]})();
@@ -1044,8 +1044,8 @@ var treeCompare = function(){
 		update_brush_g();
 	}
 	function update_brush_g(){
-		value_of_the_top_one = d3.select("#multitree li div div span").attr("value");
 		if(mult_tree_smaller.length == 0) return;
+		value_of_the_top_one = d3.select("#multitree li div div span").attr("value");
 		d3.selectAll(".created_g_for_brush").remove();
 		d3.select("#"+mult_tree_smaller[value_of_the_top_one].divid).selectAll(".g_for_brush").append("g")
 			.attr("class","created_g_for_brush")
