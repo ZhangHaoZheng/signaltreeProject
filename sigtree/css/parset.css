@@ -2,3 +2,7 @@
     stroke: #b2df8a;
     fill: red;
 }
+.route-path{
+	fill-opacity: 0.9;
+	fill: #4A4AFF;
+}

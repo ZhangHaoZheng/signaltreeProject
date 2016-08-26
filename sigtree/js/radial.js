@@ -121,6 +121,7 @@ var radial = {
 					return "radial-node-" + id;
 				})
 				.on("click",function(d,i){
+					unhighlight();
 					var this_node = d3.select(this);
 					_click(d, i, this_node, tree_root);
 				})
@@ -212,6 +213,16 @@ var radial = {
 			treeNodeList = tree.nodes(tree_root).reverse();
 			_update(treeNodeList);
 		}
+		function unhighlight(){
+			var highlight_id_list = dataCenter.global_variable.radial_highlight_id_list;
+			for(var i = 0; i < highlight_id_list.length; i++){
+				d3.select("#radial-node-" + highlight_id_list[i]).classed("radial-route-node-inner",false);
+				d3.select("#radial-link-" + highlight_id_list[i]).classed("radial-route-link",false);
+				d3.select("#radial-node-" + highlight_id_list[i]).classed("node",true);
+				d3.select("#radial-link-" + highlight_id_list[i]).classed("link",true);
+			}
+			dataCenter.set_global_variable('radial_highlight_id_list', []);
+		}
 	},
 	_putnodesdepth: function(radialexpandmark, nodesIddepth, hide_depth){
 		radialexpandmark = [];
@@ -223,32 +234,18 @@ var radial = {
 		return radialexpandmark;
 	},
 	_highlight_subtree_and_route_from_root: function(id) {
-		var treeNodeList = dataCenter.global_variable.tree_node_list;
-		var self = this;
-		var highlight_id_list = [];
-		var node = null;
-		for(var i = 0; i < treeNodeList.length; i++){
-			if(treeNodeList[i].id == id) {
-				node = treeNodeList[i];
-				break;
-			}
-		}
-		if(node == null) return;
-		var node1 = node;
-		while(node1.parent != undefined){
-			if(node1.parent.id.indexOf(";") == -1)
-				highlight_id_list.push(node1.parent.id);
-			node1 = node1.parent;
-		}
-		node1 = node;
-		self._put_subtree_node_id(node1,highlight_id_list);
+		var highlight_id_list = dataCenter.global_variable.radial_highlight_id_list;
 		for(var i = 0; i < highlight_id_list.length; i++){
-			d3.select("#radial-node-" + highlight_id_list[i]).classed("radial-route-node-inner",true);
-			d3.select("#radial-link-" + highlight_id_list[i]).classed("radial-route-link",true);
-			d3.select("#radial-link-" + id).classed("radial-route-link",true);
+			if(highlight_id_list[i] == id) continue;
+			d3.select("#radial-node-" + highlight_id_list[i])
+				.classed("radial-route-node-inner",true);
+			d3.select("#radial-link-" + highlight_id_list[i])
+				.classed("link",false);
+			d3.select("#radial-link-" + highlight_id_list[i])
+				.classed("radial-route-link",true);
 		}
-		highlight_id_list.push(id);
-		dataCenter.set_global_variable('radial_highlight_id_list', highlight_id_list);
+		d3.select("#radial-link-" + id).classed("link",false);
+		d3.select("#radial-link-" + id).classed("radial-route-link",true);
 	},
 	_unhighlight_subtree_root: function(){
 		var highlight_id_list = dataCenter.global_variable.radial_highlight_id_list;

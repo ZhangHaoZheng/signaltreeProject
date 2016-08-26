@@ -21,7 +21,7 @@ var treeCompare = function(){
 	var leftPadding = 25;
 	var brush_compare = d3.svg.brush();
 	var brush_nodes_list = {};
-	var alpabet_list = ['A','B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S','T','U','V','W','X','Y','Z'];
+	var alpabet_mark = {};
 	/*
 	 * layout
 	 */
@@ -371,11 +371,17 @@ var treeCompare = function(){
 					return text;
 				})
 				tip.show()
-				ObserverManager.post("mouse-over", [d.id]);
+				if(mult_tree.tree_id == dataCenter.global_variable.current_id)
+					ObserverManager.post("mouse-over", [d.id]);
+				d3.select("#multitree").selectAll("#compare-node-" + d.id).classed("focus-highlight",true);
+				highlight_subtree_root(d.id,mult_tree.tree_id,false);
 			})
 			.on("mouseout", function(d) {
-				ObserverManager.post("mouse-out", [d.id]);
+				if(mult_tree.tree_id == dataCenter.global_variable.current_id)
+					ObserverManager.post("mouse-out", [d.id]);
+				d3.select("#multitree").selectAll("#compare-node-" + d.id).classed("focus-highlight",false);
 				tip.hide();		
+				unhighlight_subtree_root();
 			})
 			.on("click",function(d){
 				build_id_nodes(nodes);
@@ -420,7 +426,7 @@ var treeCompare = function(){
 				else o = tree_height - 10;
 				return o;
 			}).remove();
-		if(mark_draw_all == false) return;
+		if(mark_draw_all == false || mult_tree_smaller[div_i].mark_only_flow) return;
 		var polygon_svg = d3.select("#" + mult_tree.divid + " #tree_svg");
 		var filter_nodes = nodes.filter(function(d,i){
 				if(d.count == undefined) return false;
@@ -828,7 +834,7 @@ var treeCompare = function(){
 	}
 	//highlight 节点的子树及到根节点的路径
 	var highlight_id_list,has;
-	function highlight_subtree_root(node_id){
+	function highlight_subtree_root(node_id,tree_id,mark_from_Global){
 		highlight_id_list = [];
 		var node = nodes[id_nodes[node_id]];
 		var node1 = node;
@@ -839,10 +845,20 @@ var treeCompare = function(){
 			node = node.parent;
 		}
 		node = node1;
-		put_subtree_node_id(node,highlight_id_list);
+		var tmp_index;
+		for(var i = 0; i < mult_tree_smaller.length; i++){
+			if(mult_tree_smaller[i].tree_id == tree_id){
+				tmp_index = mult_tree_smaller[i].index;
+				break;
+			}
+		}
+		put_subtree_node_id(node,highlight_id_list,tmp_index);
 		has = node1.has;
 		for(key in node1.has){
 			key = parseInt(key);
+			if(mark_from_Global){
+				if(tmp_index != key) continue;
+			}
 			var i;
 			for(i = 0; i < mult_tree_smaller.length; i++){
 				if(key == mult_tree_smaller[i].index) break;
@@ -851,10 +867,11 @@ var treeCompare = function(){
 			for(var j = 0; j < highlight_id_list.length; j++){
 				g.select("#compare-node-"+highlight_id_list[j]).attr("class","routenode-inner");
 				g.select("#link-"+highlight_id_list[j]).attr("class","route-link");
-				g.select("#link-"+node.id).attr("class","route-link");
 			}
+			g.select("#link-"+node.id).attr("class","route-link");
 		}
 		highlight_id_list.push(node.id);
+		dataCenter.set_global_variable('radial_highlight_id_list', highlight_id_list);
 	}
 	function unhighlight_subtree_root(){
 		for(key in has){
@@ -881,12 +898,13 @@ var treeCompare = function(){
 		highlight_id_list = [];
 		has = {};
 	}
-	function put_subtree_node_id(node,list){
+	function put_subtree_node_id(node,list,index){
 		if(node.children == undefined) return;
 		for(var i = 0; i < node.children.length; i++){
-			if(node.children[i].id.indexOf(";") == -1)
+			if(node.children[i].id.indexOf(";") == -1 && node.children[i].has[index]){
 				list.push(node.children[i].id);
-			put_subtree_node_id(node.children[i],list);
+			}
+			put_subtree_node_id(node.children[i],list,index);
 		}
 	}
 	
@@ -926,13 +944,10 @@ var treeCompare = function(){
 			if(mult_tree_smaller[i].tree_id == tree_id) {
 				d = i;
 				alpabet_index = mult_tree_smaller[i].alpabet_index;
+				delete alpabet_mark[alpabet_index];
 				index = mult_tree_smaller[i].index;
 				break;
 			}
-		}
-		for(var i = 0; i < mult_tree_smaller.length; i++){
-			if(mult_tree_smaller[i].alpabet_index > alpabet_index)
-				mult_tree_smaller[i].alpabet_index--;
 		}
 		delete total_root.has[index];
 		delete_index_fromroot(total_root,index);
@@ -1018,6 +1033,15 @@ var treeCompare = function(){
 					max_flow_of_depth[nodes1[j].depth] = parseInt(nodes1[j].flow);
 				}
 			}
+			var alpabet_index;
+			//20000是拍脑袋想的
+			for(var j = 0; j < 20000; j++){
+				if(!alpabet_mark[j]){
+					alpabet_index = j;
+					alpabet_mark[j] = true;
+					break;
+				}
+			}
 			mult_tree_smaller.push({
 				nodes:nodes1, 
 				node:node, 
@@ -1025,7 +1049,7 @@ var treeCompare = function(){
 				index:dataCenter.global_variable.numoftreecompare+2, 
 				divid:"treemap"+dataCenter.global_variable.numoftreecompare,
 				buttondiv:"treemap_label_div" + dataCenter.global_variable.numoftreecompare,
-				alpabet_index:mult_tree_smaller.length,
+				alpabet_index:alpabet_index,
 				mark_reversal:reverse_m,
 				mark_draw_all:draw_all_m,
 				mark_only_flow:false,
@@ -1177,28 +1201,24 @@ var treeCompare = function(){
 			.style("position","absolute")
 			.style("top",0)
 			.style("left",0);
+		$("#treemap_label_div" + global_numoftreecompare).width(50);
+		tmpdiv.append("svg").style("position","absolute")
+			.style("top",0)
+			.attr("height",20)
+			.attr("width",40)
+			.append("circle")
+			.attr("class","select_circle")
+			.attr("id","selected_circle")
+			.attr("cx",30)
+			.attr("cy",9)
+			.attr("r",3.5)
+			.attr("fill","#000000")
+			.attr("visibility","hidden");
 		tmpdiv.append("span").attr("id","label_alpabet" +global_numoftreecompare)
+			.style("position","absolute")
+			.style("top",0)
 			.attr("value",mult_tree_smaller.length)
-			.on("click",function(){
-				var tmp = parseInt(d3.select(this).attr("value"));
-				var tmp_num = mult_tree_smaller[tmp].buttondiv.slice(17);
-				for(var i = 0; i < mult_tree_smaller.length; i++){
-					var j = mult_tree_smaller[i].buttondiv.slice(17);
-					if(i == tmp) continue;
-					if(d3.select("#delete"+j).style("visibility") == "visible"){
-						d3.select("#delete"+j).style("visibility","hidden");
-						d3.select("#reverse"+j).style("visibility","hidden");
-					}
-				}
-				if(d3.select("#delete"+tmp_num).style("visibility") == "hidden"){
-					d3.select("#delete"+tmp_num).style("visibility","visible");
-					d3.select("#reverse"+tmp_num).style("visibility","visible");
-				}
-				else {
-					d3.select("#delete"+tmp_num).style("visibility","hidden");
-					d3.select("#reverse"+tmp_num).style("visibility","hidden");
-				}
-			})
+			.on("click",label_click);
 		tmpdiv.append("br");
 		tmpdiv.append("span").attr("id","delete" + global_numoftreecompare).style("visibility","hidden")
 			.attr("class","btn btn-default btn-xs active level-btn toolbar-tree")
@@ -1212,6 +1232,26 @@ var treeCompare = function(){
 			.attr("value",mult_tree_smaller.length)
 			.on("click",reverse_tree_click);
 		return tmp_tree_height;
+	}
+	function label_click(){
+		var tmp = parseInt(d3.select(this).attr("value"));
+		var tmp_num = mult_tree_smaller[tmp].buttondiv.slice(17);
+		for(var i = 0; i < mult_tree_smaller.length; i++){
+			var j = mult_tree_smaller[i].buttondiv.slice(17);
+			if(i == tmp) continue;
+			if(d3.select("#delete"+j).style("visibility") == "visible"){
+				d3.select("#delete"+j).style("visibility","hidden");
+				d3.select("#reverse"+j).style("visibility","hidden");
+			}
+		}
+		if(d3.select("#delete"+tmp_num).style("visibility") == "hidden"){
+			d3.select("#delete"+tmp_num).style("visibility","visible");
+			d3.select("#reverse"+tmp_num).style("visibility","visible");
+		}
+		else {
+			d3.select("#delete"+tmp_num).style("visibility","hidden");
+			d3.select("#reverse"+tmp_num).style("visibility","hidden");
+		}
 	}
 	//在只显示流量，最后两层，全部展开中切换
 	function draw_all_or_part_tree(value){
@@ -1326,11 +1366,11 @@ var treeCompare = function(){
 			if(mult_tree_smaller[i].mark_reversal)
 				d3.select("#label_alpabet" + mult_tree_smaller[i].buttondiv.slice(17))
 					.html("<span class=\"btn btn-default btn-xs span-label\" style=\'background-color: #FF7F0E\'>"
-						+alpabet_list[mult_tree_smaller[i].alpabet_index]+"</span>");
+						+mult_tree_smaller[i].alpabet_index+"</span>");
 			else
 				d3.select("#label_alpabet" + mult_tree_smaller[i].buttondiv.slice(17))
 					.html("<span class=\"btn btn-default btn-xs span-label\" style=\'background-color: steelblue\'>"
-						+alpabet_list[mult_tree_smaller[i].alpabet_index]+"</span>");
+						+mult_tree_smaller[i].alpabet_index+"</span>");
 		}
 	}
 	//清空视图中的树
@@ -1388,6 +1428,8 @@ var treeCompare = function(){
 				d3.select("#" + tmp.divid)
 					.style("border","1px solid")
 					.style("border-color","#000000");
+				d3.selectAll(".select_circle").attr("visibility","hidden");
+				d3.select("#" + tmp.divid + " #selected_circle").attr("visibility","visible");
 			}
 			else {
 				d3.select("#"+tmp.divid)
@@ -1437,8 +1479,16 @@ var treeCompare = function(){
         if(message == "mouse-over"){
         	for (var i = 0; i < data.length; i++) {
         		if(data[i].indexOf(";") != -1) return;
-        		d3.select("#multitree").selectAll(idmulti + data[i]).classed("focus-highlight",true);
-        		highlight_subtree_root(data[i]);
+        		var tree_div;
+        		for(var j = 0; j < mult_tree_smaller.length; j++){
+        			if(mult_tree_smaller[j].tree_id == dataCenter.global_variable.current_id){
+        				tree_div = mult_tree_smaller[j].divid;
+        				break;
+        			}
+        		}
+        		if(tree_div != undefined)
+        			d3.select("#" + tree_div).selectAll(idmulti + data[i]).classed("focus-highlight",true);
+        		highlight_subtree_root(data[i],dataCenter.global_variable.current_id,true);
 			}
         }
         if(message == "mouse-out"){

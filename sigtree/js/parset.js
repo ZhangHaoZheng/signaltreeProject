@@ -70,12 +70,14 @@ var parset = {
 		svg.call(tip);
 		svg.selectAll('path')
 			.on('mouseover', function(d,i){
-				console.log(d);
 				tip.show(d);
 			})
 			.on('mouseout', function(d,i){
 				tip.hide(d);
-			});
+			})
+			.on('click',function(d){
+				console.log(d)
+			})
 		svg.selectAll("rect")
 			.on("mouseover",function(){
 				if(d3.select(this).attr("class") != "category-0") return;
@@ -104,6 +106,22 @@ var parset = {
 			ObserverManager.post("mouse-out", [data.id])
 		}
 	},
+	_highlight_subtree_and_route_from_root: function(dataI) {
+		var svg = d3.select("svg.parset");
+		var highlight_id_list = dataCenter.global_variable.radial_highlight_id_list;
+		for(var i = 0; i < highlight_id_list.length; i++){
+			svg.selectAll("#parset-mouse-" + highlight_id_list[i])
+				.style("fill-opacity",0.9)
+				.style("fill","#4A4AFF");
+		}
+	},
+	_unhighlight_subtree_root: function(){
+		var svg = d3.select("svg.parset");
+		svg.selectAll("path")
+			.style("fill-opacity",0.3)
+			.style("fill","steelblue");
+		dataCenter.set_global_variable('radial_highlight_id_list', []);
+	},
     OMListen: function(message, data) {
 		var idPrefix = "#parset-ribbon-";
 		var svg = d3.select("svg.parset");
@@ -115,18 +133,22 @@ var parset = {
 			}
 		}
         if (message == "mouse-over") {
+        	var self = this;
 			for (var i = 0; i < data.length; i++) {
 				var dataI = data[i].replace(';','');
 				svg.selectAll("#parset-ribbon-" + dataI).classed("focus-highlight", true);
 				svg.selectAll("#parset-mouse-" + dataI).classed("focus-highlight", true);	
+				self._highlight_subtree_and_route_from_root(dataI);
 			}
         }
         if (message == "mouse-out") {
+        	var self = this;
 			for (var i = 0; i < data.length; i++) {
 				var dataI = data[i].replace(';','');
 				svg.selectAll("#parset-ribbon-" + dataI).classed("focus-highlight", false);
 				svg.selectAll("#parset-mouse-" + dataI).classed("focus-highlight", false);
 			}        	
+			self._unhighlight_subtree_root();
         }
         if(message=="update-view"){
         	var self = this;
