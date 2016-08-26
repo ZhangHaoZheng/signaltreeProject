@@ -37,7 +37,8 @@ var dataCenter = {
 		'similar_id_array':[],
 		'numoftreecompare':0,
 		'time_sort_array':[],
-		'propotion_array':[]
+		'propotion_array':[],
+		'radial_highlight_id_list':[]
 	},
 	GLOBAL_STATIC: {
 		'radius': 3.5,
