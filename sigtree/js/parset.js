@@ -3,8 +3,9 @@ var parset = {
 		var self = this;
 		self._add_to_listener();
 		self._bind_view();
+		var treeRoot = dataCenter.datasets[0].processor.result.treeRoot;
 		var dataList = dataCenter.datasets[0].processor.result.dataList;
-		self._render_view(dataList);
+		self._render_view(dataList, treeRoot);
 		return self;
 	},
 	_add_to_listener: function(){
@@ -13,8 +14,15 @@ var parset = {
 	},
 	_bind_view: function(){
 	},
-	_render_view: function(data_list){
+	_render_view: function(data_list, tree_root){
 		var dt = data_list;
+		var tree = self.tree = d3.layout.tree()
+			.children(function(d){
+				if(Array.isArray(d.values)) return d.values;
+				return undefined;
+			});
+		var treeNodeList = tree.nodes(tree_root).reverse();
+		console.log(treeNodeList);
 		var width = +$("#leftBottomWrapper").width();
 		var height = +$("#leftBottomWrapper").height();
 		var svg = d3.select("svg.parset")
@@ -70,9 +78,16 @@ var parset = {
 		svg.call(tip);
 		svg.selectAll('path')
 			.on('mouseover', function(d,i){
+				var nodeAttrObj = get_tree_node(d.id);
+				var clickNode = {
+					tree_label: dataCenter.global_variable.current_id,
+					node: d,
+				};
+				dataCenter.set_global_variable('mouse_over_signal_node', clickNode);
 				tip.show(d);
 			})
 			.on('mouseout', function(d,i){
+				dataCenter.set_global_variable('mouse_over_signal_node', null);
 				tip.hide(d);
 			});
 		svg.selectAll("rect")
@@ -101,6 +116,14 @@ var parset = {
 
 		function mouseoutCallback(data) {
 			ObserverManager.post("mouse-out", [data.id])
+		}
+		function get_tree_node(id){
+			for(var i = 0;i < treeNodeList.length;i++){
+				if(treeNodeList[i].id == id){
+					return treeNodeList[i];
+				}
+			}
+			return null;
 		}
 	},
 	_highlight_subtree_and_route_from_root: function(dataI) {

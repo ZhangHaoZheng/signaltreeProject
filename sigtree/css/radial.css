@@ -66,15 +66,18 @@
   fill: #c0c0c0 !important;
   stroke: #c0c0c0 !important;
 }
-#leftTopLeftWrapper-radial .blue-label{
+#leftTopWrapper .label{
+  float: left;
+}
+#leftTopWrapper .blue-label{
   background-color: #1F77B4;
 }
-#leftTopLeftWrapper-sunburst .blue-label{
+#leftTopWrapper .blue-label{
   background-color: #1F77B4;
 }
-#leftTopLeftWrapper-radial .orange-label{
+/*#leftTopLeftWrapper-radial .orange-label{
   background-color: #FF7F0E;
 }
 #leftTopLeftWrapper-sunburst .orange-label{
   background-color: #1F77B4;
-}
+}*/

@@ -328,7 +328,13 @@ var treeCompare = function(){
 						break;
 					}
 				}
-				ObserverManager.post("show-detail-info", { dataset:tmp, node: n });
+				//获取节点所属信号树所对应的时间
+				var treeLabel = mult_tree.tree_id;
+				var clickNode = {
+					tree_label:treeLabel, 
+					node: n 
+				}
+				dataCenter.set_global_variable('mouse_over_signal_node', clickNode);
 				tip.html(function() {
 					var tmp = n.id.split('-');
 					var text = tmp[tmp.length - 1];

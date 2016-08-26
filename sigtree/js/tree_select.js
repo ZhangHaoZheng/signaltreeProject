@@ -351,7 +351,7 @@ var treeSelect = function(){
         for(var i = 0;i < selectionArray.length;i++){
         	var thisNodeName = selectionArray[i];
         	var thisNode = d3.select('.node' + thisNodeName);
-			var label = String.fromCharCode(97 + i).toUpperCase();;
+			var label = String.fromCharCode(97 + i).toUpperCase();
 			var thisX = +thisNode.attr('x') + margin.left;
 			var thisY = +thisNode.attr('y') + margin.top;
 			var thisWidth = +thisNode.attr('width');
@@ -591,7 +591,7 @@ var treeSelect = function(){
 		}
 		$("#innerTopRight #label-C #node-description").html(nodeID);
 		$("#innerTopRight #label-C #level-description").html(levelText);
-		$("#innerTopRight #label-C #flow-num-description").text(d3.format(".3s")(flowLevel));
+		$("#innerTopRight #label-C #flow-num-description").text(d3.format(".3s")(flowLevel) + 'bytes');
 		$("#innerTopRight #label-C #tree-num-description").text(treeNodeNum);
 		$("#innerTopRight #label-C #sub-node-description").text(sumNodeNum);
 		function change_color_to_blue(){
@@ -603,7 +603,7 @@ var treeSelect = function(){
 			$("#innerTopRight #label-C #node-type").addClass('orange-label');
 		}
 	}
-	function changeLabelA(date, value, node_num){
+	function changeLabelA(date, value, level_num, node_num){
 		$("#innerTopRightTop #label-A .date_description").html(function() {
 				var timeArray = date.split("-");
 				return timeArray[0];
@@ -611,6 +611,10 @@ var treeSelect = function(){
 		});
 		$("#innerTopRightTop #label-A .value_description").html(function() {
 				return  d3.format(".3s")(value) + "bytes" ;
+			return "";
+		});
+		$('#innerTopRightTop #label-A .level_description').html(function(){
+				return level_num;
 			return "";
 		});
 		$("#innerTopRightTop #label-A .node_num_description").html(function() {
@@ -634,7 +638,7 @@ var treeSelect = function(){
 		$('.append-current-circle').css('stroke', 'white');
 		//$('span.button').css('border-bottom', '3px solid white');
 		//$('span.button.active').css('border-bottom', '3px solid #2060d5');
-		$('#label-C').css('border-top', '1px solid black');
+		//$('#label-C').css('border-top', '1px solid black');
 		$('.tick line').css('stroke', 'white');
 		$('.button-group div').css('color', 'white');
 		$('.button-group.bind div').css('color', 'white');
@@ -652,7 +656,7 @@ var treeSelect = function(){
 		$('.append-current-circle').css('stroke', 'black');
 		//$('span.button').css('border-bottom', '3px solid #aaaaaa');
 		//$('.active').css('border-bottom', '3px solid #2060d5');
-		$('#label-C').css('border-top', '1px solid gray');
+		//$('#label-C').css('border-top', '1px solid gray');
 		$('.tick line').css('stroke', 'black');
 		$('.button-group div').css('color', '#bbbbbb');
 		$('.button-group.bind div').css('color', 'black');
@@ -688,10 +692,12 @@ var treeSelect = function(){
         	if(currentId == dataCenter.datasets[i].id){
         		if(dataCenter.datasets[i].processor.result.treeRoot != undefined){
         			var tree_root = dataCenter.datasets[i].processor.result.treeRoot;
+        			console.log(tree_root);
 	        		var nodeNum = tree_root.allChilldrenCount;
 	        		var flowSize = tree_root.flow;
+	        		var levelNum = 5;
 	        		var date = currentId;
-	        		changeLabelA(date, flowSize, nodeNum);
+	        		changeLabelA(date, flowSize, levelNum, nodeNum);
 	        		break;
         		}
         	}
@@ -701,16 +707,22 @@ var treeSelect = function(){
 	    if (message == "percentage") {
 			changePercentage(data);
 	    }
-	    if (message == "show-detail-info") {
-	    	var dataset = data.dataset;
-	    	var node = data.node;
-	    	var nodeID = node.key;
-	    	var levelText = node.id.split("-").length-1;
-	    	var flowLevel = node.flow;
-	    	var treeNodeNum = Array.isArray(node.values) ? node.values.length : 0;
-	    	var sumNodeNum = node.allChilldrenCount;
-	    	console.log(dataset);
-	    	changeLabelC(dataset, nodeID, levelText, flowLevel, treeNodeNum, sumNodeNum)
+	    if ((message == "show-detail-info") || (message == 'set:mouse_over_signal_node')) {
+	    	if(data != null){
+	    		var selectionArray = dataCenter.global_variable.selection_array;
+		    	var tree_label = data.tree_label;
+		    	var tree_index = selectionArray.indexOf(tree_label);
+		    	var tree_letter = String.fromCharCode(97 + tree_index).toUpperCase();;
+		    	var node = data.node;
+		    	var nodeID = node.key;
+		    	var levelText = node.id.split("-").length - 1;
+		    	var flowLevel = node.flow;
+		    	var treeNodeNum = Array.isArray(node.values) ? node.values.length : 0;
+		    	var sumNodeNum = node.allChilldrenCount;
+		    	changeLabelC(tree_letter, nodeID, levelText, flowLevel, treeNodeNum, sumNodeNum)
+	    	}else{
+	    		changeLabelC('-', 0, 0, 0, 0, 0)
+	    	}
 	    }
 	    if(message == 'projection-highlight'){
 	    	if(data != null){

@@ -49,3 +49,23 @@
 #label-C .orange-label {
   background-color: #FF7F0E;
 }
+#innerTopRightTop #label-C tr{
+  width: 100%;
+}
+#innerTopRightTop #label-C tr td{
+  width: 50%;
+  text-align: center;
+  font-size: 8px;
+  valign: middle;
+}
+#innerTopRightBottom #label-C tr{
+  width: 100%;
+}
+#innerTopRightBottom #label-C tr td{
+  width: 50%;
+  text-align: center;
+  font-size: 8px;
+  valign: middle;
+}
+
+
