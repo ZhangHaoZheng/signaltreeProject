@@ -38,7 +38,9 @@ var dataCenter = {
 		'numoftreecompare':0,
 		'time_sort_array':[],
 		'propotion_array':[],
-		'radial_highlight_id_list':[]
+		'radial_highlight_id_list':[],
+		'mouse_over_signal_tree':null,
+		'mouse_over_signal_node':null
 	},
 	initial_global_variable: {
 		'file_array_path': [],
@@ -68,7 +70,10 @@ var dataCenter = {
 		'similar_id_array':[],
 		'numoftreecompare':0,
 		'time_sort_array':[],
-		'propotion_array':[]
+		'propotion_array':[],
+		'radial_highlight_id_list':[],
+		'mouse_over_signal_tree':null,
+		'mouse_over_signal_node':null
 	},
 	GLOBAL_STATIC: {
 		'radius': 3.5,

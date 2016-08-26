@@ -42,14 +42,6 @@
                     </div>
                 </div>
             </div>
-            <!--<div id = "select-div" class = "button-group bind">
-                <span id = "dual-selection" class = "button selection" title = "选择两个信号树">
-                    <i class="icon iconfont">&#xe60c;</i>
-                </span>
-                <span id = "multi-selection" class = "button selection" title = "选择多个信号树">
-                    <i class="icon iconfont">&#xe60b;</i>
-                </span>
-            </div>-->
             <div id = "sort-div" class = "button-group bind">
                 <span id = "time-sort" class = "button sort-btn toolbar-all active" data-placement="bottom" title = "时间排序" sort-type="time">
                     <span class="glyphicon glyphicon-time"></span>
@@ -104,37 +96,32 @@
         <div id = "topWrapper" class = "structure hidden-content">
             <div id = "innerTopLeft">
                 <svg id = "mainTimeline"></svg>
-                <!--<div id="tree-select-controller">-->
-                    <!--<span class="sort-btn btn btn-default btn-xs">
-                        <i class="icon iconfont">&#xe613;</i>
-                    </span>
-                    <span class='btn-group' role='group'>
-                        <span class="sort-btn btn btn-default btn-xs">
-                            <i class="icon iconfont">&#xe60c;</i>
-                        </span>
-                        <span class="sort-btn btn btn-default btn-xs">  
-                            <i class="icon iconfont">&#xe60b;</i>
-                        </span>
-                    </span>
-                    <span class="sort-btn btn btn-default btn-xs active" sort-type="time">
-                       <i class="icon iconfont">&#xe6b0;</i>
-                    </span>
-                    <span class="sort-btn btn btn-default btn-xs" sort-type="size">  
-                        <i class="icon iconfont">&#xe707;</i>
-                    </span>
-                    <span class="data-btn btn btn-default btn-xs" data-type="switch">
-                       <i class="icon iconfont">&#xe631;</i>
-                    </span>-->
-
-                <!--</div>-->
             </div>
             <div id="innerTopRight" class='remove-highlight structure toolbar' style='visibility: hidden'>
-                <!--<span class="sort-btn btn btn-default btn-xs">
-                    <span class="glyphicon glyphicon-info-sign glyphicon-white"></span>
-                </span>-->
                 <div id="innerTopRightTop">
                      <div id="label-A" class="label-wrapper">
-                         <span id = "node-type" class="btn btn-default btn-xs label">A</span><br/>
+                        <table style="width:100%">
+                          <tr>
+                            <span id = "node-type" class="btn btn-default btn-xs label">A</span>
+                          </tr>
+                          <tr>
+                            <td class = 'date_label'><strong>Date:</strong></td>
+                            <td class = 'date_description'>55577854</td>
+                          </tr>
+                          <tr>
+                            <td class = 'value_label'><strong>Values:</strong></td>
+                            <td class = 'value_description'>55577854</td>
+                          </tr>
+                          <tr>
+                            <td class = 'level_label'><strong>Level:</strong></td>
+                            <td class = 'level_description'>55577854</td>
+                          </tr>
+                          <tr>
+                            <td class = 'node_num_label'><strong>Node Num:</strong></td>
+                            <td class = 'node_num_description'>55577854</td>
+                          </tr>
+                        </table>
+                        <!-- <span id = "node-type" class="btn btn-default btn-xs label">A</span><br/>
                          <span class="date_text"><strong>Date: </strong></span>
                          <span class="date_description"></span>
                          <span class="value_text"><strong>Values: </strong></span>
@@ -142,25 +129,38 @@
                          <span class="value_level"><strong>Level: </strong></span>
                          <span class="level_description"></span>
                          <span class="value_node_num"><strong>Node Num:</strong></span>
-                         <span class="node_num_description"></span>
+                         <span class="node_num_description"></span>-->
                      </div>
-                        <!--<div id="scrollDiv2" class="col-md-6 text-center">
-                            <div id="label-B" class="label-wrapper">
-                                <span class="btn btn-default btn-xs label">B</span><br/>
-                                <span class="date_text"><strong>Date: </strong></span>
-                                <span class="date_description"></span><br/>
-                                <span class="value_text"><strong>Values: </strong></span>
-                                <span class="value_description"></span><br/>
-                                <span class="value_level"><strong>Level: </strong></span>
-                                <span class="level_description"></span><br/>
-                                <span class="value_node_num"><strong>Node Num:</strong></span>
-                                <span class="node_num_description"></span>
-                            </div>
-                        </div>-->
                 </div>
+                <div id = 'divide-line'></div>
                 <div id='innerTopRightBottom'>
                     <div id="label-C" class="label-wrapper" style="text-align: center; width:100%">
-                        <span class="btn btn-default btn-xs label" id="node-type" class="backgrond-A">A</span>
+                         <table style="width:100%">
+                             <tr>
+                                <span id = "node-type" class="btn btn-default btn-xs label blue-label">A</span>
+                             </tr>
+                             <tr>
+                               <td id = 'node-label'><strong>Node:</strong></td>
+                               <td id = 'node-description'></td>
+                             </tr>
+                             <tr>
+                               <td id = 'level-label'><strong>Level:</strong></td>
+                               <td id = 'level-description'></td>
+                             </tr>
+                             <tr>
+                               <td id = 'flow-num-label'><strong>FlowNum:</strong></td>
+                               <td id = 'flow-num-description'></td>
+                             </tr>
+                             <tr>
+                               <td id = 'tree-num-label'><strong>TreeNum:</strong></td>
+                               <td id = 'tree-num-description'></td>
+                             </tr>
+                             <tr>
+                               <td id = 'sub-node-label'><strong>SubNode:</strong></td>
+                               <td id = 'sub-node-description'></td>
+                             </tr>
+                       </table>
+                        <!--<span id = "node-type" class="btn btn-default btn-xs label blue-label">A</span><br/>
                         <span id="node-id"><strong>Node: </strong></span>
                         <span id="node-description"></span>
                         <span id="level-text"><strong>Level: </strong></span>
@@ -170,7 +170,7 @@
                         <span id="tree_node_num"><strong>Tree:</strong></span>
                         <span id="tree-num-description"></span>
                         <span id="sum-node-num"><strong>sub-node Num:</strong></span>
-                        <span id="sum-num-description"></span>
+                        <span id="sum-num-description"></span>-->
                     </div>
                 </div>
             </div>
@@ -197,19 +197,7 @@
                 </div>
             </div>
             <div id = "rightComparisonWrapper" class = 'structure'>
-                   <!-- <div>
-                        <form id = "tree-compare-depth-controller">
-                            <button type = "button" id="showSimilar">showSimilar</button>
-                            <button type = "button" id="add">add</button>
-                            <span class = "btn btn-default btn-xs active level-btn toolbar-tree" level=0>L0</span>
-                            <span class = "btn btn-default btn-xs active level-btn toolbar-tree" level=1>L1</span>
-                            <span class = "btn btn-default btn-xs active level-btn toolbar-tree" level=2>L2</span>
-                            <span class = "btn btn-default btn-xs active level-btn toolbar-tree" level=3>L3</span>
-                            <span class = "btn btn-default btn-xs active level-btn toolbar-tree" level=4>L4</span>
-                        </form>
-                    </div>-->
                     <ul id="multitree" class = 'structure' style="overflow:auto">
-
                     </ul>
             </div>
         </div>
@@ -249,20 +237,12 @@
             </div>
             <div id = "leftTreeWrapper" class = 'structure remove-highlight'>
                 <div id="leftTopWrapper" class = 'structure'>
-                    <!--<div id="radial-depth-controller">-->
-                    <!--<section class="model-14"><div class="checkbox"><input type="checkbox" mark=1 id="radialcheckbox"/>
-                    </div></section><label>B</label>-->
-                         <!--<div id="label-A"><span class="btn btn-default btn-xs label">A</span></div><br/>-->
-                         <!--<div class="btn btn-default btn-xs active level-btn" level=0>L0</div><br/>
-                         <div class="btn btn-default btn-xs active level-btn" level=1>L1</div><br/>
-                         <div class="btn btn-default btn-xs active level-btn" level=2>L2</div><br/>
-                         <div class="btn btn-default btn-xs active level-btn" level=3>L3</div><br/>
-                         <div class="btn btn-default btn-xs active level-btn" level=4>L4</div><br/>-->
-                    <!--</div>-->
                     <div id='leftTopLeftWrapper-radial'>
+                        <span id = "node-type" class="btn btn-default btn-xs label blue-label">A</span><br/>
                         <svg class="radial"></svg>
                     </div>
                     <div id='leftTopLeftWrapper-sunburst'>
+                        <span id = "node-type" class="btn btn-default btn-xs label blue-label">A</span><br/>
                         <svg class="sunburst"></svg>
                     </div>
                     <div id='leftTopRightWrapper'>

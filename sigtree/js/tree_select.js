@@ -25,25 +25,11 @@ var treeSelect = function(){
 	var selectionArray = dataCenter.global_variable.selection_array;
     var currentNodeIdBefore = dataCenter.global_variable.current_nodeid_before;
 	drawHistogram(timeSortArray);
+	get_labelA_text_and_change();
 	for(var i = 0;i < selectionArray.length;i++){
 		d3.selectAll('.node' + selectionArray[i]).classed('selection', true);
 	}
 	append_current_circle(currentId);
-	// click on sort buttons
-	/*$("#switch-selection-div .data-btn").click(function() {
-		var command = $(this).attr("data-type");
-		if (sortMode == "time") {
-			drawHistogram(timeSortArray);
-			if(dataCenter.global_variable.show_arc){
-				add_arc_to_all();
-			}
-		} else if (sortMode == "size") {
-			drawHistogram(propotionArray);
-			if(dataCenter.global_variable.show_arc){
-				add_arc_to_all();
-			}
-		}
-	});*/
 	//click the other part in the histogram view to cancel selection
 	$('.background-control-highlight,.toolbar,.arc-path').mouseout(function(d,i){
 		remove_hover_highlight();
@@ -58,7 +44,7 @@ var treeSelect = function(){
 	});
 	$('.remove-highlight').mouseover(function(d,i){
 		remove_hover_highlight();
-	})
+	});
 	function remove_hover_highlight(){
 		svg.selectAll('.bar')
 	    .classed('opacity-unhighlight', false);
@@ -66,6 +52,7 @@ var treeSelect = function(){
 	    //.classed('opacity-highlight', false);
 	    d3.selectAll('.hover').remove();
 	    d3.selectAll('.bar:not(.opacity-click-highlight)').style('fill','#C0C0C0');
+	    dataCenter.set_global_variable('mouse_over_signal_tree', null);
 	    ObserverManager.post("similarity-node-array", []);
 	}
 	$("#innerTopRight").css("font-size", 12 + "px");  
@@ -239,6 +226,7 @@ var treeSelect = function(){
 	    		}else{
 	    			ObserverManager.post("similarity-node-array", [element]);
 	    		}
+	    		dataCenter.set_global_variable('mouse_over_signal_tree', d.time);
 			})
 			.on("mouseout",function(d,i){
 				/*svg.selectAll('.bar')
@@ -248,13 +236,6 @@ var treeSelect = function(){
 	    		//add arc
 	    		var id = d3.select(this).attr('id');
 	    		var selectionArray = dataCenter.global_variable.selection_array;
-	    		//if(selectionArray.indexOf(id) == -1){
-	    		//d3.selectAll('.default').classed('opacity-remove', false);
-		   		//ObserverManager.post("similarity-node-array", []);
-	    		/*}else{
-	    			d3.selectAll('.arc-path.hover').classed('click-remain', true);
-		   			d3.selectAll('.arc-path.hover').classed('hover', false);
-	    		}*/
 			})
 			.on('click',function(d,i){
 				var this_node = d3.select(this);
@@ -264,8 +245,6 @@ var treeSelect = function(){
 				var selectionObjectArray = dataCenter.global_variable.selection_object_array;
 				var currentId = dataCenter.global_variable.current_id;
 				var currentNodeIdBefore = dataCenter.global_variable.current_nodeid_before;
-				//d3.selectAll('.bar.opacity-unhighlight').style('fill',null);
-				//d3.selectAll('.arc-path.click-remain').remove();
 				if(selectionArray.indexOf(signalTreeTime) == -1){
 					var selectionObject = new Object();
 					selectionObject.tree_name = signalTreeTime;
@@ -597,23 +576,32 @@ var treeSelect = function(){
 		// .attr("fill","#b2df8a");
 		.classed("highlight", true);
 	}
-	changeLabelC("-", 0, 0, 0, 0);
+	changeLabelC("-", 0, 0, 0, 0, 0, 'blue');
 	/*if(dataCenter.global_variable.current_bg_color == 'black'){
 		_black_handler();
 	}else if(dataCenter.global_variable.current_bg_color == 'white'){
 		_white_handler();
 	}*/
-	function changeLabelC(dataset, nodeID, levelText, flowLevel, treeNodeNum, sumNodeNum){
-		$("#innerTopRight #label-C #node-type").text(dataset)
-		$("#innerTopRight #label-C #node-type").removeClass("background-A");
-		$("#innerTopRight #label-C #node-type").removeClass("background-B");
-		$("#innerTopRight #label-C #node-type").addClass("background-" + dataset);
-
+	function changeLabelC(tree_label ,nodeID, levelText, flowLevel, treeNodeNum, sumNodeNum, color){
+		$("#innerTopRight #label-C #node-type").text(tree_label);
+		if(color == 'blue'){
+			change_color_to_blue();
+		}else if(color == 'orange'){
+			change_color_to_orange();
+		}
 		$("#innerTopRight #label-C #node-description").html(nodeID);
 		$("#innerTopRight #label-C #level-description").html(levelText);
-		$("#innerTopRight #label-C #flow-description").text(d3.format(".3s")(flowLevel));
+		$("#innerTopRight #label-C #flow-num-description").text(d3.format(".3s")(flowLevel));
 		$("#innerTopRight #label-C #tree-num-description").text(treeNodeNum);
-		$("#innerTopRight #label-C #sum-num-description").text(sumNodeNum);
+		$("#innerTopRight #label-C #sub-node-description").text(sumNodeNum);
+		function change_color_to_blue(){
+			$("#innerTopRight #label-C #node-type").removeClass('orange-label');
+			$("#innerTopRight #label-C #node-type").addClass('blue-label');
+		}
+		function change_color_to_orange(){
+			$("#innerTopRight #label-C #node-type").removeClass('blue-label');
+			$("#innerTopRight #label-C #node-type").addClass('orange-label');
+		}
 	}
 	function changeLabelA(date, value, node_num){
 		$("#innerTopRightTop #label-A .date_description").html(function() {
@@ -694,6 +682,21 @@ var treeSelect = function(){
 	    d3.selectAll('.bar')
 	    .classed('opacity-highlight', false);
 	}
+	function get_labelA_text_and_change(){
+		var currentId = dataCenter.global_variable.current_id;
+        for(var i = 0;i < dataCenter.datasets.length;i++){
+        	if(currentId == dataCenter.datasets[i].id){
+        		if(dataCenter.datasets[i].processor.result.treeRoot != undefined){
+        			var tree_root = dataCenter.datasets[i].processor.result.treeRoot;
+	        		var nodeNum = tree_root.allChilldrenCount;
+	        		var flowSize = tree_root.flow;
+	        		var date = currentId;
+	        		changeLabelA(date, flowSize, nodeNum);
+	        		break;
+        		}
+        	}
+        }
+	}
 	SelectTree.OMListen = function(message, data) {
 	    if (message == "percentage") {
 			changePercentage(data);
@@ -706,6 +709,7 @@ var treeSelect = function(){
 	    	var flowLevel = node.flow;
 	    	var treeNodeNum = Array.isArray(node.values) ? node.values.length : 0;
 	    	var sumNodeNum = node.allChilldrenCount;
+	    	console.log(dataset);
 	    	changeLabelC(dataset, nodeID, levelText, flowLevel, treeNodeNum, sumNodeNum)
 	    }
 	    if(message == 'projection-highlight'){
@@ -782,19 +786,7 @@ var treeSelect = function(){
 	    if(message == 'update-view'){
 	    	update_selection_and_current();
 	    	if(message == "update-view"){
-        	var currentId = dataCenter.global_variable.current_id;
-		        for(var i = 0;i < dataCenter.datasets.length;i++){
-		        	if(currentId == dataCenter.datasets[i].id){
-		        		if(dataCenter.datasets[i].processor.result.treeRoot != undefined){
-		        			var tree_root = dataCenter.datasets[i].processor.result.treeRoot;
-			        		var nodeNum = tree_root.allChilldrenCount;
-			        		var flowSize = tree_root.flow;
-			        		var date = currentId;
-			        		changeLabelA(date, flowSize, nodeNum);
-			        		break;
-		        		}
-		        	}
-		        }
+        		get_labelA_text_and_change();
 	        }
 	    }
 	    if(message == 'set:selection_array'){

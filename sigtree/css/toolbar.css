@@ -39,19 +39,18 @@
 	margin-left: -5px;
 	display: none;
 }
-table{
-    background-color: red;
+load-file-table table{
 }
-th{
+load-file-table th{
   text-align: center;
   font-size: 8px;
   valign: middle;
 }
-tr:nth-child(even) {
+#load-file-table tr:nth-child(even) {
     background-color: #f6f6f6;
 
 }
-tr:nth-child(odd) {
+#load-file-table tr:nth-child(odd) {
     background-color: #dcdcdc;
 }
 th.active{

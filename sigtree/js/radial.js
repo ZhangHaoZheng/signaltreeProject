@@ -17,8 +17,8 @@ var radial = {
 		var self = this;
 		var dataProcessor = dataCenter.datasets[0].processor;
 		var padding = 10;
-		var width = $("#leftTopLeftWrapper-radial").width();
-		var height = $("#leftTopLeftWrapper-radial").height();
+		var width = +$("#leftTopLeftWrapper-radial").width();
+		var height = +$("#leftTopLeftWrapper-radial").height() - padding;
 
 		var diameter = d3.min([width,height]);
 		var eachTypeIdArray = new Array();
@@ -57,6 +57,7 @@ var radial = {
 			.attr("id","radial")
 			.attr('transform', 'translate('+ width/2 + ',' +  height/2 +')');
 		self._draw_depth(4, treeNodeList, tree, width, height, rootA);
+		self.change_label_text('B');
 	},
 	_draw_depth: function(hide_depth, tree_node_list, tree, width, height, tree_root){
 		var self = this;
@@ -143,7 +144,9 @@ var radial = {
 					_click(d, i, this_node, tree_root);
 				})
 				.on("mouseover", function(d) {
+					var this_node = d3.select(this);
 					ObserverManager.post("mouse-over", [d.id]);
+					dataCenter.set_global_variable('mouse_over_signal_node', this_node);
 					tip.show(d);
 				})
 				.on("mouseout", function(d) {
@@ -284,6 +287,17 @@ var radial = {
 				list.push(node.values[i].id);
 			self._put_subtree_node_id(node.values[i],list);
 		}
+	},
+	change_label_color_to_blue: function(){
+		$('#leftTopLeftWrapper-radial #node-type').removeClass('orange-label');		
+		$('#leftTopLeftWrapper-radial #node-type').addClass('blue-label');
+	},
+	change_label_color_to_orange: function(){
+		$('#leftTopLeftWrapper-radial #node-type').removeClass('blue-label');		
+		$('#leftTopLeftWrapper-radial #node-type').addClass('orange-label');
+	},
+	change_label_text: function(label){
+		$('#leftTopLeftWrapper-radial #node-type').html(label);		
 	},
 	OMListen: function(message, data){
 		var idPrefix = "#radial-node-";

@@ -1,3 +1,10 @@
+/**
+ *  存在的问题：
+ *  1. the tooptip should hide when mouseout
+ *  2. highlight the the node and its children nodes
+ *  3. set the global variable mouse_over_signal_node when mouseover nodes(to set the text in the selection view)
+ * @type {Object}
+ */
 var sunburst = {
     initialize: function(){
         var self = this;
@@ -18,8 +25,8 @@ var sunburst = {
         var padding = 10;
         var divID = "leftTopLeftWrapper-sunburst";
         var div = d3.select("#"+divID);
-        var width = $("#leftTopLeftWrapper-sunburst").width();
-        var height = $("#leftTopLeftWrapper-sunburst").height();
+        var width = $("#leftTopLeftWrapper-sunburst").width() - padding * 2;
+        var height = $("#leftTopLeftWrapper-sunburst").height() - padding * 2;
         var depth = 4;
         var sunburst_outer = d3_sunburst()
             .drawn_depth(depth)
@@ -37,7 +44,8 @@ var sunburst = {
         var svg = div.select("svg")
                 .style("position","absolute")
                 .style("width",width)
-                .style("height",height)  
+                .style("height",height) 
+                .style('left', padding) 
                 .datum(root)
                 .call(sunburst_outer)
     },

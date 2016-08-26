@@ -18,10 +18,11 @@
 #tree-select-controller {
   text-align: right;
 }
-#label-C {
-  margin-top: 0.3em;
-  padding-top: 0.3em;
-  border-top: 1px solid gray;
+#innerTopRightTop{
+  overflow-y: auto;
+}
+#innerTopRightBottom{
+  overflow-y: auto;
 }
 .hover{
   stroke: black;
@@ -37,9 +38,14 @@
     stroke: black !important;
     stroke-width: 1.5px !important;
     opacity: 1 !important;
-   // stroke-location: 
-  }
+}
 .selection-label{
   font-size: 2px;
   fill: black;
+}
+#label-C .blue-label {
+  background-color: #1F77B4;
+}
+#label-C .orange-label {
+  background-color: #FF7F0E;
 }
