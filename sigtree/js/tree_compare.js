@@ -1,5 +1,6 @@
 var treeCompare = function(){
 	d3.select("#rightComparisonWrapper").style("padding",0);
+	document.getElementById("multitree").innerHTML = '';
 	var TreeCompare = {};
 	ObserverManager.changeListener(TreeCompare,3);
 	ObserverManager.addListener(TreeCompare);
