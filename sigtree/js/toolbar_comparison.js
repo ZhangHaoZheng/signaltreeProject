@@ -34,5 +34,29 @@ var toolbarComparison = {
 				ObserverManager.post('show-similiar');
 			}
 		});
+		$('#all-depth-comparison').on('click', function(d,i){
+			if(!$('#all-depth-comparison').hasClass('active')){
+				$('#all-depth-comparison').addClass('active');
+				$('#two-depth-comparison').removeClass('active');
+				$('#only-flow-comparison').removeClass('active');
+			}
+			ObserverManager.post('show-all-depth');
+		});
+		$('#two-depth-comparison').on('click', function(d,i){
+			if(!$('#two-depth-comparison').hasClass('active')){
+				$('#two-depth-comparison').addClass('active');
+				$('#all-depth-comparison').removeClass('active');
+				$('#only-flow-comparison').removeClass('active');
+			}
+			ObserverManager.post('show-two-depth');
+		});
+		$('#only-flow-comparison').on('click', function(d,i){
+			if(!$('#only-flow-comparison').hasClass('active')){
+				$('#only-flow-comparison').addClass('active');
+				$('#two-depth-comparison').removeClass('active');
+				$('#all-depth-comparison').removeClass('active');
+			}
+			ObserverManager.post('show-only-flow');
+		});
 	}
 }

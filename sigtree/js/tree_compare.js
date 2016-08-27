@@ -5,13 +5,11 @@ var treeCompare = function(){
 	ObserverManager.changeListener(TreeCompare,3);
 	ObserverManager.addListener(TreeCompare);
 	var datasets = dataCenter.datasets;
-	var pre_datasets = datasets;
 	var pre_datasets_id = [];
+	var pre_current_id;
 	for(var i = 0; i < datasets.length; i++){
 		pre_datasets_id.push(datasets[i].id);
 	}
-	var duration = 1750;
-	var ratio = 1.5;
 	var buttonWidth = 15;
 	var _width = $("#multitree").width() - buttonWidth;
 	var height = $("#rightComparisonWrapper").height() - 50;
@@ -19,6 +17,7 @@ var treeCompare = function(){
 	var min_tree_height = height / 3.5;
 	var two_level_height = height / 9;
 	var leftPadding = 25;
+	var transform_offset = 30;
 	var brush_compare = d3.svg.brush();
 	var brush_nodes_list = {};
 	var alpabet_mark = {};
@@ -37,39 +36,29 @@ var treeCompare = function(){
 	        return dis;
 		 });
 	var diagonal = d3.svg.diagonal();
-	var diagonal_ = d3.svg.diagonal().projection(function(d){
-		return [d.x, tree_height - d.y]
-	});
 	var deletefrom = false;
 	var nodes;
 	var links;
 	var bottom_padding = trend_height/1.3;
-	var colors = function(i){
-		var three_ = ["red","green","blue"];
-		return (function(){return three_[i]})();
-	};
 	var tip = d3.tip()
 	  .attr('class', 'd3-tip')
 	  .offset([-10, 0]);
 	//add A B sign
-	var dts = datasets[0].processor.result.dataList;
-	var dts2 = datasets[1].processor.result.dataList;
+//	var dts = datasets[0].processor.result.dataList;
+//	var dts2 = datasets[1].processor.result.dataList;
 	var dt_root = datasets[0].processor.result.treeRoot;
 	var dt_root2 = datasets[1].processor.result.treeRoot;
-	var nodesA;
-	var nodesB;
-	//mult_tree_smaller对应从上往下树的信息，nodes为tree.nodes(),node为根节点,g为包裹树的g,tree_id如"20120121-R07-75",index放在每个叶节点的has数组中标记当前节点有哪些树共用
 	var mult_tree_smaller = [];
 	var add_node_list = [dt_root,dt_root2];
 	var add_tree_id_list = [datasets[0].id,datasets[1].id];
-	var total_root = sigtree.dataProcessor().mergeTwoListAsTree(dts, dts2);
+	var total_root = sigtree.dataProcessor().mergeTwoListAsTree([], []);
 	total_root.x0 = tree_width/2;
 	total_root.y0 = 0;
 	nodes = tree.nodes(total_root);
-	distinguishTree(nodes);
+	for (var i = 0; i < nodes.length; i++) {
+		nodes[i].has = {};
+	}
 	var id_nodes;
-	var Aindex;
-	var Bindex;
 	var cur_depth = 4;
 	var scale = d3.scale.sqrt().range([0,trend_height]);		
 	var max_flow_of_depth = [0,0,0,0,0];
@@ -82,12 +71,14 @@ var treeCompare = function(){
 	var draw_all_m = true;
 	var count = 0;
 	var c_mark = false;
-
+	//用来brush
 	var xscale = d3.scale.identity()
 		.domain([0,$("#multitree").width()]);
 	brush_compare.x(xscale)
 		.on("brushend",brushedcompare);
+	//添加树
 	addMultiTree(add_node_list,add_tree_id_list);
+	//加黑框与黑点
 	add_border_of_current_signal_tree();
 	var value_of_the_top_one;
 	//使能够拖动div
@@ -107,45 +98,7 @@ var treeCompare = function(){
 			id_nodes[nodes[i].id] = i;
 		}		
 	}
-	function build_id_values(nodes){
-		id_nodes = {};
-		for(var i = 0; i < nodes.length; i++){
-			id_nodes[nodes[i].id] = i;
-			nodes[i].values = nodes[i].children;
-		}
-	}
-	//输入节点，设置每个节点 hasObj1 = boolean, hasObj2 = boolean，表示该节点属于哪棵树
-	function distinguishTree(nodes) {
-		for (var i = 0; i < nodes.length; i++) {
-			if (nodes[i].data != null) {
-				if (nodes[i].data.obj1 != null)
-					nodes[i].obj1 = nodes[i].data.obj1;
-				if (nodes[i].data.obj2 != null)
-					nodes[i].obj2 = nodes[i].data.obj2;				
-			}
-		}
-
-		for (var i = 0; i < nodes.length; i++) {
-			var node = nodes[i];
-			var hasObj1 = (node.obj1 != null),
-				hasObj2 = (node.obj2 != null);
-			node.hasObj1 = hasObj1;
-			node.hasObj2 = hasObj2;
-			node.has = {};
-			if(hasObj1) node.has[2] = true;
-			if(hasObj2) node.has[3] = true;
-			while (node.parent != null) {
-				node = node.parent;
-				node.hasObj1 = node.hasObj1 || hasObj1;
-				node.hasObj2 = node.hasObj2 || hasObj2;
-				node.has = {};
-				if(node.hasObj1) node.has[2] = true;
-				if(node.hasObj2) node.has[3] = true;
-			}
-		}
-	}
-
-	build_id_values(nodes);
+	build_id_nodes(nodes);
 	$("#default").attr("checked",true);
 
 	//仅在draw_depth中调用，封锁深度大于等于depth的节点，展开深度小于depth的节点
@@ -234,6 +187,7 @@ var treeCompare = function(){
 				source = null;
 		}
 		var tree_height = mult_tree.tree_height;
+		//事先计算各层节点的高度，从0至4对应L0至L4
 		var depth_height = [];
 		if(mark_draw_all){
 			if(mark_reversal){
@@ -373,13 +327,15 @@ var treeCompare = function(){
 				tip.show()
 				if(mult_tree.tree_id == dataCenter.global_variable.current_id)
 					ObserverManager.post("mouse-over", [d.id]);
-				d3.select("#multitree").selectAll("#compare-node-" + d.id).classed("focus-highlight",true);
+				var tmpid = d.id.replace(';','');
+				d3.select("#multitree").selectAll("#compare-node-" + tmpid).classed("focus-highlight",true);
 				highlight_subtree_root(d.id,mult_tree.tree_id,false);
 			})
 			.on("mouseout", function(d) {
 				if(mult_tree.tree_id == dataCenter.global_variable.current_id)
 					ObserverManager.post("mouse-out", [d.id]);
-				d3.select("#multitree").selectAll("#compare-node-" + d.id).classed("focus-highlight",false);
+				var tmpid = d.id.replace(';','');
+				d3.select("#multitree").selectAll("#compare-node-" + tmpid).classed("focus-highlight",false);
 				tip.hide();		
 				unhighlight_subtree_root();
 			})
@@ -432,6 +388,7 @@ var treeCompare = function(){
 				if(d.count == undefined) return false;
 				return d.count[div_i];
 			});
+		//L0，L1层上的说明
 		polygon_svg.selectAll(".node-text").remove();
 		polygon_svg.selectAll(".node-text")
 			.data(nodes_to_draw)
@@ -440,7 +397,7 @@ var treeCompare = function(){
 			.attr("class","node-text")
 			.attr("x",function(d,i){
 				var strArray = d.key.split(" ");
-				return d.x - 6 * strArray[0].length/2 + 30;
+				return d.x - 6 * strArray[0].length/2 + transform_offset;
 			})
 			.attr("y",function(d){ return depth_height[d.depth] + 18;})
 			.text(function(d,i){
@@ -450,6 +407,7 @@ var treeCompare = function(){
 				}
 			})
 		.attr("font-size","12px");
+		//画小三角，仅在show similar part时
 		polygon_svg.selectAll(".node-polygon").remove();
 		polygon_svg.selectAll(".node-polygon")
 			.data(filter_nodes)
@@ -465,9 +423,9 @@ var treeCompare = function(){
 					r = 2.5;
 				}
 				else r = (4.5 - d.depth) * 2;
-				var updotx = d.x + 30;
-				var leftx = d.x - 6 + 30;
-				var rightx = d.x + 6 + 30;
+				var updotx = d.x + transform_offset;
+				var leftx = d.x - 6 + transform_offset;
+				var rightx = d.x + 6 + transform_offset;
 				var updoty,lefty,righty;
 				if(mark_reversal == true){
 					updoty = depth_height[d.depth] + r;
@@ -482,6 +440,7 @@ var treeCompare = function(){
 				return ""+updotx+","+updoty+" "+leftx+","+lefty+" "+rightx+","+righty+"";
 			})
 			.attr("fill","#000000");
+		//小三角上的数字
 		polygon_svg.selectAll(".node-count").remove();
 		polygon_svg.selectAll(".node-count")
 			.data(filter_nodes)
@@ -489,7 +448,7 @@ var treeCompare = function(){
 			.append("text")
 			.attr("class","node-count")
 			.attr("x",function(d,i){
-				return d.x - 3 + 30;
+				return d.x - 3 + transform_offset;
 			})
 			.attr("y",function(d){ 
 				var r;
@@ -524,7 +483,7 @@ var treeCompare = function(){
 		var trendg;
 		if(mark_reversal) {
 			$("#" + mult_tree_smaller[div_i].divid + " #flow_top_svg").height(trend_height);
-			$("#" + mult_tree_smaller[div_i].divid + " #flow_top_svg").width($("#multitree").width());
+			$("#" + mult_tree_smaller[div_i].divid + " #flow_top_svg").width(tree_width + transform_offset + 10);
 			trendg = d3.select("#" + mult_tree_smaller[div_i].divid + " #flow_top_svg g");
 			d3.select("#" + mult_tree_smaller[div_i].divid + " #flow_bottom_svg g")
 				.selectAll("g").remove();
@@ -532,7 +491,7 @@ var treeCompare = function(){
 		}
 		else{ 
 			$("#" + mult_tree_smaller[div_i].divid + " #flow_bottom_svg").height(trend_height);
-			$("#" + mult_tree_smaller[div_i].divid + " #flow_bottom_svg").width($("#multitree").width());
+			$("#" + mult_tree_smaller[div_i].divid + " #flow_bottom_svg").width(tree_width + transform_offset + 10);
 			trendg = d3.select("#" + mult_tree_smaller[div_i].divid + " #flow_bottom_svg g");
 			d3.select("#" + mult_tree_smaller[div_i].divid + " #flow_top_svg g")
 				.selectAll("g").remove();
@@ -618,6 +577,8 @@ var treeCompare = function(){
 				dis = 1;
 	        return dis;
 		 });
+		//隐藏矩形框
+		d3.select("#multitree").selectAll(".extent").attr("width",1).attr("x",1);
 	}
 	//点击展开模式和收缩模式
 	function node_click_focus(node){
@@ -700,6 +661,7 @@ var treeCompare = function(){
 			expandchildren(node.children[i]);
 		}
 	}
+	//画虚线
 	function draw_dash_line(){
 		d3.selectAll(".dash_line").remove();
 		for(var i = 1; i < mult_tree_smaller.length; i++){
@@ -721,6 +683,7 @@ var treeCompare = function(){
 			}
 		}
 	}
+	//画线，仅在draw_dash_line中调用
 	function draw_line(coordinate,m_i){
 		var line = d3.svg.line()
 			.x(function(d){return d.x;})
@@ -840,8 +803,8 @@ var treeCompare = function(){
 		var node1 = node;
 		if(node == undefined) return;
 		while(node.parent != undefined){
-			if(node.parent.id.indexOf(";") == -1)
-				highlight_id_list.push(node.parent.id);
+			var tmpid = node.parent.id.replace(';','');
+				highlight_id_list.push(tmpid);
 			node = node.parent;
 		}
 		node = node1;
@@ -865,14 +828,17 @@ var treeCompare = function(){
 			}
 			var g = d3.select("#"+mult_tree_smaller[i].divid+" #tree_svg g");
 			for(var j = 0; j < highlight_id_list.length; j++){
-				g.select("#compare-node-"+highlight_id_list[j]).attr("class","routenode-inner");
-				g.select("#link-"+highlight_id_list[j]).attr("class","route-link");
+				var tmp1_id = highlight_id_list[j].replace(';','');
+				g.select("#compare-node-"+tmp1_id).attr("class","routenode-inner");
+				g.select("#link-"+tmp1_id).attr("class","route-link");
 			}
-			g.select("#link-"+node.id).attr("class","route-link");
+			var tmp_id = node.id.replace(';','');
+			g.select("#link-"+tmp_id).attr("class","route-link");
 		}
 		highlight_id_list.push(node.id);
 		dataCenter.set_global_variable('radial_highlight_id_list', highlight_id_list);
 	}
+	//取消highlight
 	function unhighlight_subtree_root(){
 		for(key in has){
 			key = parseInt(key);
@@ -882,7 +848,8 @@ var treeCompare = function(){
 			}
 			var g = d3.select("#"+mult_tree_smaller[i].divid+" #tree_svg g");
 			for(var j = 0; j < highlight_id_list.length; j++){
-				g.select("#compare-node-"+highlight_id_list[j]).attr("class",function(d){
+				var tmp_id = highlight_id_list[j].replace(';','');
+				g.select("#compare-node-"+tmp_id).attr("class",function(d){
 					if(mult_tree_smaller[i].mark_reversal){
 						if(d._children) return "node reverse-node-inner";
 						else return "node node-leaf";
@@ -892,16 +859,18 @@ var treeCompare = function(){
 						else return "node node-leaf";
 					}
 				});
-				g.select("#link-"+highlight_id_list[j]).attr("class","link");
+				g.select("#link-"+tmp_id).attr("class","link");
 			}
 		}
 		highlight_id_list = [];
 		has = {};
 	}
+	//仅在highlight_subtree_root中调用
 	function put_subtree_node_id(node,list,index){
 		if(node.children == undefined) return;
 		for(var i = 0; i < node.children.length; i++){
-			if(node.children[i].id.indexOf(";") == -1 && node.children[i].has[index]){
+			if(node.children[i].has[index]){
+				var tmpid = node.children[i].id.replace(';','');
 				list.push(node.children[i].id);
 			}
 			put_subtree_node_id(node.children[i],list,index);
@@ -962,9 +931,9 @@ var treeCompare = function(){
 		mult_tree_smaller.splice(d,1);
 		modify_height_svg_treeHeight();
 		changeViewForSvg();
-		modify_buttondiv_label_style();
 		update_brush_g();
 	}
+	//删除树时用于更新flow_of_depth, max_flow_of_depth
 	function update_scale_domain_when_delete(nodes){
 		for(var i = 0; i < nodes.length; i++){
 			flow_of_depth[nodes[i].depth][parseInt(nodes[i].flow)]--;
@@ -979,7 +948,6 @@ var treeCompare = function(){
 			}
 		}
 	}
-	////////////////////////////////////////////////////////////////////////////////////////////////
 	//删除按钮操作
 	function delete_button_click(){
 		var value = parseInt(d3.select(this).attr("value"));
@@ -994,6 +962,13 @@ var treeCompare = function(){
 		dataCenter.set_global_variable("selection_array",tmp_idlist);
 		deletefrom = false;
 		delete_tree(tmp);
+/*		if(dataCenter.global_variable.current_id == tmp){ 
+			if(mult_tree_smaller.length > 1){
+				dataCenter.set_global_variable("current_id",pre_current_id);
+			}
+			else dataCenter.set_global_variable("current_id",null);
+			add_border_of_current_signal_tree();
+		}*/
 	}
 	//增加多棵树
 	function addMultiTree(nodes,idlist){
@@ -1025,6 +1000,7 @@ var treeCompare = function(){
 			var node = nodes[i];
 			var tree_height = addclick();
 			var nodes1 = tree.nodes(node);
+			//计算所有节点每层的流量最大值
 			for(var j = 0; j < nodes1.length; j++){
 				var tmp = flow_of_depth[nodes1[j].depth][parseInt(nodes1[j].flow)];
 				if(tmp == undefined) flow_of_depth[nodes1[j].depth][parseInt(nodes1[j].flow)] = 1;
@@ -1034,7 +1010,7 @@ var treeCompare = function(){
 				}
 			}
 			var alpabet_index;
-			//20000是拍脑袋想的
+			//设置上限20000棵树
 			for(var j = 0; j < 20000; j++){
 				if(!alpabet_mark[j]){
 					alpabet_index = j;
@@ -1043,17 +1019,17 @@ var treeCompare = function(){
 				}
 			}
 			mult_tree_smaller.push({
-				nodes:nodes1, 
-				node:node, 
-				tree_id:idlist[i], 
-				index:dataCenter.global_variable.numoftreecompare+2, 
-				divid:"treemap"+dataCenter.global_variable.numoftreecompare,
-				buttondiv:"treemap_label_div" + dataCenter.global_variable.numoftreecompare,
-				alpabet_index:alpabet_index,
-				mark_reversal:reverse_m,
-				mark_draw_all:draw_all_m,
-				mark_only_flow:false,
-				tree_height:tree_height
+				nodes:nodes1, //由tree.nodes()得到
+				node:node, //树的根节点
+				tree_id:idlist[i], //如"20120121-R07-75"
+				index:dataCenter.global_variable.numoftreecompare+2, //index放在每个叶节点的has数组中标记当前节点有哪些树共用
+				divid:"treemap"+dataCenter.global_variable.numoftreecompare,//包裹树的div的id
+				buttondiv:"treemap_label_div" + dataCenter.global_variable.numoftreecompare,//左上角操作栏的div的id
+				alpabet_index:alpabet_index,//位于左上角，树的序号，与histogram中的序号对应
+				mark_reversal:reverse_m,//是否翻转
+				mark_draw_all:draw_all_m,//画全部，或末两层
+				mark_only_flow:false,//仅画流量
+				tree_height:tree_height//树的高度
 			});
 			total_root.has[dataCenter.global_variable.numoftreecompare + 2] = true;
 			merge_trees(total_root,node,dataCenter.global_variable.numoftreecompare + 2);
@@ -1068,6 +1044,7 @@ var treeCompare = function(){
 		changeViewForSvg();
 		update_brush_g();
 	}
+	//更新brush的区域
 	function update_brush_g(){
 		if(mult_tree_smaller.length == 0) return;
 		value_of_the_top_one = d3.select("#multitree li div div span").attr("value");
@@ -1081,6 +1058,7 @@ var treeCompare = function(){
 			.attr("y",0)
 			.attr("height",trend_height);
 	}
+	//隐藏左上角操作栏
 	function hide_button_span(){
 		for(var i = 0; i < mult_tree_smaller.length; i++){
 			var j = mult_tree_smaller[i].buttondiv.slice(17);
@@ -1120,7 +1098,7 @@ var treeCompare = function(){
 				sum_min_tree_height +=min_tree_height;
 			}
 			else sum_other_height += trend_height + two_level_height;
-			var k = (height - sum_other_height) / sum_min_tree_height;
+			var k = ((height - sum_other_height) / sum_min_tree_height) - 0.1;
 			var tree_height = k * min_tree_height;
 			for(var j = 0; j < mult_tree_smaller.length; j++){
 				if(mult_tree_smaller[j].mark_draw_all && !mult_tree_smaller[j].mark_only_flow){
@@ -1141,20 +1119,20 @@ var treeCompare = function(){
 				.attr("value",global_numoftreecompare)
 				.on("dblclick",double_click_draw_all_or_part_tree)
 				.on("click",hide_button_span)
-				.append("g").attr("transform","translate(30,0)")
+				.append("g").attr("transform","translate("+transform_offset+",0)")
 				.attr("class","g_for_brush");
 			d3.select("#treemap" + global_numoftreecompare).append("svg").attr("id","tree_svg")
-				.attr("width",$("#multitree").width())
+				.attr("width",tree_width + transform_offset + 10)
 				.attr("height",tree_height)
 				.attr("value",global_numoftreecompare)
 				.on("click",hide_button_span)
 				.on("dblclick",double_click_draw_all_or_part_tree)
-				.append("g").attr("transform","translate(30,0)");
+				.append("g").attr("transform","translate("+transform_offset+",0)");
 			d3.select("#treemap"+global_numoftreecompare).append("svg").attr("id","flow_bottom_svg")
 				.attr("value",global_numoftreecompare)
 				.on("click",hide_button_span)
 				.on("dblclick",double_click_draw_all_or_part_tree)
-				.append("g").attr("transform","translate(30,0)")
+				.append("g").attr("transform","translate("+transform_offset+",0)")
 				.attr("class","g_for_brush");
 			tmp_tree_height = tree_height;
 		}
@@ -1179,20 +1157,20 @@ var treeCompare = function(){
 				.on("click",function(){
 
 				})
-				.append("g").attr("transform","translate(30,0)")
+				.append("g").attr("transform","translate("+transform_offset+",0)")
 				.attr("class","g_for_brush");
 			d3.select("#treemap" + global_numoftreecompare).append("svg").attr("id","tree_svg")
-				.attr("width",$("#multitree").width())
+				.attr("width",tree_width + transform_offset + 10)
 				.attr("height",two_level_height)
 				.attr("value",global_numoftreecompare)
 				.on("click",hide_button_span)
 				.on("dblclick",double_click_draw_all_or_part_tree)
-				.append("g").attr("transform","translate(30,0)");
+				.append("g").attr("transform","translate("+transform_offset+",0)");
 			d3.select("#treemap"+global_numoftreecompare).append("svg").attr("id","flow_bottom_svg")
 				.attr("value",global_numoftreecompare)
 				.on("click",hide_button_span)
 				.on("dblclick",double_click_draw_all_or_part_tree)
-				.append("g").attr("transform","translate(30,0)")
+				.append("g").attr("transform","translate("+transform_offset+",0)")
 				.attr("class","g_for_brush");
 			tmp_tree_height = two_level_height;
 		}
@@ -1233,6 +1211,7 @@ var treeCompare = function(){
 			.on("click",reverse_tree_click);
 		return tmp_tree_height;
 	}
+	//单击左上角的数字框
 	function label_click(){
 		var tmp = parseInt(d3.select(this).attr("value"));
 		var tmp_num = mult_tree_smaller[tmp].buttondiv.slice(17);
@@ -1253,23 +1232,6 @@ var treeCompare = function(){
 			d3.select("#reverse"+tmp_num).style("visibility","hidden");
 		}
 	}
-	//在只显示流量，最后两层，全部展开中切换
-	function draw_all_or_part_tree(value){
-		var tmp_tree = mult_tree_smaller[value];
-		if(tmp_tree.mark_only_flow){
-			tmp_tree.mark_only_flow = false;
-			tmp_tree.mark_draw_all = false;
-		}
-		else if(tmp_tree.mark_draw_all == true){
-			tmp_tree.mark_only_flow = true;
-		}
-		else tmp_tree.mark_draw_all = true;
-		modify_height_svg_treeHeight();
-		for(var i = 0; i < mult_tree_smaller.length; i++){
-			draw_tree(mult_tree_smaller[i].mark_reversal,mult_tree_smaller[i].mark_draw_all,mult_tree_smaller[i],null,i);
-		}
-		draw_dash_line();
-	}
 	//更改每棵树的div以及其中svg的高度
 	function modify_height_svg_treeHeight(){
 		var sum_height = 0,sum_min_tree_height = 0,sum_other_height = 0;
@@ -1289,7 +1251,7 @@ var treeCompare = function(){
 			}
 		}
 		if(sum_height < height){
-			var k = (height - sum_other_height) / sum_min_tree_height;
+			var k = ((height - sum_other_height) / sum_min_tree_height) - 0.1;
 			var tree_height;
 			for(var j = 0; j < mult_tree_smaller.length; j++){
 				if(mult_tree_smaller[j].mark_draw_all && !mult_tree_smaller[j].mark_only_flow){
@@ -1329,15 +1291,32 @@ var treeCompare = function(){
 			}
 		}
 	}
-	//双击在只显示流量，最后两层，全部展开中切换
+	//双击,在只显示流量，最后两层，全部展开中切换
 	function double_click_draw_all_or_part_tree(){
 		var n = d3.select(this).attr("value");
 		n = parseInt(n);
 		var value = d3.select("#delete"+n).attr("value");
 		value = parseInt(value);
 		draw_all_or_part_tree(value);
-		modify_buttondiv_label_style();
 	}
+	//在只显示流量，最后两层，全部展开中切换,仅在double_click_draw_all_or_part_tree中调用
+	function draw_all_or_part_tree(value){
+		var tmp_tree = mult_tree_smaller[value];
+		if(tmp_tree.mark_only_flow){
+			tmp_tree.mark_only_flow = false;
+			tmp_tree.mark_draw_all = false;
+		}
+		else if(tmp_tree.mark_draw_all == true){
+			tmp_tree.mark_only_flow = true;
+		}
+		else tmp_tree.mark_draw_all = true;
+		modify_height_svg_treeHeight();
+		nodes = tree.nodes(total_root)
+		for(var i = 0; i < mult_tree_smaller.length; i++){
+			draw_tree(mult_tree_smaller[i].mark_reversal,mult_tree_smaller[i].mark_draw_all,mult_tree_smaller[i],null,i);
+		}
+		draw_dash_line();
+	}	
 	//翻转树
 	function reverse_tree_click(){
 		var value = parseInt(d3.select(this).attr("value"));
@@ -1359,7 +1338,7 @@ var treeCompare = function(){
 		}
 		draw_dash_line();
 	}
-	//根据树的数目，调整对应操作栏的高度
+	//根据树的翻转，调整对应操作栏的颜色
 	function modify_buttondiv_label_style(){
 		if(mult_tree_smaller.length == 0) return;
 		for(var i = 0; i < mult_tree_smaller.length; i++){
@@ -1379,7 +1358,7 @@ var treeCompare = function(){
 			delete_tree(mult_tree_smaller[i].tree_id);
 		}
 	}
-	//收缩所有树
+	//收缩所有树,显示末两层
 	function shrink_all_tree(){
 		for(var i = 0; i < mult_tree_smaller.length; i++){
 			mult_tree_smaller[i].mark_draw_all = false;
@@ -1387,7 +1366,7 @@ var treeCompare = function(){
 			mult_tree_smaller[i].mark_only_flow = false;
 		}
 		modify_height_svg_treeHeight();
-		modify_buttondiv_label_style();
+		nodes = tree.nodes(total_root);
 		for(var i = 0; i < mult_tree_smaller.length; i++){
 			draw_tree(mult_tree_smaller[i].mark_reversal,mult_tree_smaller[i].mark_draw_all,mult_tree_smaller[i],null,i);
 		}
@@ -1401,7 +1380,7 @@ var treeCompare = function(){
 			mult_tree_smaller[i].tree_height = min_tree_height;
 		}
 		modify_height_svg_treeHeight();
-		modify_buttondiv_label_style();
+		nodes = tree.nodes(total_root);
 		for(var i = 0; i < mult_tree_smaller.length; i++){
 			draw_tree(mult_tree_smaller[i].mark_reversal,mult_tree_smaller[i].mark_draw_all,mult_tree_smaller[i],null,i);
 		}
@@ -1413,7 +1392,6 @@ var treeCompare = function(){
 			mult_tree_smaller[i].mark_only_flow = true;
 		}
 		modify_height_svg_treeHeight();
-		modify_buttondiv_label_style();
 		for(var i = 0; i < mult_tree_smaller.length; i++){
 			draw_tree(mult_tree_smaller[i].mark_reversal,mult_tree_smaller[i].mark_draw_all,mult_tree_smaller[i],null,i);
 		}
@@ -1422,6 +1400,7 @@ var treeCompare = function(){
 	//为当前选中的signal tree添加黑色边框
 	function add_border_of_current_signal_tree(){
 		var tree_id = dataCenter.global_variable.current_id;
+		if(tree_id == null) return;
 		for(var i = 0; i < mult_tree_smaller.length; i++){
 			var tmp = mult_tree_smaller[i];
 			if(tmp.tree_id == tree_id){
@@ -1439,12 +1418,12 @@ var treeCompare = function(){
 	}
 	//为柱状概览图中hover的树添加背景颜色
 	function add_background_color_of_hovered_tree(){
-		var tree_id;
+		var tree_id = dataCenter.global_variable.mouse_over_signal_tree;
 		for(var i = 0; i < mult_tree_smaller.length; i++){
 			var tmp = mult_tree_smaller[i];
 			if(tmp.tree_id == tree_id){
 				d3.select("#" + tmp.divid)
-					.style("background-color","whitesmoke");
+					.style("background-color","aliceblue");
 				break;
 			}
 		}
@@ -1453,10 +1432,8 @@ var treeCompare = function(){
 	function clear_background_color_when_no_hovered_tree(){
 		for(var i = 0; i < mult_tree_smaller.length; i++){
 			var tmp = mult_tree_smaller[i];
-			if(tmp.tree_id == tree_id){
-				d3.select("#"+tmp.divid)
-					.style("background-color","white");
-			}
+			d3.select("#"+tmp.divid)
+				.style("background-color",null);
 		}
 	}
     TreeCompare.OMListen = function(message, data) {
@@ -1478,7 +1455,7 @@ var treeCompare = function(){
 		}
         if(message == "mouse-over"){
         	for (var i = 0; i < data.length; i++) {
-        		if(data[i].indexOf(";") != -1) return;
+        		data[i] = data[i].replace(';','');
         		var tree_div;
         		for(var j = 0; j < mult_tree_smaller.length; j++){
         			if(mult_tree_smaller[j].tree_id == dataCenter.global_variable.current_id){
@@ -1493,14 +1470,21 @@ var treeCompare = function(){
         }
         if(message == "mouse-out"){
         	for (var i = 0; i < data.length; i++) {
-        		if(data[i].indexOf(";") != -1) return;
+        		data[i] = data[i].replace(';','');
         		d3.select("#multitree").selectAll(idmulti + data[i]).classed("focus-highlight",false);
         		unhighlight_subtree_root();
 			}
         }
+        if(message == "set:mouse_over_signal_tree"){
+        	if(data == null) clear_background_color_when_no_hovered_tree();
+        	else{
+        		clear_background_color_when_no_hovered_tree();
+        		add_background_color_of_hovered_tree();
+        	}
+        }
+        //pre_datasets_id记录上一次的所有信号树id，用于与本次的id数组比较，确定删除哪些，增加哪些
         if(message=="update-view"){
         	var self = this;
-        	var currentId = dataCenter.global_variable.current_id;
         	var addlist = [], add_id_list = [];
         	var dataCenter_datasets_idlist = [];
         	for(var i = 0; i < dataCenter.datasets.length; i++){
@@ -1527,7 +1511,6 @@ var treeCompare = function(){
         	if(addlist.length > 0) {
         		addMultiTree(addlist,add_id_list);
         	}
-        	pre_datasets = dataCenter.datasets;
         	add_border_of_current_signal_tree();
         }
         if(message == "show-similiar"){
@@ -1539,6 +1522,15 @@ var treeCompare = function(){
         if(message == "change-depth"){
         	var depth = +data;
         	draw_depth(depth);
+        }
+        if(message == "show-all-depth"){
+        	expand_all_tree();
+        }
+        if(message == "show-two-depth"){
+        	shrink_all_tree();
+        }
+        if(message == "show-only-flow"){
+        	only_show_flow_all_tree();
         }
     }
     return TreeCompare;

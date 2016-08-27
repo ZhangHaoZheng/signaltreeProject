@@ -168,7 +168,6 @@ var parset = {
         	.classed('path-remove', true);
         	//classed('opacity-non-similar', true);
         	for(var i = 0;i < similarIdArray.length;i++){
-        		console.log( similarIdArray[i]);
         		svg.select('#parset-ribbon-' + similarIdArray[i]).classed('path-remove', false);//.style('opacity', '1');
         	}
         }
