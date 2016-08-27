@@ -21,7 +21,7 @@ var parset = {
 				if(Array.isArray(d.values)) return d.values;
 				return undefined;
 			});
-		var treeNodeList = tree.nodes(tree_root).reverse();
+		var treeNodeList = dataCenter.global_variable.tree_node_list;
 		console.log(treeNodeList);
 		var width = +$("#leftBottomWrapper").width();
 		var height = +$("#leftBottomWrapper").height();

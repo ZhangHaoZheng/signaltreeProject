@@ -57,7 +57,7 @@ var radial = {
 			.attr("id","radial")
 			.attr('transform', 'translate('+ width / 2 + ',' +  height / 2 +')');
 		self._draw_depth(4, treeNodeList, tree, width, height, rootA);
-		self.change_label_text('B');
+		//self.change_label_text('2');
 	},
 	_draw_depth: function(hide_depth, tree_node_list, tree, width, height, tree_root){
 		var self = this;
@@ -354,6 +354,8 @@ var radial = {
         if(message == "update-view"){
         	var self = this;
         	var currentId = dataCenter.global_variable.current_id;
+        	var selectionArrray = dataCenter.global_variable.selection_array;
+        	var tree_label = selectionArrray.indexOf(currentId);
         	if(currentId != null){
         		for(var i = 0;i < dataCenter.datasets.length;i++){
 	        		if(currentId == dataCenter.datasets[i].id){
@@ -363,6 +365,7 @@ var radial = {
 	        		}
 	        	}
         	}
+        	self.change_label_text(tree_label);
         }
         if(message == 'clean-view'){
         	svg.selectAll('*').remove();

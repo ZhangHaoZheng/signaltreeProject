@@ -351,7 +351,7 @@ var treeSelect = function(){
         for(var i = 0;i < selectionArray.length;i++){
         	var thisNodeName = selectionArray[i];
         	var thisNode = d3.select('.node' + thisNodeName);
-			var label = String.fromCharCode(97 + i).toUpperCase();
+			var label = i;//String.fromCharCode(97 + i).toUpperCase();
 			var thisX = +thisNode.attr('x') + margin.left;
 			var thisY = +thisNode.attr('y') + margin.top;
 			var thisWidth = +thisNode.attr('width');
@@ -603,7 +603,11 @@ var treeSelect = function(){
 			$("#innerTopRight #label-C #node-type").addClass('orange-label');
 		}
 	}
-	function changeLabelA(date, value, level_num, node_num){
+	function changeLabelA(tree_label, date, value, level_num, node_num){
+		console.log(tree_label);
+		$('#innerTopRightTop #node-type').html(function(){
+			return tree_label;
+		});
 		$("#innerTopRightTop #label-A .date_description").html(function() {
 				var timeArray = date.split("-");
 				return timeArray[0];
@@ -688,6 +692,8 @@ var treeSelect = function(){
 	}
 	function get_labelA_text_and_change(){
 		var currentId = dataCenter.global_variable.current_id;
+		var selectionArray = dataCenter.global_variable.selection_array;
+		var tree_label = selectionArray.indexOf(currentId);
         for(var i = 0;i < dataCenter.datasets.length;i++){
         	if(currentId == dataCenter.datasets[i].id){
         		if(dataCenter.datasets[i].processor.result.treeRoot != undefined){
@@ -697,7 +703,7 @@ var treeSelect = function(){
 	        		var flowSize = tree_root.flow;
 	        		var levelNum = 5;
 	        		var date = currentId;
-	        		changeLabelA(date, flowSize, levelNum, nodeNum);
+	        		changeLabelA(tree_label, date, flowSize, levelNum, nodeNum);
 	        		break;
         		}
         	}
@@ -712,14 +718,14 @@ var treeSelect = function(){
 	    		var selectionArray = dataCenter.global_variable.selection_array;
 		    	var tree_label = data.tree_label;
 		    	var tree_index = selectionArray.indexOf(tree_label);
-		    	var tree_letter = String.fromCharCode(97 + tree_index).toUpperCase();;
+		    	//var tree_letter = String.fromCharCode(97 + tree_index).toUpperCase();;
 		    	var node = data.node;
 		    	var nodeID = node.key;
 		    	var levelText = node.id.split("-").length - 1;
 		    	var flowLevel = node.flow;
 		    	var treeNodeNum = Array.isArray(node.values) ? node.values.length : 0;
 		    	var sumNodeNum = node.allChilldrenCount;
-		    	changeLabelC(tree_letter, nodeID, levelText, flowLevel, treeNodeNum, sumNodeNum)
+		    	changeLabelC(tree_index, nodeID, levelText, flowLevel, treeNodeNum, sumNodeNum)
 	    	}else{
 	    		changeLabelC('-', 0, 0, 0, 0, 0)
 	    	}
