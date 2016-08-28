@@ -43,14 +43,13 @@ var treeCompare = function(){
 	var tip = d3.tip()
 	  .attr('class', 'd3-tip')
 	  .offset([-10, 0]);
-	//add A B sign
 //	var dts = datasets[0].processor.result.dataList;
 //	var dts2 = datasets[1].processor.result.dataList;
 	var dt_root = datasets[0].processor.result.treeRoot;
 	var dt_root2 = datasets[1].processor.result.treeRoot;
 	var mult_tree_smaller = [];
-	var add_node_list = [dt_root,dt_root2];
-	var add_tree_id_list = [datasets[0].id,datasets[1].id];
+	var add_node_list = [dt_root2,dt_root];
+	var add_tree_id_list = [datasets[1].id,datasets[0].id];
 	var total_root = sigtree.dataProcessor().mergeTwoListAsTree([], []);
 	total_root.x0 = tree_width/2;
 	total_root.y0 = 0;
@@ -1357,6 +1356,8 @@ var treeCompare = function(){
 		for(var i = mult_tree_smaller.length - 1; i >= 0; i--){
 			delete_tree(mult_tree_smaller[i].tree_id);
 		}
+		dataCenter.set_global_variable("selection_array",[]);
+		dataCenter.set_global_variable("current_id",null);
 	}
 	//收缩所有树,显示末两层
 	function shrink_all_tree(){
