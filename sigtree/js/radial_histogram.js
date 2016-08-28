@@ -25,6 +25,12 @@ var radialHistogram = {
 			.attr('width', width + margin.right + margin.left)
 			.attr('height', height + margin.top + margin.bottom)
 			.attr('id', 'histogram')
+			.on('mouseenter',function(){
+				ObserverManager.post("delete_brush_g_in_comparison");
+			})
+			.on('mouseleave',function(){
+				ObserverManager.post("add_brush_g_in_comparison");
+			})
 			.append('g')
 			.attr('transform', 'translate(' + margin.left + ',' + margin.top + ')')
 			.attr('id', 'radial-histogram-svg');

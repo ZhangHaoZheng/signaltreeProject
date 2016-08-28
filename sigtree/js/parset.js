@@ -74,10 +74,7 @@ var parset = {
 			})
 			.on('mouseout', function(d,i){
 				tip.hide(d);
-			})
-			.on('click',function(d){
-				console.log(d)
-			})
+			});
 		svg.selectAll("rect")
 			.on("mouseover",function(){
 				if(d3.select(this).attr("class") != "category-0") return;
@@ -111,15 +108,14 @@ var parset = {
 		var highlight_id_list = dataCenter.global_variable.radial_highlight_id_list;
 		for(var i = 0; i < highlight_id_list.length; i++){
 			svg.selectAll("#parset-mouse-" + highlight_id_list[i])
-				.style("fill-opacity",0.9)
-				.style("fill","#4A4AFF");
+				.classed("on-hover-route-path",true);
 		}
 	},
 	_unhighlight_subtree_root: function(){
 		var svg = d3.select("svg.parset");
 		svg.selectAll("path")
-			.style("fill-opacity",0.3)
-			.style("fill","steelblue");
+			.classed("on-hover-route-path",false)
+			.classed("not-on-hover-route-path",true);
 		dataCenter.set_global_variable('radial_highlight_id_list', []);
 	},
     OMListen: function(message, data) {
@@ -163,7 +159,6 @@ var parset = {
         }
         if(message == "set:similar_id_array"){
         	var similarIdArray = dataCenter.global_variable.similar_id_array;
-        	console.log(similarIdArray);
         	svg.selectAll('path')
         	.classed('path-remove', true);
         	//classed('opacity-non-similar', true);

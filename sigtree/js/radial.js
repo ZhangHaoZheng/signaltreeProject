@@ -121,7 +121,7 @@ var radial = {
 					return "radial-node-" + id;
 				})
 				.on("click",function(d,i){
-					unhighlight();
+					_unhighlight();
 					var this_node = d3.select(this);
 					_click(d, i, this_node, tree_root);
 				})
@@ -213,7 +213,7 @@ var radial = {
 			treeNodeList = tree.nodes(tree_root).reverse();
 			_update(treeNodeList);
 		}
-		function unhighlight(){
+		function _unhighlight(){
 			var highlight_id_list = dataCenter.global_variable.radial_highlight_id_list;
 			for(var i = 0; i < highlight_id_list.length; i++){
 				d3.select("#radial-node-" + highlight_id_list[i]).classed("radial-route-node-inner",false);
@@ -234,7 +234,25 @@ var radial = {
 		return radialexpandmark;
 	},
 	_highlight_subtree_and_route_from_root: function(id) {
-		var highlight_id_list = dataCenter.global_variable.radial_highlight_id_list;
+		var self = this;
+		var highlight_id_list = [];
+		var treeNodeList = dataCenter.global_variable.tree_node_list;
+		var node,node1;
+		for(var i = 0; i < treeNodeList.length; i++){
+			if(treeNodeList[i].id == id){
+				node = treeNodeList[i];
+				break;
+			}
+		}
+		node1 = node;
+		if(node == undefined) return;
+		while(node.parent != undefined){
+			var tmpid = node.parent.id.replace(';','');
+				highlight_id_list.push(tmpid);
+			node = node.parent;
+		}
+		node = node1;
+		self._put_subtree_node_id(node,highlight_id_list);
 		for(var i = 0; i < highlight_id_list.length; i++){
 			if(highlight_id_list[i] == id) continue;
 			d3.select("#radial-node-" + highlight_id_list[i])
@@ -246,6 +264,8 @@ var radial = {
 		}
 		d3.select("#radial-link-" + id).classed("link",false);
 		d3.select("#radial-link-" + id).classed("radial-route-link",true);
+		highlight_id_list.push(id);
+		dataCenter.set_global_variable('radial_highlight_id_list', highlight_id_list);
 	},
 	_unhighlight_subtree_root: function(){
 		var highlight_id_list = dataCenter.global_variable.radial_highlight_id_list;
@@ -261,8 +281,8 @@ var radial = {
 	 	var self = this;
 		if(node.values == undefined) return;
 		for(var i = 0; i < node.values.length; i++){
-			if(node.values[i].id.indexOf(";") == -1)
-				list.push(node.values[i].id);
+			var tmpid = node.values[i].id.replace(';','');
+			list.push(tmpid);
 			self._put_subtree_node_id(node.values[i],list);
 		}
 	},

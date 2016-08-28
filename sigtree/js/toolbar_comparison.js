@@ -39,6 +39,7 @@ var toolbarComparison = {
 				$('#all-depth-comparison').addClass('active');
 				$('#two-depth-comparison').removeClass('active');
 				$('#only-flow-comparison').removeClass('active');
+				$('#shortest-flow-comparison').removeClass('active');
 			}
 			ObserverManager.post('show-all-depth');
 		});
@@ -47,6 +48,7 @@ var toolbarComparison = {
 				$('#two-depth-comparison').addClass('active');
 				$('#all-depth-comparison').removeClass('active');
 				$('#only-flow-comparison').removeClass('active');
+				$('#shortest-flow-comparison').removeClass('active');
 			}
 			ObserverManager.post('show-two-depth');
 		});
@@ -55,8 +57,18 @@ var toolbarComparison = {
 				$('#only-flow-comparison').addClass('active');
 				$('#two-depth-comparison').removeClass('active');
 				$('#all-depth-comparison').removeClass('active');
+				$('#shortest-flow-comparison').removeClass('active');
 			}
 			ObserverManager.post('show-only-flow');
+		});
+		$('#shortest-flow-comparison').on('click', function(d,i){
+			if(!$('#shortest-flow-comparison').hasClass('active')){
+				$('#shortest-flow-comparison').addClass('active');
+				$('#two-depth-comparison').removeClass('active');
+				$('#all-depth-comparison').removeClass('active');
+				$('#only-flow-comparison').removeClass('active');
+			}
+			ObserverManager.post('show-shortest-flow');
 		});
 	}
 }

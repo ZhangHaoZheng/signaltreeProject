@@ -2,7 +2,11 @@
     stroke: #b2df8a;
     fill: red;
 }
-.route-path{
-	fill-opacity: 0.9;
-	fill: #4A4AFF;
+.not-on-hover-route-path{
+	fill: steelblue;
+	fill-opacity: 0.3;
+}
+.on-hover-route-path{
+	fill: #4A4AFF !important;
+	fill-opacity: 0.9 !important;
 }
