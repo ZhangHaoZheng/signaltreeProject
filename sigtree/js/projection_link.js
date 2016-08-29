@@ -48,7 +48,6 @@ var projectionLink = {
 			var bTime = +b[2].split('-')[0];
 			return (aTime - bTime);
 		});
-		console.log('time-sort-node-location', nodeLocation);
 		var colorScale = d3.scale.linear()
 			.domain([0, nodeNum])
 			.range([0,1]);
@@ -185,6 +184,7 @@ var projectionLink = {
 	},
 	_click_handler: function(_this){
 		//re-projection according to this node
+		var selectionArray = dataCenter.global_variable.selection_array;
 		var thisId = d3.select(_this).attr('id');
 		var nodeId = thisId.replace('node','');
 		if(d3.select(_this).classed('opacity-click-highlight')){
@@ -278,7 +278,6 @@ var projectionLink = {
 						d3.select(this).classed('opacity-click-highlight', true);
 						selectionArray.push(nodeId);
 					}
-					console.log('selectionArray', selectionArray);
 					ObserverManager.post('changeData', selectionArray);
 				})
 				.style('fill', function(d,i){
@@ -328,7 +327,6 @@ var projectionLink = {
 	},
 	draw_link: function(node_location){
 		var nodeLocation = _.clone(node_location);
-		console.log(nodeLocation);
 		var similiarNodeArray = new Array();
 		for(var i = 0;i < nodeLocation.length;i++){
 			var x = nodeLocation[i][0];

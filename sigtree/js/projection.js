@@ -196,6 +196,7 @@ var projection = {
 	_click_handler: function(_this){
 		//re-projection according to this node
 		var thisId = d3.select(_this).attr('id');
+		var selectionArray = dataCenter.global_variable.selection_array;
 		var nodeId = thisId.replace('node','');
 		if(d3.select(_this).classed('opacity-click-highlight')){
 			d3.select(_this).classed('opacity-click-highlight', false);
