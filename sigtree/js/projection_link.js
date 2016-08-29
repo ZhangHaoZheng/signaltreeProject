@@ -1,4 +1,4 @@
-var projection = {
+var projectionLink = {
 	nodeLocation:[],
 	initialize: function(){
 		var self = this;
@@ -14,20 +14,20 @@ var projection = {
 	_bind_view: function(){
 
 	},
-	_render_view: function(projection_method){
+	_render_view: function(){
 		var self = this;
 		var padding  = 10;
-		var width = $('#projectionWrapper').width() - padding * 2;
-		var height = $('#projectionWrapper').height() - padding * 2;
+		var width = $('#projectionLinkWrapper').width() - padding * 2;
+		var height = $('#projectionLinkWrapper').height() - padding * 2;
 		var tip = d3.tip()
 		  .attr('class', 'd3-tip')
 		  .offset([-10, 0])
 		  .html(function(d) {
 		    return d[2] + "</span>";
 		  });
-		var svg = d3.select('svg.projection')
-		.attr('width', width)
-		.attr('height', height);
+		var svg = d3.select('svg.projection-link')
+			.attr('width', width)
+			.attr('height', height);
 		svg.call(tip);
 		svg.selectAll('*').remove();
 		var selectionArray = dataCenter.global_variable.selection_array;
@@ -42,18 +42,28 @@ var projection = {
 			nodeLocation[i][1] = coordinate[i][1] * height * 0.9 + height * 0.05;
 			nodeLocation[i][2] = dataCenter.distanceObject[i].fileName.replace('.csv','').replace('XX','')
 		}
-		if(projection_method == 'center-projection'){
-			self.draw_link(nodeLocation);	
-		}
-		nodeLocation.sort(function(a, b){
-			return selectionArray.indexOf(b[2]) - selectionArray.indexOf(a[2]);
+		self.draw_link(nodeLocation);	
+		nodeLocation = nodeLocation.sort(function(a, b){
+			var aTime = +a[2].split('-')[0];
+			var bTime = +b[2].split('-')[0];
+			return (aTime - bTime);
 		});
-		svg.selectAll(".projection-nodes")
+		console.log('time-sort-node-location', nodeLocation);
+		var colorScale = d3.scale.linear()
+			.domain([0, nodeNum])
+			.range([0,1]);
+		var red = d3.rgb(255,0,0);
+		var green = d3.rgb(0,255,0);
+		var compute = d3.interpolate(red,green); 
+		var projectionLinkNode = svg.selectAll(".projection-link-nodes")
 	    .data(nodeLocation)
-	  	.enter()
+	    .enter()
 	  	.append("circle")
+	  	.each(function(d,i){
+	  		d.push(compute(colorScale(i)));
+	  	})
 	  	.attr('class', function(d,i){
-	  		var className =  'projection-nodes';
+	  		var className =  'projection-link-nodes';
 	  		var id = dataCenter.distanceObject[i].fileName.replace('.csv','').replace('XX','');
 	  		var selectionArray = dataCenter.global_variable.selection_array;
 			if(selectionArray.indexOf(id) != -1){
@@ -62,7 +72,8 @@ var projection = {
 			return className;
 	  	})
 		.attr('id', function(d,i){
-			var idName = 'node' + d[2];
+			var id = d[2];
+			var idName = 'node' + id;
 			return idName;
 		})
 		.attr('cx', function(d,i){
@@ -72,38 +83,21 @@ var projection = {
 			return d[1];
 		})
 	    .on('mouseover', function(d,i){
-			//send message, highlight the corresponding histogram
-			//tip.show(d);
 			self._mouseover_handler(this);
-			//dataCenter.set_global_variable('mouse_over_signal_tree', nodeId);
 		})
 		.on('mouseout', function(d,i){
 			//send message, unhighlight the corresponding histogram
-			//tip.hide(d);
-			/*ObserverManager.post("projection-highlight", null);
-			d3.selectAll('.projection-nodes').classed('opacity-unhighlight', false);
-			d3.selectAll('.projection-nodes').classed('opacity-highlight', false);
-			d3.select(this).classed('focus-highlight', false);*/
-
-			//dataCenter.set_global_variable('mouse_over_signal_tree', null);
 			self._mouseout_handler(this);
+		})
+		.style('fill', function(d,i){
+			return d[3];
 		})
 		.on('click', function(d,i){
 			//re-projection according to this node
-			/*var thisId = d3.select(this).attr('id');
-			var nodeId = thisId.replace('node','');
-			if(d3.select(this).classed('opacity-click-highlight')){
-				d3.select(this).classed('opacity-click-highlight', false);
-				selectionArray.splice(selectionArray.indexOf(nodeId), 1);
-			}else{
-				d3.select(this).classed('opacity-click-highlight', true);
-				selectionArray.push(nodeId);
-			}
-			console.log('selectionArray', selectionArray);
-			ObserverManager.post('changeData', selectionArray);*/
 			self._click_handler(this);
 		});
 		self.putOnTopForSelectionNode(nodeLocation);
+		self.add_start_end_text();
 		// Returns an attrTween for translating along the specified path element.
 		function translateAlong(path) {
 		  var l = path.getTotalLength();
@@ -115,13 +109,6 @@ var projection = {
 		  };
 		}
 		self.append_selection_text();
-		//
-		/*var selectionArray = dataCenter.global_variable.selection_array;
-		d3.selectAll('.projection-nodes').classed('opacity-selection-unhighlight', true);
-		for(var i = 0;i < selectionArray.length;i++){
-			d3.select('#node' + selectionArray[i]).classed('opacity-selection-unhighlight', false);
-			d3.select('#node' + selectionArray[i]).classed('opacity-selection-highlight', true);
-		}*/
 	},
 	putOnTopForSelectionNode:function(){
 		var self = this;
@@ -136,13 +123,13 @@ var projection = {
 				} 
 			}
 		}
-		var svg = d3.select('svg.projection');
+		var svg = d3.select('svg.projection-link');
 		svg.selectAll('.opacity-click-highlight').remove();
 		svg.selectAll('.opacity-click-highlight')
 		.data(selectionNodeArray)
 		.enter()
 		.append('circle')
-		.attr('class', 'projection-nodes opacity-click-highlight')
+		.attr('class', 'projection-link-nodes opacity-click-highlight')
 		.attr('id', function(d,i){
 			return 'node' + d[2] 
 		})
@@ -175,13 +162,16 @@ var projection = {
 		.on('click', function(d,i){
 			//re-projection according to this node
 			self._click_handler(this);
+		})
+		.style('fill', function(d,i){
+			return d[3];
 		});
 	},
 	_mouseover_handler: function(_this){
-		var svg = d3.select('svg.projection');
+		var svg = d3.select('svg.projection-link');
 		var thisId = d3.select(_this).attr('id');
 		ObserverManager.post("projection-highlight", thisId);
-		svg.selectAll('.projection-nodes:not(#' + thisId +')').classed('opacity-unhighlight', true);
+		svg.selectAll('.projection-link-nodes:not(#' + thisId +')').classed('opacity-unhighlight', true);
 		d3.select(_this).classed('opacity-highlight', true);
 		d3.select(_this).classed('focus-highlight', true);
 		var nodeId = thisId.replace('node','');
@@ -208,7 +198,7 @@ var projection = {
 	},
 	highlight_node: function(this_node_id, index){
 		var self = this;
-		var svg = d3.select('svg.projection');
+		var svg = d3.select('svg.projection-link');
 		if(svg.select('#' + this_node_id) != null){
 			self.re_draw_node(svg.select('#' + this_node_id));
 		}
@@ -219,7 +209,7 @@ var projection = {
 		svg.select('#' + this_node_id).classed('opacity-similarity-highlight', true);
 	},
 	add_arc_num_text: function(this_node_id, number){
-		var svg = d3.select('svg.projection');
+		var svg = d3.select('svg.projection-link');
 		var thisNode = svg.select('#' + this_node_id);
 		var thisX = +thisNode.attr('cx');
 		var thisY = +thisNode.attr('cy');
@@ -230,7 +220,6 @@ var projection = {
 			.text(number + 1);
 	},
 	re_draw_node: function(this_node){
-		var self = this;
 		if(this_node != null){
 			var tip = d3.tip()
 			  .attr('class', 'd3-tip')
@@ -238,9 +227,10 @@ var projection = {
 			  .html(function(d) {
 			    return "<strong>Frequency:</strong>" + 'frequency' + "</span>";
 			  });
-			var svg = d3.select('svg.projection');
+			var svg = d3.select('svg.projection-link');
 			var this_class = this_node.attr('class');
 			var this_id = this_node.attr('id');
+			var this_fill = this_node.style('fill');
 			//var translate = this_node.attr('transform');
 			//var translateArray = translate.replace('translate(','').replace(')','').split(',');
 			var this_cx = +this_node.attr('cx');
@@ -256,33 +246,31 @@ var projection = {
 				.attr('cx', this_cx)
 				.attr('cy', this_cy)
 				.on('mouseover', function(d,i){
-					var svg = d3.select('svg.projection')
+					var svg = d3.select('svg.projection-link')
 					//send message, highlight the corresponding histogram
 					var thisId = d3.select(this).attr('id');
 					ObserverManager.post("projection-highlight", thisId);
-					svg.selectAll('.projection-nodes').classed('opacity-unhighlight', true);
+					svg.selectAll('.projection-link-nodes').classed('opacity-unhighlight', true);
 					d3.select(this).classed('opacity-unhighlight', false);
 					d3.select(this).classed('opacity-highlight', true);
 					d3.select(this).classed('focus-highlight', true);
 					var nodeId = thisId.replace('node','');
 					//dataCenter.set_global_variable('mouse_over_signal_tree', nodeId);
 					//tip.show(d);
-					//self._mouseover_handler(this);
 				})
 				.on('mouseout', function(d,i){
 					//send message, unhighlight the corresponding histogram
 					ObserverManager.post("projection-highlight", null);
-					svg.selectAll('.projection-nodes').classed('opacity-unhighlight', false);
-					svg.selectAll('.projection-nodes').classed('opacity-highlight', false);
+					svg.selectAll('.projection-link-nodes').classed('opacity-unhighlight', false);
+					svg.selectAll('.projection-link-nodes').classed('opacity-highlight', false);
 					d3.select(this).classed('focus-highlight', false);
 					//tip.hide(d);
-					//self._mouseout_handler(this);
 				})
 				.on('click', function(d,i){
 					//re-projection according to this node
-					var selectionArray = dataCenter.global_variable.selection_array;
 					var thisId = d3.select(this).attr('id');
 					var nodeId = thisId.replace('node','');
+					var selectionArray = dataCenter.global_variable.selection_array;
 					if(d3.select(this).classed('opacity-click-highlight')){
 						d3.select(this).classed('opacity-click-highlight', false);
 						selectionArray.splice(selectionArray.indexOf(nodeId), 1);
@@ -292,12 +280,38 @@ var projection = {
 					}
 					console.log('selectionArray', selectionArray);
 					ObserverManager.post('changeData', selectionArray);
-					//self._click_handler(this);
+				})
+				.style('fill', function(d,i){
+					return this_fill;
 				});
 		}
 	},
+	add_start_end_text: function(){
+		var self = this;
+		var svg = d3.select('svg.projection-link');
+		var nodeLocation = self.nodeLocation;
+		var nodeLocationLength = nodeLocation.length;
+		var startId = self.nodeLocation[0][2];
+		var endId = self.nodeLocation[nodeLocationLength - 1][2];
+		var startCx = svg.select('#node' + startId).attr('cx');
+		var startCy = svg.select('#node' + startId).attr('cy');
+		var endCx = svg.select('#node' + endId).attr('cx');
+		var endCy = svg.select('#node' + endId).attr('cy');
+		svg.append('text')
+			.attr('id', 'projection-link-start')
+			.attr("text-anchor", "middle")
+			.attr('x', startCx)
+			.attr('y', startCy - 6)
+			.text('start');
+		svg.append('text')
+			.attr('id', 'projection-link-end')
+			.attr("text-anchor", "middle")
+			.attr('x', endCx)
+			.attr('y', endCy - 6)
+			.text('end');
+	},
 	append_selection_text: function(){
-		var svg = d3.select('svg.projection');
+		var svg = d3.select('svg.projection-link');
 		var selectionArray = dataCenter.global_variable.selection_array;
 		svg.selectAll('.opacity-click-highlight')
 		.each(function(d,i){
@@ -353,7 +367,7 @@ var projection = {
 				ModifyNodeArray.push([templateX, templateY, nodeArray[j][2]]);
 			}
 		}
-		var svg = d3.select('svg.projection');
+		var svg = d3.select('svg.projection-link');
 		var path = svg.append("path")
 			.attr('class', 'projection-node-path')
 		    .data([ModifyNodeArray])
@@ -375,20 +389,6 @@ var projection = {
 			cardinal-closed - Cardina样条插值，连接起点终点形成多边形
 			monotone - 立方插值，保留y方向的单调性
 		     */
-		   // .interpolate("linear"));
-		/*var circle = svg.append("circle")
-		    .attr("r", 10)
-		    .attr("transform", function(d,i){
-		    	return "translate(" + nodeLocation[0] + ")";
-		    });
-		transition();
-		function transition() {
-		  circle.transition()
-		      .duration(40000)
-		      .ease("linear")
-		      .attrTween("transform", translateAlong(path.node()))
-		      .each("end", transition);
-		}*/
 		function translateAlong(path) {
 		  var l = path.getTotalLength();
 		  return function(d, i, a) {
@@ -401,28 +401,20 @@ var projection = {
 	},
 	OMListen: function(message, data) {
 		var self = this;
-		var svg = d3.select('svg.projection')
+		var svg = d3.select('svg.projection-link')
 		if (message == "similarity-node-array") {
-			svg.selectAll('.projection-nodes').classed('opacity-unhighlight', true);
+			svg.selectAll('.projection-link-nodes').classed('opacity-unhighlight', true);
 			if(data.length != 0){
-				svg.selectAll('.projection-nodes:not(.opacity-click-highlight)').classed('opacity-similarity-highlight', false);
-				svg.selectAll('.projection-nodes:not(.opacity-click-highlight)').classed('opacity-unhighlight', true);
+				svg.selectAll('.projection-link-nodes:not(.opacity-click-highlight)').classed('opacity-similarity-highlight', false);
+				svg.selectAll('.projection-link-nodes:not(.opacity-click-highlight)').classed('opacity-unhighlight', true);
 				for(var i = 0;i < data.length;i++){
 					self.highlight_node(data[i], i);
 				}
 				//d3.selectAll('.opacity-click-highlight').classed('opacity-unhighlight', false);
 			}else{
-				svg.selectAll('.projection-nodes').classed('opacity-unhighlight', false);
-				svg.selectAll('.projection-nodes').classed('opacity-highlight', false);
+				svg.selectAll('.projection-link-nodes').classed('opacity-unhighlight', false);
+				svg.selectAll('.projection-link-nodes').classed('opacity-highlight', false);
 				self.putOnTopForSelectionNode();
-			}
-		}
-		if(message == 'set:projection_method'){
-			var projectionMethod = dataCenter.global_variable.projection_method;
-			if(projectionMethod == 'original-projection'){
-				self._render_view('original-projection');
-			}else if(projectionMethod == 'center-projection'){
-				self._render_view('center-projection');
 			}
 		}
 		if(message == 'changeData'){
@@ -432,18 +424,16 @@ var projection = {
 			var mouseOverSignalTree = dataCenter.global_variable.mouse_over_signal_tree;
 			var thisId = 'node' + mouseOverSignalTree;
 			if(mouseOverSignalTree != null){
-				svg.selectAll('.projection-nodes').classed('opacity-unhighlight', true);
-				svg.selectAll('.projection-nodes').classed('focus-highlight', false);
-				//svg.selectAll('.projection-nodes:not(.opacity-click-highlight)').classed('opacity-highlight', false);
-				//svg.selectAll('.projection-nodes:not(.opacity-click-highlight)').classed('opacity-unhighlight', true);
+				svg.selectAll('.projection-link-nodes').classed('opacity-unhighlight', true);
+				svg.selectAll('.projection-link-nodes').classed('focus-highlight', false);
 				self.re_draw_node(svg.select('#' + thisId));
 				svg.select('#' + thisId).classed('opacity-unhighlight', false);
 				svg.select('#' + thisId).classed('opacity-highlight', true);
 				svg.select('#' + thisId).classed('focus-highlight', true);
 			}else{
-				svg.selectAll('.projection-nodes.focus-highlight').classed('opacity-highlight', false);
-				svg.selectAll('.projection-nodes.focus-highlight').classed('opacity-unhighlight', true);
-				svg.selectAll('.projection-nodes').classed('focus-highlight', false);
+				svg.selectAll('.projection-link-nodes.focus-highlight').classed('opacity-highlight', false);
+				svg.selectAll('.projection-link-nodes.focus-highlight').classed('opacity-unhighlight', true);
+				svg.selectAll('.projection-link-nodes').classed('focus-highlight', false);
 				self.putOnTopForSelectionNode();
 			}
 		}

@@ -217,6 +217,7 @@ var mainController = function(file_path_name){
                     dataCenter.view_collection.tree_compare_view = treeCompare();     
                     dataCenter.view_collection.parallel_set_view =  parset.initialize();     
                     dataCenter.view_collection.projectionView = projection.initialize();
+                    dataCenter.view_collection.projectionLinkView = projectionLink.initialize();
                     $('.hidden-content').css({'visibility': 'visible'});
                     $('#loading').css({'visibility':'hidden'});
                     $('.toolbar').css({'visibility':'visible'});

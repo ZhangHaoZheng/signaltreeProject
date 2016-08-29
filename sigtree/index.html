@@ -63,20 +63,9 @@
                     <i class="icon iconfont">&#xe615;</i>
                 </span>
             </div>
-            <div id = 'click-change-background' class = 'button-group bind'>
-                <span id = "change-color-white" class = "button click-white toolbar-all active" data-placement="bottom" title = "白色背景">
-                     <i class="icon iconfont">&#xe697;</i>
-                </span>
-                <span id = "change-color-black" class = "button click-black toolbar-all" data-placement="bottom" title = "黑色背景">
-                    <i class="icon iconfont">&#xe620;</i>
-                </span>
-            </div>
-            <div id = 'click-change-language' class = 'button-group bind'>
-                <span id = "change-language-chinese" class = "button click-chinese toolbar-all active" data-placement="bottom" title = "中文">
-                    中
-                </span>
-                <span id = "change-language-english" class = "button click-english toolbar-all" data-placement="bottom" title = "英文">
-                    En
+            <div id = "clear-all-div" class = "button-group bind">
+                <span id = "clear-all" class = "button data-btn toolbar-all" data-placement="bottom" title = "清空选择" data-type="switch">
+                     <i class="icon iconfont">&#xe6df;</i>
                 </span>
             </div>
             <div id = 'load-files' class = 'button-group bind'>
@@ -90,6 +79,24 @@
                 <div id="load-file-div" class="load-file">
                     <table id = "load-file-table" class="load-file">
                     </table>
+                </div>
+            </div>
+            <div id = 'system-version-div'>
+                <div id = 'click-change-background' class = 'button-group bind'>
+                    <span id = "change-color-white" class = "button click-white toolbar-all active" data-placement="bottom" title = "白色背景">
+                         <i class="icon iconfont">&#xe697;</i>
+                    </span>
+                    <span id = "change-color-black" class = "button click-black toolbar-all" data-placement="bottom" title = "黑色背景">
+                        <i class="icon iconfont">&#xe620;</i>
+                    </span>
+                </div>
+                <div id = 'click-change-language' class = 'button-group bind'>
+                    <span id = "change-language-chinese" class = "button click-chinese toolbar-all active" data-placement="bottom" title = "中文">
+                        中
+                    </span>
+                    <span id = "change-language-english" class = "button click-english toolbar-all" data-placement="bottom" title = "英文">
+                        En
+                    </span>
                 </div>
             </div>
         </div>
@@ -259,7 +266,12 @@
                         <svg class="sunburst"></svg>
                     </div>
                     <div id='leftTopRightWrapper'>
-                        <svg class='radial-histogram'></svg>
+                        <div id='histogram-label'>
+                            <span id = 'histogram-label-text'>流量分布柱状图</span>
+                        </div>
+                        <div id='leftTopRightBottomWrapper'>
+                            <svg class='radial-histogram'></svg>
+                        </div>
                     </div>
                 </div>
                 <div id="leftBottomWrapper" class = 'structure'>
@@ -268,6 +280,9 @@
             </div>
             <div id = 'projectionWrapper' class='structure'>
                 <svg class = "projection"></svg>
+            </div>
+            <div id = 'projectionLinkWrapper' class='structure'>
+                <svg class = "projection-link"></svg>
             </div>
         </div>
     </body>
@@ -283,6 +298,7 @@
     <script type="text/javascript" src="libs/d3.parsets/d3.parsets.js"></script>   
     <script type="text/javascript" src="libs/bootstrap/js/bootstrap.js"></script>
     <script type="text/javascript" src="libs/jquery-ui/jquery-ui.js"></script>
+    <script type="text/javascript" src="libs/lasso.js"></script>
     <!-- utils js -->
     <script type="text/javascript" src="js/sigtree.js"> </script>
     <script type="text/javascript" src="js/ObserverManager.js"> </script>
@@ -290,6 +306,7 @@
     <script type="text/javascript" src="js/data_processor.js"> </script>
     <script type="text/javascript" src="js/combinator.js"> </script>
     <script type="text/javascript" src="js/projection.js"></script> 
+    <script type="text/javascript" src='js/projection_link.js'></script>
     <script type="text/javascript" src='js/toolbar_signaltree.js'></script>
     <script type="text/javascript" src='js/toolbar_comparison.js'></script>
     <script type="text/javascript" src='js/toolbar_all.js'></script>

@@ -1,16 +1,16 @@
-.node {
+.radial-node {
   cursor: pointer;
 }
 
-.node circle {
-  /*fill: #fff;*/
-  /* stroke: steelblue; */
+.radial-node {
+  fill: #fff;
+  stroke: steelblue;
   stroke-width: 2px;
 }
 .nodecircle2{
   stroke: #FF7F0E;
 }
-.node text {
+.radial-node text {
   font: 10px sans-serif;
 }
 

@@ -1,10 +1,10 @@
 
 @font-face {font-family: "iconfont";
-  src: url('iconfont.eot?t=1472133376'); /* IE9*/
-  src: url('iconfont.eot?t=1472133376#iefix') format('embedded-opentype'), /* IE6-IE8 */
-  url('iconfont.woff?t=1472133376') format('woff'), /* chrome, firefox */
-  url('iconfont.ttf?t=1472133376') format('truetype'), /* chrome, firefox, opera, Safari, Android, iOS 4.2+*/
-  url('iconfont.svg?t=1472133376#iconfont') format('svg'); /* iOS 4.1- */
+  src: url('iconfont.eot?t=1472267440'); /* IE9*/
+  src: url('iconfont.eot?t=1472267440#iefix') format('embedded-opentype'), /* IE6-IE8 */
+  url('iconfont.woff?t=1472267440') format('woff'), /* chrome, firefox */
+  url('iconfont.ttf?t=1472267440') format('truetype'), /* chrome, firefox, opera, Safari, Android, iOS 4.2+*/
+  url('iconfont.svg?t=1472267440#iconfont') format('svg'); /* iOS 4.1- */
 }
 
 .iconfont {
@@ -33,3 +33,4 @@
 .icon-projectioncenterlinesize:before { content: "\e605"; }
 .icon-projectionnocenterline:before { content: "\e606"; }
 .icon-baiguang:before { content: "\e697"; }
+.icon-clear:before { content: "\e6df"; }

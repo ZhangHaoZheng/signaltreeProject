@@ -74,3 +74,7 @@ th.active{
   top: 5px;
   vertical-align: middle;
 }
+#system-version-div{
+  float: right;
+  margin-right: 10px;
+}

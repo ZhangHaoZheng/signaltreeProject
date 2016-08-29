@@ -22,7 +22,6 @@ var parset = {
 				return undefined;
 			});
 		var treeNodeList = dataCenter.global_variable.tree_node_list;
-		console.log(treeNodeList);
 		var width = +$("#leftBottomWrapper").width();
 		var height = +$("#leftBottomWrapper").height();
 		var svg = d3.select("svg.parset")

@@ -31,11 +31,13 @@ var treeSelect = function(){
 	}
 	append_current_circle(currentId);
 	//click the other part in the histogram view to cancel selection
-	$('.background-control-highlight,.toolbar,.arc-path').mouseout(function(d,i){
+	$('.background-control-highlight,.toolbar:not(#hover-arc-div, #slider-container, #slider-text),.arc-path').mouseout(function(d,i){
 		remove_hover_highlight();
 		remove_arc_num_text();
 		re_display_halfremove_arc_to_all();
-		add_arc(dataCenter.global_variable.current_id, 'click');
+		if(dataCenter.global_variable.current_id != null){
+			add_arc(dataCenter.global_variable.current_id, 'click');
+		}	
 		if(dataCenter.global_variable.show_arc){
 			re_display_remove_arc_to_all();
 		}else{
@@ -201,6 +203,7 @@ var treeSelect = function(){
 				return xScale(i) + 2;
 			})
 			.on("mouseover",function(d,i){
+				dataCenter.set_global_variable('mouse_over_signal_tree', null);
 				if(dataCenter.global_variable.show_arc){
 					half_hide_arc_to_all();
 				}else{
@@ -211,8 +214,6 @@ var treeSelect = function(){
 	    			.classed('opacity-unhighlight', true);
 	    		d3.selectAll('.arc-path:not(.click):not(.default)').remove();
 	    		d3.selectAll('.arc-path:not(.default)').remove();
-	    		d3.select(this)
-	    			.classed('opacity-unhighlight', false);
 	    		var element = 'node' + d.time.replace("XX.csv","");
 	    		//add arc
 	    		var id = d3.select(this).attr('id');
@@ -223,9 +224,10 @@ var treeSelect = function(){
 	    			}else{
 	    				add_arc(dataCenter.global_variable.current_id, 'hover');
 	    			}
-	    		}else{
-	    			ObserverManager.post("similarity-node-array", [element]);
 	    		}
+	    		//ObserverManager.post("similarity-node-array", [element]);
+	    		d3.select(this).classed('opacity-unhighlight', false);
+	    		d3.select(this).classed('focus-highlight', true);
 	    		dataCenter.set_global_variable('mouse_over_signal_tree', d.time);
 			})
 			.on("mouseout",function(d,i){
@@ -236,6 +238,7 @@ var treeSelect = function(){
 	    		//add arc
 	    		var id = d3.select(this).attr('id');
 	    		var selectionArray = dataCenter.global_variable.selection_array;
+	    		d3.select(this).classed('focus-highlight', false);
 			})
 			.on('click',function(d,i){
 				var this_node = d3.select(this);
@@ -374,22 +377,27 @@ var treeSelect = function(){
 	}
 	function append_current_circle(signal_tree_time){
 		d3.selectAll('.append-current-circle').remove();
-		var signalTreeTimeRemove = signal_tree_time.replace('XX.csv', '');
-		var this_node = d3.select('.node' + signalTreeTimeRemove);
-		var radius = +dataCenter.GLOBAL_STATIC.radius;
-		var x = +this_node.attr('x') + margin.left;
-		var y = +this_node.attr('y') + margin.top;
-		var width = +this_node.attr('width');
-		var height = +this_node.attr('height');
-		var centerX = x + width/2;
-		var centerY = y + height + 3 * radius;
-		d3.select('#mainTimeline').append('circle')
-			.attr('class', 'append-current-circle')
-			.attr('cx', centerX)
-			.attr('cy', centerY)
-			.attr('r', radius);
-		dataCenter.global_variable.current_id = signal_tree_time;
-		ObserverManager.post('change-current-data', signal_tree_time);
+		if(signal_tree_time != null){
+			var signalTreeTimeRemove = signal_tree_time.replace('XX.csv', '');
+			var this_node = d3.select('.node' + signalTreeTimeRemove);
+			var radius = +dataCenter.GLOBAL_STATIC.radius;
+			var x = +this_node.attr('x') + margin.left;
+			var y = +this_node.attr('y') + margin.top;
+			var width = +this_node.attr('width');
+			var height = +this_node.attr('height');
+			var centerX = x + width/2;
+			var centerY = y + height + 3 * radius;
+			d3.select('#mainTimeline').append('circle')
+				.attr('class', 'append-current-circle')
+				.attr('cx', centerX)
+				.attr('cy', centerY)
+				.attr('r', radius);
+			dataCenter.global_variable.current_id = signal_tree_time;
+			ObserverManager.post('change-current-data', signal_tree_time);
+		}
+	}
+	function clear_current_circle(){
+		d3.selectAll('.append-current-circle').remove();
 	}
 	function add_arc_to_all(){
 		if(d3.selectAll('.arc-path.default')[0].length == 0){
@@ -631,6 +639,8 @@ var treeSelect = function(){
 		for(var i = 0;i < selectionArray.length;i++){
 			d3.select('.node' + selectionArray[i]).classed('selection', true);
 		}
+		var currentId = dataCenter.global_variable.current_id;
+		append_current_circle(currentId);
 	}
 	function _black_handler(){
 		$('body').css('background-color', '#333');
@@ -809,6 +819,7 @@ var treeSelect = function(){
 	    }
 	    if(message == 'set:selection_array'){
 	    	var selectionArray = dataCenter.global_variable.selection_array;
+	    	console.log(selectionArray);
 	    	svg.selectAll('.bar').classed('selection', false);
 	    	for(var i = 0;i < selectionArray.length;i++){
 	    		svg.select('.node' + selectionArray[i]).classed('selection', true);
@@ -831,6 +842,15 @@ var treeSelect = function(){
 	    	if(dataCenter.global_variable.hover_show_arc 
 	    		&& (dataCenter.global_variable.current_id != null)){
 	    		add_arc(dataCenter.global_variable.current_id, 'click');
+	    	}
+	    }
+	    if(message == 'set:mouse_over_signal_tree'){
+	    	var mouseOverSignalTree = dataCenter.global_variable.mouse_over_signal_tree;	
+	    	if(mouseOverSignalTree != null){
+	    		svg.selectAll('.bar').classed('focus-highlight', false);
+	    		svg.select('.node' + mouseOverSignalTree).classed('focus-highlight', true);
+	    	}else{
+	    		svg.selectAll('.bar').classed('focus-highlight', false);
 	    	}
 	    }
     }

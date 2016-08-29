@@ -34,7 +34,6 @@ body{
       //border: 2px solid ;
       #innerTopLeft{
         position: absolute;
-        padding: 5px 5px 5px 5px;
         width: 85%;
         height: 100%;
         top: 0%;
@@ -186,6 +185,27 @@ body{
               bottom: 0%;
               right: 0%;
               left: 50%;
+              #histogram-label{
+                position: absolute;
+                top: 0%;
+                right: 0%;
+                left: 0%;
+                bottom: 90%;
+                #histogram-label-text{
+                  position: absolute;
+                  font-size: 15px;
+                  top: 50%;
+                  left: 50%;
+                  transform: translateX(-50%) translateY(-50%);
+                }
+              }
+              #leftTopRightBottomWrapper{
+                position: absolute;
+                top: 15px;
+                right: 0%;
+                left: 0%;
+                bottom: 0%;
+              }
             }
          }
          #leftBottomWrapper {
@@ -199,6 +219,14 @@ body{
         }
       }
       #projectionWrapper{
+        visibility: hidden;
+        top: 35px;
+        left: 0%;
+        right: 0%;
+        bottom: 0%;
+        position: absolute;
+      }
+      #projectionLinkWrapper{
         visibility: hidden;
         top: 35px;
         left: 0%;

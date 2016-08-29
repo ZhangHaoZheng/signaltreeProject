@@ -12,8 +12,8 @@ var radialHistogram = {
 	_bind_view: function(){},
 	_render_view: function(){
 		var self = this;
-		var width = $('#leftTopRightWrapper').width();
-		var height = $('#leftTopRightWrapper').height();
+		var width = $('#leftTopRightBottomWrapper').width();
+		var height = $('#leftTopRightBottomWrapper').height();
 		var margin = {top: 20, bottom: 30, right: 30, left: 50},
 			width = width - margin.left - margin.right,
 			height = height - margin.top - margin.bottom;
@@ -152,7 +152,7 @@ var radialHistogram = {
 			.attr("y",function(d,i){
 				return lineY(objArray[i].count); 
 			})
-			.attr("fill","#1F77B4");
+			.attr("fill","#C0C0C0");
 		//if($("#radialcheckbox").attr("mark") == 2)
 		//	radialhistogram.attr("fill","#FF7F0E");
 		d3.select("#radial-histogram-svg")

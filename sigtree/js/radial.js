@@ -78,9 +78,9 @@ var radial = {
 				}
 			}
 		}
-
-		_update(tree_node_list);
-		function _update(tree_node_list){
+		var initialClear = true;
+		_update(tree_node_list, initialClear);
+		function _update(tree_node_list, initial_clear){
 			var tip = d3.tip()
 			  .attr('class', 'd3-tip')
 			  .offset([-10, 0])
@@ -100,6 +100,9 @@ var radial = {
 				}
 			}
 			var svg = d3.select("#radial");
+			if(initial_clear){
+				svg.selectAll('*').remove();
+			}
 			svg.call(tip);
 			var diagonal = d3.svg.diagonal.radial()
 				.projection(function(d) { return [d.y, d.x / 180 * Math.PI]; });	
@@ -216,7 +219,8 @@ var radial = {
 				}
 			}
 			treeNodeList = tree.nodes(tree_root).reverse();
-			_update(treeNodeList);
+			var initialClear = false;
+			_update(treeNodeList, initialClear);
 		}
 		function _unhighlight(){
 			var highlight_id_list = dataCenter.global_variable.radial_highlight_id_list;

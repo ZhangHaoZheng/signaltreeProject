@@ -104,6 +104,9 @@ var toolbarAll = {
 				$('#load-file-div').slideUp('quick');
 			}
 		});
+		$('#clear-all-div').on('click', function(d,i){
+			clear_all_selection();
+		});
 		$('span:not(#load-file-name, #arc-link-hover)').on('click', function(d,i){
 			$('#load-file-div').slideUp('quick');
 			$('#hover-arc-div').slideUp('slow');
@@ -112,14 +115,14 @@ var toolbarAll = {
 			$('#load-file-div').slideUp('quick');	
 			$('#hover-arc-div').slideUp('slow');		
 		});
-		d3.selectAll('.toolbar-all')
-			.append('title')
-			.text(function(d,i){
-				return 'dddd';
-			})
-		$('tr').click(function(e){
-			alert('jjjjjj');
-		});
+		function clear_all_selection() {
+		    if (confirm("确定清空选择？") == true) {
+		    	//清空当前选择的信号树
+		    	dataCenter.set_global_variable('selection_array', []);
+		    	dataCenter.set_global_variable('current_id', null);
+		    	ObserverManager.post('changeData', []);
+		    }
+		}
 	},
 	_add_sample_data: function(){
 		$.get("data/", function(data) 

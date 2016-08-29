@@ -55,15 +55,19 @@ var toolbarSignaltree = {
 					}
 					dataCenter.set_global_variable('treeview_or_projection', 'treeview');
 				}else{
-					if(thisId == 'original-projection'){
-						dataCenter.set_global_variable('projection_method', 'original-projection');
-					}else if(thisId == 'center-projection'){
-						dataCenter.set_global_variable('projection_method', 'center-projection');
-					}
-					document.getElementById("projectionWrapper").style.visibility= "visible" ;
+					//全部隐藏div中的信息
 					document.getElementById("leftTreeWrapper").style.visibility= "hidden" ;
+					document.getElementById("projectionWrapper").style.visibility= "hidden" ;
+					document.getElementById("projectionLinkWrapper").style.visibility= "hidden" ;
 					document.getElementById("leftTopLeftWrapper-sunburst").style.visibility= "hidden" ;
 					document.getElementById("leftTopLeftWrapper-radial").style.visibility= "hidden" ;
+					if(thisId == 'original-projection'){
+						document.getElementById("projectionWrapper").style.visibility= "visible" ;
+						//dataCenter.set_global_variable('projection_method', 'original-projection');
+					}else if(thisId == 'center-projection'){
+						document.getElementById("projectionLinkWrapper").style.visibility= "visible" ;
+						//dataCenter.set_global_variable('projection_method', 'link-projection');
+					}
 					dataCenter.set_global_variable('treeview_or_projection', 'projection');
 				}
 			}
