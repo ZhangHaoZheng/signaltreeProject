@@ -1,4 +1,5 @@
 var projectionLink = {
+	name:'projection-link-view',
 	nodeLocation:[],
 	initialize: function(){
 		var self = this;
@@ -62,12 +63,13 @@ var projectionLink = {
 	  		d.push(compute(colorScale(i)));
 	  	})
 	  	.attr('class', function(d,i){
-	  		var className =  'projection-link-nodes';
+	  		var className =  'nodes projection-link-nodes';
 	  		var id = dataCenter.distanceObject[i].fileName.replace('.csv','').replace('XX','');
 	  		var selectionArray = dataCenter.global_variable.selection_array;
 			if(selectionArray.indexOf(id) != -1){
 				className = className + ' opacity-click-highlight';
 			}
+			className = className + ' node' + d[2];
 			return className;
 	  	})
 		.attr('id', function(d,i){
@@ -167,6 +169,7 @@ var projectionLink = {
 		});
 	},
 	_mouseover_handler: function(_this){
+		var self = this;
 		var svg = d3.select('svg.projection-link');
 		var thisId = d3.select(_this).attr('id');
 		ObserverManager.post("projection-highlight", thisId);
@@ -174,22 +177,26 @@ var projectionLink = {
 		d3.select(_this).classed('opacity-highlight', true);
 		d3.select(_this).classed('focus-highlight', true);
 		var nodeId = thisId.replace('node','');
-		dataCenter.set_global_variable('mouse_over_signal_tree', nodeId);
+		dataCenter.set_global_variable('mouse_over_signal_tree', nodeId, self.name);
 	},
 	_mouseout_handler: function(_this){
+		var self = this;
 		ObserverManager.post("projection-highlight", null);
 		d3.select(_this).classed('opacity-highlight', false);
 		d3.select(_this).classed('focus-highlight', false);
-		dataCenter.set_global_variable('mouse_over_signal_tree', null);
+		dataCenter.set_global_variable('mouse_over_signal_tree', null, self.name);
 	},
 	_click_handler: function(_this){
 		//re-projection according to this node
+		var self = this;
 		var selectionArray = dataCenter.global_variable.selection_array;
 		var thisId = d3.select(_this).attr('id');
 		var nodeId = thisId.replace('node','');
 		if(d3.select(_this).classed('opacity-click-highlight')){
 			d3.select(_this).classed('opacity-click-highlight', false);
 			selectionArray.splice(selectionArray.indexOf(nodeId), 1);
+			d3.select(_this).classed('focus-highlight', false);
+			dataCenter.set_global_variable('mouse_over_signal_tree', null, self.name);
 		}else{
 			d3.select(_this).classed('opacity-click-highlight', true);
 			selectionArray.push(nodeId);

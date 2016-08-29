@@ -1,4 +1,5 @@
 var toolbarAll = {
+	name: 'toolbar-all',
 	initialize: function(){
 		var self = this;
 		self._add_sample_data();
@@ -107,6 +108,15 @@ var toolbarAll = {
 		$('#clear-all-div').on('click', function(d,i){
 			clear_all_selection();
 		});
+		$('#enable-tool-tip').on('click', function(d,i){
+			if($('#enable-tool-tip').hasClass('active')){
+				dataCenter.set_global_variable('enable_tooltip', false);
+				$('#enable-tool-tip').removeClass('active');
+			}else{
+				dataCenter.set_global_variable('enable_tooltip', true);
+				$('#enable-tool-tip').addClass('active')
+			}
+		});
 		$('span:not(#load-file-name, #arc-link-hover)').on('click', function(d,i){
 			$('#load-file-div').slideUp('quick');
 			$('#hover-arc-div').slideUp('slow');
@@ -114,7 +124,32 @@ var toolbarAll = {
 		$('div:not(#toolbar, #load-files, .load-file-item, #load-file-div, #arc-link-div, #slider-container, #slider)').on('click', function(d,i){
 			$('#load-file-div').slideUp('quick');	
 			$('#hover-arc-div').slideUp('slow');		
+		});	
+		$('#help').click(function(){
+			console.log("!!!")
+			$("#dialog-confirm").dialog("open");
 		});
+		$("#dialog-confirm").dialog
+		({
+			width:"900",
+			height:"600",
+	        //modal: true,             // 创建模式对话框
+	        autoOpen: false,         // 只初始化，不显示
+	        buttons: {
+		        "Back": function() {
+		        	d3.selectAll(".help_img").remove()
+		        	$( ".help_document" ).append( 
+		        		"<img src=\"helpdocument/signal_tree_interface_intro.png\" class=\"help_img\" width=\"800px\" >"
+		        		);
+		        },
+		        "Next": function() {
+		        	d3.selectAll(".help_img").remove()
+		        	$( ".help_document" ).append( 
+		        		"<img src=\"helpdocument/signal_tree.png\" class=\"help_img\" width=\"550px\" >"
+		        		);
+		        }
+		    }
+	    });
 		function clear_all_selection() {
 		    if (confirm("确定清空选择？") == true) {
 		    	//清空当前选择的信号树

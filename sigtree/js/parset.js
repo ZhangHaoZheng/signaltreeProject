@@ -1,4 +1,5 @@
 var parset = {
+	name: 'parset',
 	initialize: function(){
 		var self = this;
 		self._add_to_listener();
@@ -80,14 +81,18 @@ var parset = {
 				var nodeAttrObj = get_tree_node(d.id);
 				var clickNode = {
 					tree_label: dataCenter.global_variable.current_id,
-					node: d,
+					node: nodeAttrObj,
 				};
 				dataCenter.set_global_variable('mouse_over_signal_node', clickNode);
-				tip.show(d);
+				if(dataCenter.global_variable.enable_tooltip){
+					tip.show(d);
+				}
 			})
 			.on('mouseout', function(d,i){
 				dataCenter.set_global_variable('mouse_over_signal_node', null);
-				tip.hide(d);
+				if(dataCenter.global_variable.enable_tooltip){
+					tip.hide(d);
+				}
 			});
 		svg.selectAll("rect")
 			.on("mouseover",function(){

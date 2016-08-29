@@ -1,5 +1,5 @@
 var projection = {
-	nodeLocation:[],
+	name:'projection-view',
 	initialize: function(){
 		var self = this;
 		self._add_to_listener();
@@ -53,12 +53,13 @@ var projection = {
 	  	.enter()
 	  	.append("circle")
 	  	.attr('class', function(d,i){
-	  		var className =  'projection-nodes';
+	  		var className =  'nodes projection-nodes';
 	  		var id = dataCenter.distanceObject[i].fileName.replace('.csv','').replace('XX','');
 	  		var selectionArray = dataCenter.global_variable.selection_array;
 			if(selectionArray.indexOf(id) != -1){
 				className = className + ' opacity-click-highlight';
 			}
+			className = className + ' node' + d[2];
 			return className;
 	  	})
 		.attr('id', function(d,i){
@@ -178,6 +179,7 @@ var projection = {
 		});
 	},
 	_mouseover_handler: function(_this){
+		var self = this;
 		var svg = d3.select('svg.projection');
 		var thisId = d3.select(_this).attr('id');
 		ObserverManager.post("projection-highlight", thisId);
@@ -185,22 +187,26 @@ var projection = {
 		d3.select(_this).classed('opacity-highlight', true);
 		d3.select(_this).classed('focus-highlight', true);
 		var nodeId = thisId.replace('node','');
-		dataCenter.set_global_variable('mouse_over_signal_tree', nodeId);
+		dataCenter.set_global_variable('mouse_over_signal_tree', nodeId, self.name);
 	},
 	_mouseout_handler: function(_this){
+		var self = this;
 		ObserverManager.post("projection-highlight", null);
 		d3.select(_this).classed('opacity-highlight', false);
 		d3.select(_this).classed('focus-highlight', false);
-		dataCenter.set_global_variable('mouse_over_signal_tree', null);
+		dataCenter.set_global_variable('mouse_over_signal_tree', null, self.name);
 	},
 	_click_handler: function(_this){
 		//re-projection according to this node
+		var self = this;
 		var thisId = d3.select(_this).attr('id');
 		var selectionArray = dataCenter.global_variable.selection_array;
 		var nodeId = thisId.replace('node','');
 		if(d3.select(_this).classed('opacity-click-highlight')){
 			d3.select(_this).classed('opacity-click-highlight', false);
 			selectionArray.splice(selectionArray.indexOf(nodeId), 1);
+			d3.select(_this).classed('focus-highlight', false);
+			dataCenter.set_global_variable('mouse_over_signal_tree', null, self.name);
 		}else{
 			d3.select(_this).classed('opacity-click-highlight', true);
 			selectionArray.push(nodeId);
@@ -291,7 +297,6 @@ var projection = {
 						d3.select(this).classed('opacity-click-highlight', true);
 						selectionArray.push(nodeId);
 					}
-					console.log('selectionArray', selectionArray);
 					ObserverManager.post('changeData', selectionArray);
 					//self._click_handler(this);
 				});
@@ -315,7 +320,6 @@ var projection = {
 	},
 	draw_link: function(node_location){
 		var nodeLocation = _.clone(node_location);
-		console.log(nodeLocation);
 		var similiarNodeArray = new Array();
 		for(var i = 0;i < nodeLocation.length;i++){
 			var x = nodeLocation[i][0];

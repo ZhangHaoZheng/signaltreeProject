@@ -1,4 +1,5 @@
 var radialHistogram = {
+	name: 'radialhistogram',
 	initialize: function(){
 		var self = this;
 		self._add_to_listener();

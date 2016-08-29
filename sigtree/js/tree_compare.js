@@ -1,7 +1,8 @@
 var treeCompare = function(){
+	var thisViewName = 'projection-link-view';
 	d3.select("#rightComparisonWrapper").style("padding",0);
 	document.getElementById("multitree").innerHTML = '';
-	var TreeCompare = {};
+	var TreeCompare = {name: thisViewName};
 	ObserverManager.changeListener(TreeCompare,3);
 //	ObserverManager.addListener(TreeCompare);
 	var datasets = dataCenter.datasets;
@@ -353,24 +354,28 @@ var treeCompare = function(){
 					if (Array.isArray(n.values)){
 						text += "<br>子节点数:" +  n.values.length;
 					}
-					text += "<br>流量:" + n.flow;
+					text += "<br>流量:" + d3.format(".3s")(n.flow) + 'bytes';
 					return text;
 				})
-				tip.show()
+				if(dataCenter.global_variable.enable_tooltip){
+					tip.show()
+				}
 				if(mult_tree.tree_id == dataCenter.global_variable.current_id)
 					ObserverManager.post("mouse-over", [d.id]);
 				var tmpid = d.id.replace(';','');
 				d3.select("#multitree").selectAll("#compare-node-" + tmpid).classed("focus-highlight",true);
-				dataCenter.set_global_variable('mouse_over_signal_node', null);
 				highlight_subtree_root(d.id,mult_tree.tree_id,false);
 			})
 			.on("mouseout", function(d) {
 				if(mult_tree.tree_id == dataCenter.global_variable.current_id)
 					ObserverManager.post("mouse-out", [d.id]);
 				var tmpid = d.id.replace(';','');
-				d3.select("#multitree").selectAll("#compare-node-" + tmpid).classed("focus-highlight",false);
-				tip.hide();		
+				d3.select("#multitree").selectAll("#compare-node-" + tmpid).classed("focus-highlight",false);	
 				unhighlight_subtree_root();
+				dataCenter.set_global_variable('mouse_over_signal_node', null);
+				if(dataCenter.global_variable.enable_tooltip){
+					tip.hide();	
+				}
 			})
 			.on("click",function(d){
 				build_id_nodes(nodes);

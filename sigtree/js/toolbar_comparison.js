@@ -1,4 +1,5 @@
 var toolbarComparison = {
+	name: 'toolbar-comparison',
 	initialize: function(){
 		var self = this;
 		self._add_to_listeners();

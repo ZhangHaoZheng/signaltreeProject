@@ -194,7 +194,6 @@ var mainController = function(file_path_name){
             }
             $.when.apply($, defers)
                 .done(function() {
-                    console.log('main', 'update-view');
                     ObserverManager.post("update-view", dataCenter.datasets);
                     var currentId = dataCenter.global_variable.current_id;
                     if(currentId == null){

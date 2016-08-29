@@ -13,7 +13,7 @@
 		}
 		for (var i = 0; i < listeners.length; i++) {
 			if (listeners[i].OMListen) {
-				if (sender != listeners[i]){
+				if (sender != listeners[i].name){
 					listeners[i].OMListen(message, data);
 				}
 			}

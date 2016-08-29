@@ -41,7 +41,9 @@ var dataCenter = {
 		'radial_highlight_id_list':[],
 		'mouse_over_signal_tree':null,
 		'mouse_over_signal_node':null,
-		'mult_tree_smaller':null
+		'remove_signal_tree_index':[],
+		'current_signal_tree_index_array':[],
+		'enable_tooltip': true
 	},
 	initial_global_variable: {
 		'file_array_path': [],
@@ -75,15 +77,33 @@ var dataCenter = {
 		'radial_highlight_id_list':[],
 		'mouse_over_signal_tree':null,
 		'mouse_over_signal_node':null,
-		'mult_tree_smaller':null
+		'remove_signal_tree_array':[],
+		'current_signal_tree_index_array':[],
+		'enable_tooltip': true
 	},
 	GLOBAL_STATIC: {
 		'radius': 3.5,
 		'DEFAULT_ARC_LINK_NUM': 2,
 		'MAX_DEPTH': 4
 	},
-	set_global_variable: function(variable_name, value){
+	set_global_variable: function(variable_name, value, setter){
 		this.global_variable[variable_name] = value;
-		ObserverManager.post('set:' + variable_name, value);
+		ObserverManager.post('set:' + variable_name, value, setter);
+	},
+	add_remove_index_array: function(remove_index){
+		this.global_variable.remove_signal_tree_array.push(remove_index);
+		this.global_variable.remove_signal_tree_array = this.global_variable.remove_signal_tree_array.sort(function(a,b){
+			return a - b;
+		});
+		console.log(this.global_variable.remove_signal_tree_array);
+	},
+	get_current_tree_index: function(){
+		var removeIndexArray = this.global_variable.remove_signal_tree_array
+		if(removeIndexArray.length != 0){
+			removeIndexArray.splice(0,1);
+			return removeIndexArray[0];
+		}else{
+			//var maxNum = current_signal_tree_index_array.
+		}
 	}
 }

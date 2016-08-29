@@ -1,4 +1,5 @@
 var toolbarSignaltree = {
+	name:'tool-bar-signal-tree',
 	initialize: function(){
 		var self = this;
 		self._add_to_listeners();

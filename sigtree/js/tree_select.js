@@ -1,5 +1,6 @@
 var treeSelect = function(){
-	var SelectTree = {};
+	var thisViewName = 'tree-select';
+	var SelectTree = {name: thisViewName};
 	ObserverManager.addListener(SelectTree);
 	var svgWidth = $("#innerTopLeft").width();
 	var svgHeight = $("#innerTopLeft").height() * 19/20;
@@ -43,19 +44,23 @@ var treeSelect = function(){
 		}else{
 			hide_arc_to_all();
 		}
+		dataCenter.set_global_variable('mouse_over_signal_tree', null, thisViewName);
 	});
 	$('.remove-highlight').mouseover(function(d,i){
 		remove_hover_highlight();
 	});
 	function remove_hover_highlight(){
 		svg.selectAll('.bar')
-	    .classed('opacity-unhighlight', false);
+	  	 	.classed('opacity-unhighlight', false);
+	  	svg.selectAll('.bar')
+	  		.classed('focus-highlight', false);
 	    //svg.selectAll('.bar')
 	    //.classed('opacity-highlight', false);
 	    d3.selectAll('.hover').remove();
 	    d3.selectAll('.bar:not(.opacity-click-highlight)').style('fill','#C0C0C0');
-	    dataCenter.set_global_variable('mouse_over_signal_tree', null);
+	    //dataCenter.set_global_variable('mouse_over_signal_tree', null);
 	    ObserverManager.post("similarity-node-array", []);
+	    dataCenter.set_global_variable('mouse_over_signal_tree', null, thisViewName);
 	}
 	$("#innerTopRight").css("font-size", 12 + "px");  
 	function processStatData() {
@@ -146,7 +151,6 @@ var treeSelect = function(){
 			.attr("y",-25)
 			.style("text-anchor","end")
 			.text("log(Number\n(bytes))");
-
 		//draw chart bars
 		var xScale = d3.scale.linear()
 					.domain([0, dataArray.length])
@@ -154,7 +158,26 @@ var treeSelect = function(){
 		var yScale = d3.scale.linear()
 					.domain([0, Math.log(maxNum)])
 					.range([height, 0]);
-
+		var tip = d3.tip()
+			.attr('class', 'd3-tip')
+			.html(function(d, i) {
+				var time = d.time;
+				var aTime = time.replace("XX.csv","");
+				var aValue = d.value;
+				return "<span style='font-size:12px;  '>date:" + aTime +"&nbsp;&nbsp;Values:" + d3.format(".3s")(aValue) + "bytes" + "</span>";
+			});
+		tip.offset(function(d){
+			var tmpy = - yScale(Math.log(d.value)) + 5;
+			var tmpx = 0;
+			return [tmpy,tmpx];
+			/*if(i < 10){
+				tmpx = (10 - i) * xScale(1);
+			}
+			else if(i > 76){
+				tmpx = (76 - i) * xScale(1);
+			}*/		
+		});
+		svg.call(tip);
 		hisWidth = xScale(1) - 1;
 		console.log(dataArray);
 		var rectg = chart.selectAll(".bar")
@@ -203,7 +226,7 @@ var treeSelect = function(){
 				return xScale(i) + 2;
 			})
 			.on("mouseover",function(d,i){
-				dataCenter.set_global_variable('mouse_over_signal_tree', null);
+				dataCenter.set_global_variable('mouse_over_signal_tree', null, thisViewName);
 				if(dataCenter.global_variable.show_arc){
 					half_hide_arc_to_all();
 				}else{
@@ -228,7 +251,10 @@ var treeSelect = function(){
 	    		//ObserverManager.post("similarity-node-array", [element]);
 	    		d3.select(this).classed('opacity-unhighlight', false);
 	    		d3.select(this).classed('focus-highlight', true);
-	    		dataCenter.set_global_variable('mouse_over_signal_tree', d.time);
+	    		if(dataCenter.global_variable.enable_tooltip){
+	    			tip.show(d,i);
+	    		}
+	    		dataCenter.set_global_variable('mouse_over_signal_tree', d.time, thisViewName);
 			})
 			.on("mouseout",function(d,i){
 				/*svg.selectAll('.bar')
@@ -238,6 +264,9 @@ var treeSelect = function(){
 	    		//add arc
 	    		var id = d3.select(this).attr('id');
 	    		var selectionArray = dataCenter.global_variable.selection_array;
+	    		if(dataCenter.global_variable.enable_tooltip){
+	    			tip.hide(d,i);
+	    		}
 	    		d3.select(this).classed('focus-highlight', false);
 			})
 			.on('click',function(d,i){
@@ -251,6 +280,7 @@ var treeSelect = function(){
 				if(selectionArray.indexOf(signalTreeTime) == -1){
 					var selectionObject = new Object();
 					selectionObject.tree_name = signalTreeTime;
+					//selectionObject.index = 
 					selectionObjectArray.push(selectionObject);
 					selectionArray.push(signalTreeTime);
 					var thisNode = d3.select(this);
@@ -292,7 +322,7 @@ var treeSelect = function(){
 							}
 							add_arc(formerSignalTreeTime, 'click');
 						}else{
-							dataCenter.set_global_variable('current_id', null);
+							dataCenter.set_global_variable('current_id', null, thisViewName);
 							d3.selectAll('.append-current-circle').remove();
 						}
 						ObserverManager.post('changeData', selectionArray);
@@ -658,6 +688,7 @@ var treeSelect = function(){
 		$('.button-group.bind div').css('color', 'white');
 		$('.structure').css('border-color','black');
 		$('.dimension line').css('stroke', 'white');
+		$('#divide-line').css('border-top', '1px solid black');
 		return;
 	}
 	function _white_handler(){
@@ -679,10 +710,113 @@ var treeSelect = function(){
 		return;
 	}
 	function _chinese_handler(){
+		$('#title').attr('data-original-title', '关于本系统');
+		$('#arc-link').attr('data-original-title', '全部显示连接');
+		$('#arc-link-hover').attr('data-original-title', '鼠标悬停显示连接');
+		$('#time-sort').attr('data-original-title', '按时间排序');
+		$('#size-sort').attr('data-original-title', '按流量大小排序');
+		$('#switch-selection').attr('data-original-title', '变换选择');
+		$('#click-node-shrink').attr('data-original-title', '收缩选择节点');
+		$('#click-other-node-shrink').attr('data-original-title', '收缩兄弟节点');
+		$('#clear-all').attr('data-original-title', '清空');
+		$('#load-file-name').attr('data-original-title', '加载文件');
 
+		$('#change-color-white').attr('data-original-title', '白色背景');
+		$('#change-color-black').attr('data-original-title', '黑色背景');
+		$('#change-language-chinese').attr('data-original-title', '中文');
+		$('#change-language-english').attr('data-original-title', '英文');
+
+		$('#comparison-title').attr('data-original-title', '多树比较视图');
+		$('#all-node-comparison').attr('data-original-title', '比较全部节点');
+		$('#same-node-comparison').attr('data-original-title', '比较相同节点');
+		$('#all-depth-comparison').attr('data-original-title', '显示全部层级');
+		$('#two-depth-comparison').attr('data-original-title', '显示最后两层');
+		$('#only-flow-comparison').attr('data-original-title', '显示流量大小');
+		$('#shortest-flow-comparison').attr('data-original-title', '动态调整高度');
+		$('#level-0').attr('data-original-title', '第1层');
+		$('#level-1').attr('data-original-title', '第2层');
+		$('#level-2').attr('data-original-title', '第3层');
+		$('#level-3').attr('data-original-title', '第4层');
+		$('#level-4').attr('data-original-title', '第5层');
+
+		$('#single-tree-title').attr('data-original-title', '单树视图');
+		$('#radial-tree').attr('data-original-title', 'radial');
+		$('#sunburst-tree').attr('data-original-title', 'sunburst');
+		$('#tree-view').attr('data-original-title', '树结构可视化');
+		$('#original-projection').attr('data-original-title', '投影视图');
+		$('#center-projection').attr('data-original-title', '链接投影视图');
+		$('#center-size-glyph').attr('data-original-title', '大小编码投影视图');
+		$('#center-subgraph-glyph').attr('data-original-title', '子图编码投影视图');
+		$('#center-sunburst-glyph').attr('data-original-title', 'sunburst编码投影视图');
+
+		$('#title-div #title').html('信号树可视化系统');
+		$('#title-div #comparison-title').html('多树比较视图');
+		$('#title-div #single-tree-title').html('单树视图');
+		$('#label-A .date_label').html('<strong>日期:</strong>');
+		$('#label-A .value_label').html('<strong>数值:</strong>');
+		$('#label-A .level_label').html('<strong>层级:</strong>');
+		$('#label-A .node_num_label').html('<strong>节点数量:</strong>');
+
+		$('#label-C #node-label').html('<strong>节点名称:</strong>');
+		$('#label-C #level-label').html('<strong>层级:</strong>');
+		$('#label-C #flow-num-label').html('<strong>流量大小:</strong>');
+		$('#label-C #tree-num-label').html('<strong>编号:</strong>');
+		$('#label-C #sub-node-label').html('<strong>子节点数量:</strong>');
+		$('#histogram-label-text').html('流量分布柱状图');
+		$('.button').tooltip(); 
 	}
 	function _english_handler(){
+		$('#title').attr('data-original-title', 'about this system');
+		$('#arc-link').attr('data-original-title', 'draw the whole arc links');
+		$('#arc-link-hover').attr('data-original-title', 'draw the arc links when hover');
+		$('#time-sort').attr('data-original-title', 'sorting according to time');
+		$('#size-sort').attr('data-original-title', 'sorting according to flow size');
+		$('#switch-selection').attr('data-original-title', 'switch the selection');
+		$('#click-node-shrink').attr('data-original-title', 'shrink the click node');
+		$('#click-other-node-shrink').attr('data-original-title', 'shrink the sibling nodes');
+		$('#clear-all').attr('data-original-title', 'clear');
+		$('#load-file-name').attr('data-original-title', 'load file');
 
+		$('#change-color-white').attr('data-original-title', 'white background');
+		$('#change-color-black').attr('data-original-title', 'black background');
+		$('#change-language-chinese').attr('data-original-title', 'Chinese');
+		$('#change-language-english').attr('data-original-title', 'English');
+
+		$('#comparison-title').attr('data-original-title', 'multi-tree comparison');
+		$('#all-node-comparison').attr('data-original-title', 'compare all the nodes');
+		$('#same-node-comparison').attr('data-original-title', 'compare the same nodes');
+		$('#all-depth-comparison').attr('data-original-title', 'compare the whole levels');
+		$('#two-depth-comparison').attr('data-original-title', 'compare the last two levels');
+		$('#only-flow-comparison').attr('data-original-title', 'compare the last level(flow size)');
+		$('#shortest-flow-comparison').attr('data-original-title', 'switch the selection');
+		$('#level-0').attr('data-original-title', 'first-level');
+		$('#level-1').attr('data-original-title', 'second-level');
+		$('#level-2').attr('data-original-title', 'third-level');
+		$('#level-3').attr('data-original-title', 'forth-level');
+		$('#level-4').attr('data-original-title', 'fifth-level');
+
+		$('#single-tree-title').attr('data-original-title', 'single tree visualization');
+		$('#radial-tree').attr('data-original-title', 'radial');
+		$('#sunburst-tree').attr('data-original-title', 'sunburst');
+		$('#tree-view').attr('data-original-title', 'tree view');
+		$('#original-projection').attr('data-original-title', 'original projection view');
+		$('#center-projection').attr('data-original-title', 'linked projection view');
+		$('#center-size-glyph').attr('data-original-title', 'sized projection view');
+		$('#center-subgraph-glyph').attr('data-original-title', 'subgraph projection view');
+		$('#center-sunburst-glyph').attr('data-original-title', 'sunburst projection view');
+
+		$('#label-A .date_label').html('<strong>Date:</strong>');
+		$('#label-A .value_label').html('<strong>Values:</strong>');
+		$('#label-A .level_label').html('<strong>Level:</strong>');
+		$('#label-A .node_num_label').html('<strong>Node Num:</strong>');
+
+		$('#label-C #node-label').html('<strong>Node:</strong>');
+		$('#label-C #level-label').html('<strong>Level:</strong>');
+		$('#label-C #flow-num-label').html('<strong>FlowNum:</strong>');
+		$('#label-C #tree-num-label').html('<strong>TreeNum:</strong>');
+		$('#label-C #sub-node-label').html('<strong>SubNode:</strong>');
+		$('#histogram-label-text').html('Flow Distribution');
+		$('.button').tooltip(); 
 	}
 	function _projection_highlight(data){
 		d3.selectAll('.bar')
@@ -720,6 +854,7 @@ var treeSelect = function(){
         }
 	}
 	SelectTree.OMListen = function(message, data) {
+		var svg = d3.select('#mainTimeline');
 	    if (message == "percentage") {
 			changePercentage(data);
 	    }
@@ -729,13 +864,15 @@ var treeSelect = function(){
 		    	var tree_label = data.tree_label;
 		    	var tree_index = selectionArray.indexOf(tree_label);
 		    	//var tree_letter = String.fromCharCode(97 + tree_index).toUpperCase();;
-		    	var node = data.node;
-		    	var nodeID = node.key;
-		    	var levelText = node.id.split("-").length - 1;
-		    	var flowLevel = node.flow;
-		    	var treeNodeNum = Array.isArray(node.values) ? node.values.length : 0;
-		    	var sumNodeNum = node.allChilldrenCount;
-		    	changeLabelC(tree_index, nodeID, levelText, flowLevel, treeNodeNum, sumNodeNum)
+		    	var node = data.node;		    	
+		    	if(node!= null){
+		    		var nodeID = node.key;
+			    	var levelText = node.id.split("-").length - 1;
+			    	var flowLevel = node.flow;
+			    	var treeNodeNum = Array.isArray(node.values) ? node.values.length : 0;
+			    	var sumNodeNum = node.allChilldrenCount;
+			    	changeLabelC(tree_index, nodeID, levelText, flowLevel, treeNodeNum, sumNodeNum);
+		    	}
 	    	}else{
 	    		changeLabelC('-', 0, 0, 0, 0, 0)
 	    	}
@@ -813,9 +950,18 @@ var treeSelect = function(){
 	    }
 	    if(message == 'update-view'){
 	    	update_selection_and_current();
+	    	var selectionArray = dataCenter.global_variable.selection_array;
+	    	dataCenter.global_variable.current_id = selectionArray[selectionArray.length - 1];
+	    	svg.selectAll('.bar').classed('selection', false);
+	    	for(var i = 0;i < selectionArray.length;i++){
+	    		svg.select('.node' + selectionArray[i]).classed('selection', true);
+	    	}
+	    	add_selection_text(selectionArray);
 	    	if(message == "update-view"){
         		get_labelA_text_and_change();
 	        }
+	        var currentId = dataCenter.global_variable.current_id;
+	        append_current_circle(currentId);
 	    }
 	    if(message == 'set:selection_array'){
 	    	var selectionArray = dataCenter.global_variable.selection_array;
@@ -848,7 +994,7 @@ var treeSelect = function(){
 	    	var mouseOverSignalTree = dataCenter.global_variable.mouse_over_signal_tree;	
 	    	if(mouseOverSignalTree != null){
 	    		svg.selectAll('.bar').classed('focus-highlight', false);
-	    		svg.select('.node' + mouseOverSignalTree).classed('focus-highlight', true);
+	    		svg.selectAll('.node' + mouseOverSignalTree).classed('focus-highlight', true);
 	    	}else{
 	    		svg.selectAll('.bar').classed('focus-highlight', false);
 	    	}

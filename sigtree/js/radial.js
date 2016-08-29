@@ -1,4 +1,5 @@
 var radial = {
+	name: 'radial',
 	initialize: function(){
 		var self = this;
 		self._add_to_listener();
@@ -82,14 +83,14 @@ var radial = {
 		_update(tree_node_list, initialClear);
 		function _update(tree_node_list, initial_clear){
 			var tip = d3.tip()
-			  .attr('class', 'd3-tip')
-			  .offset([-10, 0])
-			  .html(function(d) {
-			  	var flowSize = +d.flow;
-			  	var nameArray = d.index.split('-');
-			  	var name = nameArray[nameArray.length - 1];
-			    return "flowSize:" + d3.format(".3s")(flowSize) + " nodeName:" + name + "</span>";
-			  });
+			.attr('class', 'd3-tip')
+			.offset([-10, 0])
+			.html(function(d) {
+				var flowSize = +d.flow;
+				var nameArray = d.index.split('-');
+				var name = nameArray[nameArray.length - 1];
+			  	return "flowSize:" + d3.format(".3s")(flowSize) + " nodeName:" + name + "</span>";
+			});
 			var nodes = tree_node_list,
 				links = tree.links(nodes);
 			var treeNodeNum = 0;
@@ -136,12 +137,16 @@ var radial = {
 					};
 					ObserverManager.post("mouse-over", [d.id]);
 					dataCenter.set_global_variable('mouse_over_signal_node', clickNode);
-					//tip.show(d);
+					if(dataCenter.global_variable.enable_tooltip){
+						tip.show(d);
+					}
 				})
 				.on("mouseout", function(d) {
 					ObserverManager.post("mouse-out", [d.id]);
 					dataCenter.set_global_variable('mouse_over_signal_node', null);
-					//tip.hide(d);
+					if(dataCenter.global_variable.enable_tooltip){
+						tip.hide(d);
+					}
 				});
 			nodeEnter.attr("fill",function(d,i){
 				if(d.values == null){//radialexpandmarkA.indexOf(d.id) != -1

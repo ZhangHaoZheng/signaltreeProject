@@ -6,6 +6,7 @@
  * @type {Object}
  */
 var sunburst = {
+    name: 'sunburst',
     initialize: function(){
         var self = this;
         self._add_to_listener();
@@ -150,7 +151,7 @@ var sunburst = {
                     _communicate()
                     function _communicate(){
                         ObserverManager.post("mouse-out", [d.id]);
-                        tip.hide(d);
+                        //tip.hide(d);
                     }
                 }
 
