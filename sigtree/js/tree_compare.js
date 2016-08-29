@@ -349,6 +349,7 @@ var treeCompare = function(){
 					ObserverManager.post("mouse-over", [d.id]);
 				var tmpid = d.id.replace(';','');
 				d3.select("#multitree").selectAll("#compare-node-" + tmpid).classed("focus-highlight",true);
+				dataCenter.set_global_variable('mouse_over_signal_node', null);
 				highlight_subtree_root(d.id,mult_tree.tree_id,false);
 			})
 			.on("mouseout", function(d) {
