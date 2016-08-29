@@ -49,6 +49,7 @@ var treeCompare = function(){
 	var dt_root = datasets[0].processor.result.treeRoot;
 	var dt_root2 = datasets[1].processor.result.treeRoot;
 	var mult_tree_smaller = [];
+	dataCenter.set_global_variable('mult_tree_smaller', mult_tree_smaller);
 	var add_node_list = [dt_root2,dt_root];
 	var add_tree_id_list = [datasets[1].id,datasets[0].id];
 	var total_root = sigtree.dataProcessor().mergeTwoListAsTree([], []);

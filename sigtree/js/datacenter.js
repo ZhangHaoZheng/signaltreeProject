@@ -40,7 +40,8 @@ var dataCenter = {
 		'propotion_array':[],
 		'radial_highlight_id_list':[],
 		'mouse_over_signal_tree':null,
-		'mouse_over_signal_node':null
+		'mouse_over_signal_node':null,
+		'mult_tree_smaller':null
 	},
 	initial_global_variable: {
 		'file_array_path': [],
@@ -73,7 +74,8 @@ var dataCenter = {
 		'propotion_array':[],
 		'radial_highlight_id_list':[],
 		'mouse_over_signal_tree':null,
-		'mouse_over_signal_node':null
+		'mouse_over_signal_node':null,
+		'mult_tree_smaller':null
 	},
 	GLOBAL_STATIC: {
 		'radius': 3.5,
