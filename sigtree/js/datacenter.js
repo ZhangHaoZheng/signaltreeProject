@@ -13,36 +13,36 @@ var dataCenter = {
 		'file_array_path': [],
 		'show_arc': true,
 		'hover_show_arc': false,
-		'sort_mode': 'time',
+		'sort_mode': 'time', //delete
 		'click_thisNode_shrink': true,
-		'compare_same_node': false,
-		'radialexpandmarkA': [],
-		'radialexpandmarkB': [],
-		'marknodesdepth': false,
-		'nodesIddepthA': [],
-		'nodesIddepthB': [],
-		'activeA': 4,
-		'activeB': 4,
-		'tree_node_list': [],
-		'selection_object_array': [],
+		'compare_same_node': false, //delete
+		'radialexpandmarkA': [], //delete
+		'radialexpandmarkB': [], //delete
+		'marknodesdepth': false, //delete
+		'nodesIddepthA': [], //delete
+		'nodesIddepthB': [], //delete
+		'activeA': 4, //delete
+		'activeB': 4, //delete
+		'tree_node_list': [],    //delete
+		'selection_object_array': [], //delete
 		'selection_array':[],
 		'current_id': null,
-		'current_nodeid_before':[],
+		'current_nodeid_before':[], //delete
 		'hover_arc_link_num': 0,
 		'sunburst_or_radial': 'radial',
 		'treeview_or_projection':'treeview',
 		'current_bg_color':'black',
 		'current_bg_language':'Chinese',
 		'projection_method': 'original_projection',
-		'similar_id_array':[],
-		'numoftreecompare':0,
+		'similar_id_array':[], //delete
+		'numoftreecompare':0, //delete
 		'time_sort_array':[],
 		'propotion_array':[],
-		'radial_highlight_id_list':[],
+		'radial_highlight_id_list':[], //delete
 		'mouse_over_signal_tree':null,
 		'mouse_over_signal_node':null,
-		'remove_signal_tree_index':[],
-		'current_signal_tree_index_array':[],
+		'remove_signal_tree_index':[], //delete
+		'current_signal_tree_index_array':[], //delete
 		'enable_tooltip': true,
 		'mult_tree_smaller':null
 	},
