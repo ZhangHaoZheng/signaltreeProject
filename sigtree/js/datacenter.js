@@ -43,7 +43,8 @@ var dataCenter = {
 		'mouse_over_signal_node':null,
 		'remove_signal_tree_index':[],
 		'current_signal_tree_index_array':[],
-		'enable_tooltip': true
+		'enable_tooltip': true,
+		'mult_tree_smaller':null
 	},
 	initial_global_variable: {
 		'file_array_path': [],
@@ -79,7 +80,8 @@ var dataCenter = {
 		'mouse_over_signal_node':null,
 		'remove_signal_tree_array':[],
 		'current_signal_tree_index_array':[],
-		'enable_tooltip': true
+		'enable_tooltip': true,
+		'mult_tree_smaller':null
 	},
 	GLOBAL_STATIC: {
 		'radius': 3.5,
