@@ -90,6 +90,7 @@ var treeCompare = function(){
 	$( "#multitree" ).sortable({
 		cancel:".g_for_brush",
 		axis:"y",
+		//拖动结束时调用
 		stop: function() {
 			draw_flow_color();
 			draw_dash_line();
@@ -622,10 +623,9 @@ var treeCompare = function(){
 	}
 	//更新brush的区域
 	function update_brush_g(){
-		console.log("11111111111111111111111111111111")
+		console.log(mult_tree_smaller)
 		if(mult_tree_smaller.length == 0) return;
 		brush_compare.clear();
-   //     d3.select("#multitree").selectAll(".extent").attr("width",1).attr("x",1);
 		var val = d3.select(this).attr("value");
 		var id = d3.select(this).attr("id");
 		var value = parseInt(d3.select("#delete"+val).attr("value"));
@@ -633,6 +633,22 @@ var treeCompare = function(){
 		d3.selectAll(".created_g_for_brush").remove();
 		//添加新的g for brush
 		d3.select("#"+mult_tree_smaller[value].divid+" #"+id+" g").append("g")
+			.attr("class","created_g_for_brush")
+			.attr("stroke","#fff")
+			.attr("fill-opacity",0.125)
+			.call(brush_compare)
+			.selectAll("rect")
+			.attr("y",0)
+			.attr("height",trend_height);
+	}
+	//备用brush——g
+	function use_the_first_div_update_brush_g(){
+		if(mult_tree_smaller.length == 0) return;
+		var value_of_the_top_one = d3.select("#multitree li div div span").attr("value");
+		//删去brush的g
+		d3.selectAll(".created_g_for_brush").remove();
+		//添加新的g for brush
+		d3.select("#"+mult_tree_smaller[value_of_the_top_one].divid).selectAll(".g_for_brush").append("g")
 			.attr("class","created_g_for_brush")
 			.attr("stroke","#fff")
 			.attr("fill-opacity",0.125)
@@ -1468,6 +1484,7 @@ var treeCompare = function(){
 		var tmp_tree = mult_tree_smaller[value];
 		tmp_tree.mark_reversal = (tmp_tree.mark_reversal == false);
 		nodes = tree.nodes(total_root);
+		build_id_nodes(nodes);
 		draw_tree(tmp_tree.mark_reversal,tmp_tree.mark_draw_all,mult_tree_smaller[value],null,value);
 		draw_trend(tmp_tree.mark_reversal,value);
 		draw_dash_line();
